@@ -48,18 +48,19 @@ function Parser:render_matches(handle)
   return handle:flush()
 end
 
-function Parser:to_ast()
-  local node = ast.to_ast(self.subject, self.matches, self.opts)
-  return node
+function Parser:build_ast()
+  self.ast = ast.to_ast(self.subject, self.matches, self.opts)
 end
 
 function Parser:render_ast(handle)
   if not handle then
     handle = StringHandle:new()
   end
-  local node = self:to_ast()
+  if not self.ast then
+    self:build_ast()
+  end
   self:issue_warnings(io.stderr)
-  ast.render(node, handle)
+  ast.render(self.ast, handle)
   return handle:flush()
 end
 
@@ -67,10 +68,12 @@ function Parser:render_html(handle)
   if not handle then
     handle = StringHandle:new()
   end
-  local node = self:to_ast()
+  if not self.ast then
+    self:build_ast()
+  end
   self:issue_warnings(io.stderr)
   local renderer = html.Renderer:new()
-  renderer:render(node, handle)
+  renderer:render(self.ast, handle)
   return handle:flush()
 end
 

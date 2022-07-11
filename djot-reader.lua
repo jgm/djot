@@ -452,6 +452,6 @@ end
 function Reader(input)
   local parser = djot.Parser:new(tostring(input))
   parser:parse()
-  local ast = parser:to_ast()
-  return Renderer:render(ast)
+  parser:build_ast()
+  return Renderer:render(parser.ast)
 end
