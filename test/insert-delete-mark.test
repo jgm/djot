@@ -1,0 +1,29 @@
+```
+This is {-deleted
+_text_-}. The braces are -required-.
+And they must be in the -}right order{-.
+.
+<p>This is <del>deleted
+<em>text</em></del>. The braces are -required-.
+And they must be in the -}right order{-.</p>
+```
+
+```
+{+ Inserted text +}
+.
+<p><ins> Inserted text </ins></p>
+```
+
+Interaction with smart:
+
+```
+{--hello--}
+.
+<p><del>-hello-</del></p>
+```
+
+```
+This is {=marked *text*=}.
+.
+<p>This is <mark>marked <strong>text</strong></mark>.</p>
+```

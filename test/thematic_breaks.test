@@ -1,0 +1,45 @@
+```
+hello
+
+- - -
+
+there
+.
+<p>hello</p>
+<hr>
+<p>there</p>
+```
+
+```
+hello
+
+   **   **
+
+there
+.
+<p>hello</p>
+<hr>
+<p>there</p>
+```
+
+```
+hello
+
+   *-*-*-*
+
+there
+.
+<p>hello</p>
+<hr>
+<p>there</p>
+```
+
+```
+hello
+   *-*-*-*
+there
+.
+<p>hello
+<strong>-</strong>-<strong>-</strong>
+there</p>
+```

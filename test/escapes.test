@@ -1,0 +1,33 @@
+ASCII punctuation characters can be escaped:
+
+```
+\`\*\_\[\#
+.
+<p>`*_[#</p>
+```
+
+Non-ASCII pnuctuation characters can't be:
+
+```
+\a\«
+.
+<p>\a\«</p>
+```
+
+An escaped newline is a hard break:
+
+```
+ab\
+c
+.
+<p>ab<br>
+c</p>
+```
+
+An escaped space is a nonbreaking space:
+
+```
+a\ b
+.
+<p>a&nbsp;b</p>
+```

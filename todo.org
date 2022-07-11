@@ -1,0 +1,51 @@
+* TODO think about whether code blocks should interrupt paragraphs
+If they do, there's room for ambiguity with code spans.
+* TODO vim syntax highlighting
+- [X] Smart punctuation (make sure we get {' '} {" "})
+- [X] Math
+- [X] Footnote reference
+- [X] Line break
+- [X] Comment
+- [X] Emoji
+- [X] Span
+- [ ] Paragraph (need this to avoid capturing block elements mid-para?)
+- [ ] Block quote
+- [ ] List item
+- [ ] Thematic break
+- [ ] Div
+- [ ] Pipe table
+- [ ] Reference link definition
+- [ ] Footnote
+* TODO emacs syntax highlighting
+* TODO create filter API
+as in lcmark
+* TODO build --highlight mode into djot cli
+* TODO API documentation
+* TODO support list tables
+for more complex block content
+#+begin_example
+::: table aligns="lc" widths="25 50"
+- * one
+  * two
+- -----
+- * three
+  * ^
+- * five
+
+    multi-paragraph
+  * ~
+
+Any content below the list is the caption.
+~ means: merge with the cell above.
+^ means; merge with cell to left.
+:::
+#+end_example
+* TODO support line block
+ === Line block
+
+| address
+| here
+* TODO support wikilinks
+* TODO support example lists
+* TODO support implicit figures?
+* TODO support citations

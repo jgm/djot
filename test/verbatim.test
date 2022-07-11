@@ -1,0 +1,47 @@
+```
+Some `code`
+.
+<p>Some <code>code</code></p>
+```
+
+```
+Some `code
+with a line break`
+.
+<p>Some <code>code
+with a line break</code></p>
+```
+
+```
+Special characters: `*hi*`
+.
+<p>Special characters: <code>*hi*</code></p>
+```
+
+```
+*foo`*`
+.
+<p>*foo<code>*</code></p>
+```
+
+```
+`````a`a``a```a````a``````a`````
+.
+<p><code>a`a``a```a````a``````a</code></p>
+```
+
+```
+` ``a`` `
+.
+<p><code>``a``</code></p>
+```
+
+Implicitly closed by end of paragraph:
+
+```
+` a
+c
+.
+<p><code> a
+c</code></p>
+```

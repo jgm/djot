@@ -1,0 +1,93 @@
+Definition lists are just like ordinary bullet lists, but with
+`:` as the marker instead of `-`, `+`, or `*`.  The first
+paragraph of the list item is interpreted as the term, and
+the rest as the definition.
+
+```
+: apple
+
+  red fruit
+: banana
+
+  yellow fruit
+.
+<dl>
+<dt>apple</dt>
+<dd>
+<p>red fruit</p>
+</dd>
+<dt>banana</dt>
+<dd>
+<p>yellow fruit</p>
+</dd>
+</dl>
+```
+
+Loose:
+
+```
+: apple
+
+  red fruit
+
+: banana
+
+  yellow fruit
+.
+<dl>
+<dt>apple</dt>
+<dd>
+<p>red fruit</p>
+</dd>
+<dt>banana</dt>
+<dd>
+<p>yellow fruit</p>
+</dd>
+</dl>
+```
+
+```
+: apple
+ fruit
+
+  Paragraph one
+
+  Paragraph two
+
+  - sub
+  - list
+
+: orange
+.
+<dl>
+<dt>apple
+fruit</dt>
+<dd>
+<p>Paragraph one</p>
+<p>Paragraph two</p>
+<ul>
+<li>
+sub
+</li>
+<li>
+list
+</li>
+</ul>
+</dd>
+<dt>orange</dt>
+</dl>
+```
+
+````
+: ```
+  ok
+  ```
+.
+<dl>
+<dt></dt>
+<dd>
+<pre><code>ok
+</code></pre>
+</dd>
+</dl>
+````

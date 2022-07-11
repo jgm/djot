@@ -1,0 +1,44 @@
+Math goes in verbatim spans prefixed with either `$` (for
+inline math) or `$$` (for display math).
+
+```
+$`e=mc^2`
+.
+<p><span class="math inline">\(e=mc^2\)</span></p>
+```
+
+```
+My equation: $`e=mc^2`
+.
+<p>My equation: <span class="math inline">\(e=mc^2\)</span></p>
+```
+
+```
+$$`e=mc^2`
+.
+<p><span class="math display">\[e=mc^2\]</span></p>
+```
+
+```
+My equation: $$`e=mc^2`
+.
+<p>My equation: <span class="math display">\[e=mc^2\]</span></p>
+```
+
+Newlines are allowed, just as in verbatim:
+
+```
+$`e=
+mc^2`
+.
+<p><span class="math inline">\(e=
+mc^2\)</span></p>
+```
+
+`$` characters are allowed inside:
+
+```
+$`e=\text{the number $\pi$}`
+.
+<p><span class="math inline">\(e=\text{the number $\pi$}\)</span></p>
+```

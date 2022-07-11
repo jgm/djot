@@ -1,0 +1,1690 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang xml:lang>
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Djot syntax reference</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <style type="text/css">html {
+line-height: 1.4;
+font-family: Georgia, serif;
+font-size: 18px;
+color: #1a1a1a;
+background-color: #fdfdfd;
+}
+body {
+display: flex;
+margin: 0 auto;
+padding-left: 50px;
+padding-right: 50px;
+padding-top: 50px;
+padding-bottom: 50px;
+hyphens: auto;
+overflow-wrap: break-word;
+text-rendering: optimizeLegibility;
+font-kerning: normal;
+}
+@media (max-width: 600px) {
+body {
+font-size: 0.9em;
+padding: 1em;
+}
+h1 {
+font-size: 1.8em;
+}
+}
+@media print {
+body {
+background-color: transparent;
+color: black;
+font-size: 12pt;
+}
+p, h2, h3 {
+orphans: 3;
+widows: 3;
+}
+h2, h3, h4 {
+page-break-after: avoid;
+}
+}
+p {
+margin: 1em 0;
+}
+a {
+color: #1a1a1a;
+}
+a:visited {
+color: #1a1a1a;
+}
+img {
+max-width: 100%;
+}
+h1, h2, h3, h4, h5, h6 {
+margin-top: 1.4em;
+}
+h1 {
+margin-top: 0.4em;
+}
+h5, h6 {
+font-size: 1em;
+font-style: italic;
+}
+h6 {
+font-weight: normal;
+}
+h1 {
+font-size: 28px;
+}
+h2 {
+font-size: 24px;
+}
+h3 {
+font-size: 20px;
+}
+ol, ul {
+padding-left: 1.7em;
+margin-top: 1em;
+}
+li > ol, li > ul {
+margin-top: 0;
+}
+blockquote {
+margin: 1em 0 1em 1.7em;
+padding-left: 1em;
+border-left: 2px solid #e6e6e6;
+color: #606060;
+}
+code {
+font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+font-size: 85%;
+margin: 0;
+}
+pre {
+margin: 1em 0;
+overflow: auto;
+}
+pre code {
+padding: 0;
+overflow: visible;
+overflow-wrap: normal;
+}
+.sourceCode {
+background-color: transparent;
+overflow: visible;
+}
+hr {
+background-color: #1a1a1a;
+border: none;
+height: 1px;
+margin: 1em 0;
+}
+table {
+margin: 1em 0;
+border-collapse: collapse;
+width: 100%;
+overflow-x: auto;
+display: block;
+font-variant-numeric: lining-nums tabular-nums;
+}
+table caption {
+margin-bottom: 0.75em;
+}
+tbody {
+margin-top: 0.5em;
+border-top: 1px solid #1a1a1a;
+border-bottom: 1px solid #1a1a1a;
+}
+tr {
+vertical-align: top;
+}
+th {
+border-top: 1px solid #1a1a1a;
+padding: 0.25em 0.5em 0.25em 0.5em;
+}
+td {
+padding: 0.125em 0.5em 0.25em 0.5em;
+}
+header {
+margin-bottom: 4em;
+text-align: center;
+}
+section.level1 {
+max-width: 44em;
+position: relative; 
+order: 1;
+max-width: 48em;
+min-width: 300px;
+padding-bottom: 60em; 
+}
+#TOC {
+order: 2;
+position: sticky;
+top: 2rem;
+max-width: 20em;
+min-width: 12em;
+align-self: baseline;
+background: transparent;
+}
+#TOC > ul {
+margin-top: 1em;
+margin-left: 2em;
+height: 96vh;
+overflow-y: scroll;
+font-size: 14px;
+}
+#TOC li {
+list-style: none;
+}
+#TOC ul {
+padding-left: 1em;
+}
+#TOC > ul {
+padding-left: 0;
+}
+#TOC a:not(:hover) {
+text-decoration: none;
+}
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+.example {
+display: flex;
+border: 1px solid grey;
+border-radius: 5px;
+}
+@media (max-width: 860px) {
+.example {
+flex-direction: column;
+}
+}
+.example pre, .example div {
+padding: 0pt 12pt 0pt 12pt;
+}
+.example .html {
+padding: 0;
+flex: 1;
+flex-wrap: wrap;
+}
+.example .djot {
+padding: 0;
+flex: 1;
+flex-wrap: wrap;
+background-color: #ddd;
+}
+.example code {
+font-size: 78%;
+}
+</style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#djot-syntax-reference" id="toc-djot-syntax-reference">Djot syntax reference</a>
+<ul>
+<li><a href="#inline-syntax" id="toc-inline-syntax">Inline syntax</a>
+<ul>
+<li><a href="#precedence" id="toc-precedence">Precedence</a></li>
+<li><a href="#ordinary-text" id="toc-ordinary-text">Ordinary text</a></li>
+<li><a href="#link" id="toc-link">Link</a></li>
+<li><a href="#image" id="toc-image">Image</a></li>
+<li><a href="#autolink" id="toc-autolink">Autolink</a></li>
+<li><a href="#verbatim" id="toc-verbatim">Verbatim</a></li>
+<li><a href="#emphasisstrong" id="toc-emphasisstrong">Emphasis/strong</a></li>
+<li><a href="#highlighted" id="toc-highlighted">Highlighted</a></li>
+<li><a href="#supersubscript" id="toc-supersubscript">Super/subscript</a></li>
+<li><a href="#insertdelete" id="toc-insertdelete">Insert/delete</a></li>
+<li><a href="#smart-punctuation" id="toc-smart-punctuation">Smart punctuation</a></li>
+<li><a href="#math" id="toc-math">Math</a></li>
+<li><a href="#footnote-reference" id="toc-footnote-reference">Footnote reference</a></li>
+<li><a href="#line-break" id="toc-line-break">Line break</a></li>
+<li><a href="#comment" id="toc-comment">Comment</a></li>
+<li><a href="#emoji" id="toc-emoji">Emoji</a></li>
+<li><a href="#raw-inline" id="toc-raw-inline">Raw inline</a></li>
+<li><a href="#span" id="toc-span">Span</a></li>
+<li><a href="#inline-attributes" id="toc-inline-attributes">Inline attributes</a></li>
+</ul></li>
+<li><a href="#block-syntax" id="toc-block-syntax">Block syntax</a>
+<ul>
+<li><a href="#paragraph" id="toc-paragraph">Paragraph</a></li>
+<li><a href="#heading" id="toc-heading">Heading</a></li>
+<li><a href="#block-quote" id="toc-block-quote">Block quote</a></li>
+<li><a href="#list-item" id="toc-list-item">List item</a></li>
+<li><a href="#list" id="toc-list">List</a></li>
+<li><a href="#code-block" id="toc-code-block">Code block</a></li>
+<li><a href="#thematic-break" id="toc-thematic-break">Thematic break</a></li>
+<li><a href="#raw-block" id="toc-raw-block">Raw block</a></li>
+<li><a href="#div" id="toc-div">Div</a></li>
+<li><a href="#pipe-table" id="toc-pipe-table">Pipe table</a></li>
+<li><a href="#reference-link-definition" id="toc-reference-link-definition">Reference link definition</a></li>
+<li><a href="#footnote" id="toc-footnote">Footnote</a></li>
+<li><a href="#block-attributes" id="toc-block-attributes">Block attributes</a></li>
+<li><a href="#links-to-headings" id="toc-links-to-headings">Links to headings</a></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
+<section id="djot-syntax-reference" class="level1">
+<h1>Djot syntax reference</h1>
+<section id="inline-syntax" class="level2">
+<h2>Inline syntax</h2>
+<section id="precedence" class="level3">
+<h3>Precedence</h3>
+<p>Most inline syntax is defined by opening and closing delimiters that
+surround inline content, defining it as emphasized, or as link text, for
+example. The basic principle governing “precedence” for inline
+containers is that the first opener that gets closed takes precedence.
+Containers can’t overlap, so once an opener gets closed, any potential
+openers between the opener and the closer get marked as regular text and
+can no longer open inline syntax. For example, in</p>
+<div class="example">
+<div class="djot">
+<pre><code>_This is *regular_ not strong* emphasis</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;p&gt;&lt;em&gt;This is *regular&lt;/em&gt; not strong* emphasis&lt;/p&gt;
+</code></pre>
+</div>
+</div>
+<p>the regular emphasis opened by the first <code>_</code> gets closed by the second
+<code>_</code>, at which point the first <code>*</code> is no longer eligible to open strong
+emphasis. But in</p>
+<div class="example">
+<div class="djot">
+<pre><code>*This is _strong* not regular_ emphasis</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;p&gt;&lt;strong&gt;This is _strong&lt;/strong&gt; not regular_ emphasis&lt;/p&gt;
+</code></pre>
+</div>
+</div>
+<p>it goes just the opposite way.</p>
+<p>Similarly,</p>
+<div class="example">
+<div class="djot">
+<pre><code>[Link *](url)*</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;p&gt;&lt;a href=&quot;url&quot;&gt;Link *&lt;/a&gt;*&lt;/p&gt;
+</code></pre>
+</div>
+</div>
+<p>contains a link, while</p>
+<div class="example">
+<div class="djot">
+<pre><code>*Emphasis [*](url)</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;p&gt;&lt;strong&gt;Emphasis [&lt;/strong&gt;](url)&lt;/p&gt;
+</code></pre>
+</div>
+</div>
+<p>does not (because the strong emphasis closes over the <code>[</code> delimiter).</p>
+<p>Although overlapping containers are ruled out, <em>nested</em> containers are
+fine:</p>
+<div class="example">
+<div class="djot">
+<pre><code>_This is *strong within* regular emphasis_</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;p&gt;&lt;em&gt;This is &lt;strong&gt;strong within&lt;/strong&gt; regular emphasis&lt;/em&gt;&lt;/p&gt;
+</code></pre>
+</div>
+</div>
+<p>In cases of ambiguity, <code>{</code> and <code>}</code> may be used to mark delimiters as
+openers or closers. Thus <code>{_</code> behaves like <code>_</code> but can <em>only</em> open
+emphasis, while <code>_}</code> behaves like <code>_</code> but can <em>only</em> close emphasis:</p>
+<div class="example">
+<div class="djot">
+<pre><code>{_Emphasized_}
+_}not emphasized{_</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;p&gt;&lt;em&gt;Emphasized&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;_}not emphasized{_&lt;/p&gt;
+</code></pre>
+</div>
+</div>
+</section>
+<section id="ordinary-text" class="level3">
+<h3>Ordinary text</h3>
+<p>Anything that isn’t given a special meaning is parsed as literal text.</p>
+<p>All ASCII punctuation characters (even those that have no special
+meaning in djot) may be backslash-escaped. Thus, <code>\\*</code> includes a
+literal <code>*</code> character. Backslashes before characters other than ASCII
+punctuation characters are just treated as literal backslashes, with the
+following exceptions:</p>
+<ul>
+<li>Backslash before a space is parsed as a nonbreaking space.</li>
+<li>Backslash before a newline is parsed as a hard line break.</li>
+</ul>
+</section>
+<section id="link" class="level3">
+<h3>Link</h3>
+<p>There are two kinds of links, <em>inline</em> links and <em>reference</em> links.</p>
+<p>Both kinds start with the link text (which may contain arbitrary inline
+formatting) inside <code>[</code> … <code>]</code> delimiters.</p>
+<p><em>Inline links</em> then contain the link destination (URL) in parentheses.
+There should be no space between the <code>]</code> at the end of the link text and
+the open <code>(</code> defining the link destination.</p>
+<div class="example">
+<div class="djot">
+<pre><code>[My link text](http://example.com)</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;p&gt;&lt;a href=&quot;http://example.com&quot;&gt;My link text&lt;/a&gt;&lt;/p&gt;
+</code></pre>
+</div>
+</div>
+<p>The URL may be split over multiple lines; in that case, the line breaks
+and any leading and trailing space is ignored, and the lines are
+concatenated together.</p>
+<div class="example">
+<div class="djot">
+<pre><code>[My link text](http://example.com?product_number=234234234234
+234234234234)</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;p&gt;&lt;a href=&quot;http://example.com?product_number=234234234234234234234234&quot;&gt;My link text&lt;/a&gt;&lt;/p&gt;
+</code></pre>
+</div>
+</div>
+<p><em>Reference links</em> use a reference label in square brackets, instead of a
+destination in parentheses. This must come immediately after the link
+text:</p>
+<div class="example">
+<div class="djot">
+<pre><code>[My link text][foo bar]
+
+[foo bar]: http://example.com</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;p&gt;&lt;a href=&quot;http://example.com&quot;&gt;My link text&lt;/a&gt;&lt;/p&gt;
+</code></pre>
+</div>
+</div>
+<p>The reference label should be defined somewhere in the document: see
+<a href="#reference-link-definition">Reference link definition</a>, below. However, the parsing of the
+link is “local” and does not depend on whether the label is
+defined:</p>
+<div class="example">
+<div class="djot">
+<pre><code>[foo][bar]</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;p&gt;&lt;a&gt;foo&lt;/a&gt;&lt;/p&gt;
+</code></pre>
+</div>
+</div>
+<p>If the label is empty, then the link text will be taken to be the
+reference label as well as the link text:</p>
+<div class="example">
+<div class="djot">
+<pre><code>[My link text][]
+
+[My link text]: /url</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;p&gt;&lt;a href=&quot;/url&quot;&gt;My link text&lt;/a&gt;&lt;/p&gt;
+</code></pre>
+</div>
+</div>
+</section>
+<section id="image" class="level3">
+<h3>Image</h3>
+<p>Images work just like links, but have a <code>!</code> prefixed. As with links,
+both inline and reference variants are possible.</p>
+<div class="example">
+<div class="djot">
+<pre><code>![picture of a cat](cat.jpg)
+
+![picture of a cat][cat]
+
+![cat][]
+
+[cat]: feline.jpg</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;p&gt;&lt;img alt=&quot;picture of a cat&quot; src=&quot;cat.jpg&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&quot;picture of a cat&quot; src=&quot;feline.jpg&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&quot;cat&quot; src=&quot;feline.jpg&quot;&gt;&lt;/p&gt;
+</code></pre>
+</div>
+</div>
+</section>
+<section id="autolink" class="level3">
+<h3>Autolink</h3>
+<p>A URL or email address that is enclosed in <code>&lt;</code>…<code>&gt;</code> will be hyperlinked.
+The content between pointy braces is treated literally
+(backslash-escapes may not be used).</p>
+<div class="example">
+<div class="djot">
+<pre><code>&lt;https://pandoc.org/lua-filters&gt;
+&lt;me@example.com&gt;</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;p&gt;&lt;a href=&quot;https://pandoc.org/lua-filters&quot;&gt;https://pandoc.org/lua-filters&lt;/a&gt;
+&lt;a href=&quot;mailto:me@example.com&quot;&gt;me@example.com&lt;/a&gt;&lt;/p&gt;
+</code></pre>
+</div>
+</div>
+<p>The URL or email address may not contain a newline.</p>
+</section>
+<section id="verbatim" class="level3">
+<h3>Verbatim</h3>
+<p>Verbatim content begins with a string of consecutive backtick characters
+(<code>`</code>) and ends with an equal-lengthed string of consecutive backtick
+characters.</p>
+<div class="example">
+<div class="djot">
+<pre><code>``Verbatim with a backtick` character``
+`Verbatim with three backticks ``` character`</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;p&gt;&lt;code&gt;Verbatim with a backtick` character&lt;/code&gt;
+&lt;code&gt;Verbatim with three backticks ``` character&lt;/code&gt;&lt;/p&gt;
+</code></pre>
+</div>
+</div>
+<p>Material between the backticks is treated as verbatim text (backslash
+escapes don’t work there).</p>
+<p>If the content starts or ends with a backtick character, a single space
+is removed between the opening or closing backticks and the content.</p>
+<div class="example">
+<div class="djot">
+<pre><code>`` `foo` ``</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;p&gt;&lt;code&gt;`foo`&lt;/code&gt;&lt;/p&gt;
+</code></pre>
+</div>
+</div>
+<p>If the text to be parsed as inline ends before a closing backtick string
+is encountered, the verbatim text extends to the end.</p>
+<div class="example">
+<div class="djot">
+<pre><code>`foo bar</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;p&gt;&lt;code&gt;foo bar&lt;/code&gt;&lt;/p&gt;
+</code></pre>
+</div>
+</div>
+</section>
+<section id="emphasisstrong" class="level3">
+<h3>Emphasis/strong</h3>
+<p>Emphasized inline content is delimited by <code>_</code> characters. Strong
+emphasis is delimited by <code>*</code> characters.</p>
+<div class="example">
+<div class="djot">
+<pre><code>_emphasized text_
+
+*strong emphasis*</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;p&gt;&lt;em&gt;emphasized text&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;strong emphasis&lt;/strong&gt;&lt;/p&gt;
+</code></pre>
+</div>
+</div>
+<p>A <code>_</code> or <code>*</code> can open emphasis only if it is not directly followed by
+whitespace. It can close emphasis only if it is not directly preceded by
+whitespace, and only if there are some characters besides the delimiter
+character between the opener and the closer.</p>
+<div class="example">
+<div class="djot">
+<pre><code>_ Not emphasized (spaces). _
+
+___ (not an emphasized `_` character)</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;p&gt;_ Not emphasized (spaces). _&lt;/p&gt;
+&lt;p&gt;___ (not an emphasized &lt;code&gt;_&lt;/code&gt; character)&lt;/p&gt;
+</code></pre>
+</div>
+</div>
+<p>Emphasis can be nested:</p>
+<div class="example">
+<div class="djot">
+<pre><code>__emphasis inside_ emphasis_</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;p&gt;&lt;em&gt;&lt;em&gt;emphasis inside&lt;/em&gt; emphasis&lt;/em&gt;&lt;/p&gt;
+</code></pre>
+</div>
+</div>
+<p>Curly braces may be used to force interpretation of a <code>_</code> or <code>*</code> either
+as an opener or as a closer.</p>
+<div class="example">
+<div class="djot">
+<pre><code>{_ this is emphasized, despite the spaces! _}</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;p&gt;&lt;em&gt; this is emphasized, despite the spaces! &lt;/em&gt;&lt;/p&gt;
+</code></pre>
+</div>
+</div>
+</section>
+<section id="highlighted" class="level3">
+<h3>Highlighted</h3>
+<p>Inline content between <code>{=</code> and <code>=}</code> will be treated as highlighted text
+(in HTML, <code>&lt;mark&gt;</code>). Note that the <code>{</code> and <code>}</code> are mandatory.</p>
+<div class="example">
+<div class="djot">
+<pre><code>This is {=highlighted text=}.</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;p&gt;This is &lt;mark&gt;highlighted text&lt;/mark&gt;.&lt;/p&gt;
+</code></pre>
+</div>
+</div>
+</section>
+<section id="supersubscript" class="level3">
+<h3>Super/subscript</h3>
+<p>Superscript is delimited by <code>^</code> characters, subscript by <code>~</code>.</p>
+<div class="example">
+<div class="djot">
+<pre><code>H~2~O and djot^TM^</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;p&gt;H&lt;sub&gt;2&lt;/sub&gt;O and djot&lt;sup&gt;TM&lt;/sup&gt;&lt;/p&gt;
+</code></pre>
+</div>
+</div>
+<p>Curly braces may be used, but are not required:</p>
+<div class="example">
+<div class="djot">
+<pre><code>H{~one two buckle my shoe~}O</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;p&gt;H&lt;sub&gt;one two buckle my shoe&lt;/sub&gt;O&lt;/p&gt;
+</code></pre>
+</div>
+</div>
+</section>
+<section id="insertdelete" class="level3">
+<h3>Insert/delete</h3>
+<p>To mark inline text as inserted, use <code>{+</code> and <code>+}</code>. To mark it as
+deleted, use <code>{-</code> and <code>-}</code>. The <code>{</code> and <code>}</code> are mandatory.</p>
+<div class="example">
+<div class="djot">
+<pre><code>My boss is {-mean-}{+nice+}.</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;p&gt;My boss is &lt;del&gt;mean&lt;/del&gt;&lt;ins&gt;nice&lt;/ins&gt;.&lt;/p&gt;
+</code></pre>
+</div>
+</div>
+</section>
+<section id="smart-punctuation" class="level3">
+<h3>Smart punctuation</h3>
+<p>Straight double quotes (<code>&quot;</code>) and single quotes (<code>&#39;</code>) are parsed as curly
+quotes. Djot is pretty good about figuring out from context which
+direction of quote is needed.</p>
+<div class="example">
+<div class="djot">
+<pre><code>&quot;Hello,&quot; said the spider.
+&quot;&#39;Shelob&#39; is my name.&quot;</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;p&gt;&amp;ldquo;Hello,&amp;rdquo; said the spider.
+&amp;ldquo;&amp;lsquo;Shelob&amp;rsquo; is my name.&amp;rdquo;&lt;/p&gt;
+</code></pre>
+</div>
+</div>
+<p>However, its heuristics can be overridden by
+using curly braces to mark a quote as an opener <code>{&quot;</code> or a closer <code>&quot;}</code>:</p>
+<div class="example">
+<div class="djot">
+<pre><code>&#39;}Tis Socrates&#39; season to be jolly!</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;p&gt;&amp;rsquo;Tis Socrates&amp;rsquo; season to be jolly!&lt;/p&gt;
+</code></pre>
+</div>
+</div>
+<p>If you want a straight quote, use a backslash-escape:</p>
+<div class="example">
+<div class="djot">
+<pre><code>5\&#39;11\&quot;</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;p&gt;5&#39;11&quot;&lt;/p&gt;
+</code></pre>
+</div>
+</div>
+<p>A sequence of three periods is parsed as <em>ellipses</em>.</p>
+<p>A sequence of three hyphens is parsed as an <em>em-dash</em>.</p>
+<p>A sequence of two hyphens is parsed as an <em>en-dash</em>.</p>
+<div class="example">
+<div class="djot">
+<pre><code>57--33 oxen---and no sheep...</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;p&gt;57&amp;ndash;33 oxen&amp;mdash;and no sheep&amp;hellip;&lt;/p&gt;
+</code></pre>
+</div>
+</div>
+<p>Longer sequences of hyphens are divided into em-dashes, en-dashes, and
+hyphens; uniformly, if possible, and preferring em-dashes, when
+uniformity can be achieved either way. (So, 4 hyphens become two
+en-dashes, while 6 hyphens become two em-dashes).</p>
+<div class="example">
+<div class="djot">
+<pre><code>a----b c------d</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;p&gt;a&amp;ndash;&amp;ndash;b c&amp;mdash;&amp;mdash;d&lt;/p&gt;
+</code></pre>
+</div>
+</div>
+</section>
+<section id="math" class="level3">
+<h3>Math</h3>
+<p>To include LaTeX math, put the math in a verbatim span and prefix it
+with <code>$</code> (for inline math) or <code>$$</code> (for display math):</p>
+<div class="example">
+<div class="djot">
+<pre><code>Einstein derived $`e=mc^2`.
+Pythagoras proved
+$$` x^n + y^n = z^z `</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;p&gt;Einstein derived &lt;span class=&quot;math inline&quot;&gt;\(e=mc^2\)&lt;/span&gt;.
+Pythagoras proved
+&lt;span class=&quot;math display&quot;&gt;\[ x^n + y^n = z^z \]&lt;/span&gt;&lt;/p&gt;
+</code></pre>
+</div>
+</div>
+</section>
+<section id="footnote-reference" class="level3">
+<h3>Footnote reference</h3>
+<p>A footnote reference is <code>^</code> + the reference label in square brackets.</p>
+<div class="example">
+<div class="djot">
+<pre><code>Here is the reference.[^foo]
+
+[^foo]: And here is the note.</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;p&gt;Here is the reference.&lt;a href=&quot;#fn1&quot; role=&quot;doc-noteref&quot;&gt;&lt;sup&gt;1&lt;/sup&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;section role=&quot;doc-endnotes&quot;&gt;
+&lt;hr&gt;
+&lt;ol&gt;
+&lt;li id=&quot;fn1&quot;&gt;
+&lt;p&gt;And here is the note.&lt;a href=&quot;#fnref1&quot; role=&quot;doc-backlink&quot;&gt;↩︎︎&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/section&gt;
+</code></pre>
+</div>
+</div>
+<p>See <a href="#footnote">Footnote</a>, below, for the syntax of the footnote itself.</p>
+</section>
+<section id="line-break" class="level3">
+<h3>Line break</h3>
+<p>Line breaks in inline content are treated as “soft” breaks; they may be
+rendered as spaces, or (in contexts where newlines are treated
+semantically like spaces, such as HTML) as as newlines.</p>
+<p>To get a hard line break (of the sort represented by HTML’s <code>&lt;br&gt;</code>), use
+backslash + newline:</p>
+<div class="example">
+<div class="djot">
+<pre><code>This is a soft
+break and this is a hard\
+break.</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;p&gt;This is a soft
+break and this is a hard&lt;br&gt;
+break.&lt;/p&gt;
+</code></pre>
+</div>
+</div>
+</section>
+<section id="comment" class="level3">
+<h3>Comment</h3>
+<p>Material between two <code>%</code> characters in an attribute will be ignored and
+treated as a comment. This allows comments to be added to attributes:</p>
+<div class="example">
+<div class="djot">
+<pre><code>{#ident % later we&#39;ll add a class %}</code></pre>
+</div>
+<div class="html">
+<pre><code></code></pre>
+</div>
+</div>
+<p>But it also serves as a general way to add comments. Just use an
+attribute specifier that contains only a comment:</p>
+<div class="example">
+<div class="djot">
+<pre><code>Foo bar {% This is a comment, spanning
+multiple lines %} baz.</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;p&gt;Foo bar  baz.&lt;/p&gt;
+</code></pre>
+</div>
+</div>
+</section>
+<section id="emoji" class="level3">
+<h3>Emoji</h3>
+<p>Emojis may be included by surrounding their aliases with <code>:</code> signs:</p>
+<div class="example">
+<div class="djot">
+<pre><code>My reaction is :+1: :smiley:.</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;p&gt;My reaction is 👍 😃.&lt;/p&gt;
+</code></pre>
+</div>
+</div>
+</section>
+<section id="raw-inline" class="level3">
+<h3>Raw inline</h3>
+<p>Raw inline content in any format may be included using a verbatim span
+followed by <code>{=FORMAT}</code>:</p>
+<div class="example">
+<div class="djot">
+<pre><code>This is `&lt;?php echo &#39;Hello world!&#39; ?&gt;`{=html}.</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;p&gt;This is &lt;?php echo &#39;Hello world!&#39; ?&gt;.&lt;/p&gt;
+</code></pre>
+</div>
+</div>
+<p>This content is intended to be passed through verbatim when rendering
+the designated format, but ignored otherwise.</p>
+</section>
+<section id="span" class="level3">
+<h3>Span</h3>
+<p>Text in square brackets that is not a link or image and is followed
+immediately by an attribute is treated as a generic span.</p>
+<div class="example">
+<div class="djot">
+<pre><code>It can be helpful to [read the manual]{.big .red}.</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;p&gt;It can be helpful to &lt;span class=&quot;big red&quot;&gt;read the manual&lt;/span&gt;.&lt;/p&gt;
+</code></pre>
+</div>
+</div>
+</section>
+<section id="inline-attributes" class="level3">
+<h3>Inline attributes</h3>
+<p>Attributes are put inside curly braces and must <em>immediately follow</em> the
+inline element to which they are attached (with no intervening
+whitespace).</p>
+<p>Inside the curly braces, the following syntax is possible:</p>
+<ul>
+<li><code>.foo</code> specifies <code>foo</code> as a class. Multiple classes may be given in
+this way; they will be combined.</li>
+<li><code>#foo</code> specifies <code>foo</code> as an identifier. An element may have only one
+identifier; if multiple identifiers are given, the last one is used.</li>
+<li><code>key=&quot;value&quot;</code> or <code>key=value</code> specifies a key-value attribute. Quotes
+are not needed when the value consists entirely of ASCII alphanumeric
+characters or <code>_</code> or <code>:</code> or <code>-</code>. Backslash escapes may be used inside
+quoted values.</li>
+<li><code>%</code> begins a comment, which ends with the next <code>%</code> or the end of the
+attribute (<code>}</code>).</li>
+</ul>
+<p>Attribute specifiers may contain line breaks.</p>
+<p>Example:</p>
+<div class="example">
+<div class="djot">
+<pre><code>An attribute on _emphasized text_{#foo
+.bar .baz key=&quot;my value&quot;}</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;p&gt;An attribute on &lt;em id=&quot;foo&quot; class=&quot;bar baz&quot; key=&quot;my value&quot;&gt;emphasized text&lt;/em&gt;&lt;/p&gt;
+</code></pre>
+</div>
+</div>
+<p>Attribute specifiers may be “stacked,” in which case they will be
+combined. Thus,</p>
+<div class="example">
+<div class="djot">
+<pre><code>avant{lang=fr}{.blue}</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;p&gt;&lt;span lang=&quot;fr&quot; class=&quot;blue&quot;&gt;avant&lt;/span&gt;&lt;/p&gt;
+</code></pre>
+</div>
+</div>
+<p>is the same as</p>
+<div class="example">
+<div class="djot">
+<pre><code>avant{lang=fr .blue}</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;p&gt;&lt;span lang=&quot;fr&quot; class=&quot;blue&quot;&gt;avant&lt;/span&gt;&lt;/p&gt;
+</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="block-syntax" class="level2">
+<h2>Block syntax</h2>
+<p>As in commonmark, block structure can be discerned prior to inline
+parsing and takes priority over inline structure.</p>
+<p>Indeed, blocks can be parsed line by line with no backtracking. The
+contribution a line makes to block-level structure never depends on a
+future line.</p>
+<p>Indentation is only significant for list item or footnote nesting.</p>
+<p>Block-level items should be separated from one another by blank lines.
+There are some cases in which two block-level elements can be
+adjacent—e.g., a thematic break or fenced code block can be directly
+followed by a paragraph. Indeed, the possibility of line-by-line parsing
+precludes requiring a blank line after a block-level element. But for
+readability, we recommend <em>always</em> separating block-level elements by
+blank lines. Paragraphs can never be interrupted by other block-level
+elements, and must always end with a blank line (or the end of the
+document or containing element).</p>
+<section id="paragraph" class="level3">
+<h3>Paragraph</h3>
+<p>A paragraph is a sequence of nonblank lines that does not meet the
+condition for being one of the other block-level elements. The textual
+content is parsed as a sequence of inline elements. Newlines are treated
+as soft breaks and interpreted like spaces in formatted output. A
+paragraph ends with a blank line or the end of the document.</p>
+</section>
+<section id="heading" class="level3">
+<h3>Heading</h3>
+<p>A heading starts with a sequence of one or more <code>#</code> characters,
+followed by whitespace. The number of <code>#</code> characters defines
+the heading level. The following text is parsed as inline content.</p>
+<div class="example">
+<div class="djot">
+<pre><code>## A level _two_ heading!</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;h2 id=&quot;A-level-two-heading&quot;&gt;A level &lt;em&gt;two&lt;/em&gt; heading!&lt;/h2&gt;
+</code></pre>
+</div>
+</div>
+<p>The heading text may spill over onto following lines.
+The heading ends when a blank line (or the end of the document
+or enclosing container) is encountered.</p>
+<div class="example">
+<div class="djot">
+<pre><code># A heading that
+takes up
+three lines
+
+A paragraph, finally.</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;h1 id=&quot;A-heading-that-takes-up-three-lines&quot;&gt;A heading that
+takes up
+three lines&lt;/h1&gt;
+&lt;p&gt;A paragraph, finally.&lt;/p&gt;
+</code></pre>
+</div>
+</div>
+<p>Any number of trailing <code>#</code> characters may be included as
+a cosmetic decoration; they will not be included in the heading’s
+content:</p>
+<div class="example">
+<div class="djot">
+<pre><code>### Heading ###</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;h3 id=&quot;Heading&quot;&gt;Heading&lt;/h3&gt;
+</code></pre>
+</div>
+</div>
+</section>
+<section id="block-quote" class="level3">
+<h3>Block quote</h3>
+<p>A block quote is a sequence of lines, each of which begins with <code>&gt;</code>,
+followed either by a space or by the end of the line. The contents of
+the block quote (minus initial <code>&gt;</code>) are parsed as block-level content.</p>
+<div class="example">
+<div class="djot">
+<pre><code>&gt; This is a block quote.
+&gt;
+&gt; 1. with a
+&gt; 2. list in it.</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;blockquote&gt;
+&lt;p&gt;This is a block quote.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+with a
+&lt;/li&gt;
+&lt;li&gt;
+list in it.
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/blockquote&gt;
+</code></pre>
+</div>
+</div>
+<p>As in Markdown, it is possible to “lazily” omit the <code>&gt;</code> prefixes from
+regular paragraph lines inside the block quote, except in front of the
+first line of a paragraph:</p>
+<div class="example">
+<div class="djot">
+<pre><code>&gt; This is a block
+quote.</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;blockquote&gt;
+&lt;p&gt;This is a block
+quote.&lt;/p&gt;
+&lt;/blockquote&gt;
+</code></pre>
+</div>
+</div>
+</section>
+<section id="list-item" class="level3">
+<h3>List item</h3>
+<p>A list item consists of a list marker followed by a space (or a newline)
+followed by one or more lines, indented relative to the list marker. For
+example:</p>
+<div class="example">
+<div class="djot">
+<pre><code>1.  This is a
+ list item.
+
+ &gt; containing a block quote</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;This is a
+list item.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;containing a block quote&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+</code></pre>
+</div>
+</div>
+<p>Indentation may be “lazily” omitted on paragraph lines following the
+first line of a paragraph:</p>
+<div class="example">
+<div class="djot">
+<pre><code>1.  This is a
+list item.
+
+  Second paragraph under the
+list item.</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;This is a
+list item.&lt;/p&gt;
+&lt;p&gt;Second paragraph under the
+list item.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+</code></pre>
+</div>
+</div>
+<p>The following basic types of list markers are available:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Marker</th>
+<th>List type</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>-</code></td>
+<td>bullet</td>
+</tr>
+<tr class="even">
+<td><code>+</code></td>
+<td>bullet</td>
+</tr>
+<tr class="odd">
+<td><code>*</code></td>
+<td>bullet</td>
+</tr>
+<tr class="even">
+<td><code>1.</code></td>
+<td>ordered, decimal-enumerated, followed by period</td>
+</tr>
+<tr class="odd">
+<td><code>1)</code></td>
+<td>ordered, decimal-enumerated, followed by parenthesis</td>
+</tr>
+<tr class="even">
+<td><code>(1)</code></td>
+<td>ordered, decimal-enumerated, enclosed in parentheses</td>
+</tr>
+<tr class="odd">
+<td><code>a.</code></td>
+<td>ordered, lower-alpha-enumerated, followed by period</td>
+</tr>
+<tr class="even">
+<td><code>a)</code></td>
+<td>ordered, lower-alpha-enumerated, followed by parenthesis</td>
+</tr>
+<tr class="odd">
+<td><code>(a)</code></td>
+<td>ordered, lower-alpha-enumerated, enclosed in parentheses</td>
+</tr>
+<tr class="even">
+<td><code>A.</code></td>
+<td>ordered, upper-alpha-enumerated, followed by period</td>
+</tr>
+<tr class="odd">
+<td><code>A)</code></td>
+<td>ordered, upper-alpha-enumerated, followed by parenthesis</td>
+</tr>
+<tr class="even">
+<td><code>(A)</code></td>
+<td>ordered, upper-alpha-enumerated, enclosed in parentheses</td>
+</tr>
+<tr class="odd">
+<td><code>i.</code></td>
+<td>ordered, lower-roman-enumerated, followed by period</td>
+</tr>
+<tr class="even">
+<td><code>i)</code></td>
+<td>ordered, lower-roman-enumerated, followed by parenthesis</td>
+</tr>
+<tr class="odd">
+<td><code>(i)</code></td>
+<td>ordered, lower-roman-enumerated, enclosed in parentheses</td>
+</tr>
+<tr class="even">
+<td><code>I.</code></td>
+<td>ordered, upper-roman-enumerated, followed by period</td>
+</tr>
+<tr class="odd">
+<td><code>I)</code></td>
+<td>ordered, upper-roman-enumerated, followed by parenthesis</td>
+</tr>
+<tr class="even">
+<td><code>(I)</code></td>
+<td>ordered, upper-roman-enumerated, enclosed in parentheses</td>
+</tr>
+<tr class="odd">
+<td><code>:</code></td>
+<td>definition</td>
+</tr>
+<tr class="even">
+<td><code>- [ ]</code></td>
+<td>task</td>
+</tr>
+</tbody>
+</table>
+<p>Ordered list markers can use any number in the series: thus, <code>(xix)</code> and
+<code>v)</code> are both valid lower-roman-enumerated markers, and <code>v)</code> is <em>also</em> a
+valid lower-alpha-enumerated marker.</p>
+<section id="task-list-item" class="level4">
+<h4>Task list item</h4>
+<p>A bullet list item that begins with <code>[ ]</code>, <code>[X]</code>, or <code>[x]</code> followed by a
+space is a task list item, either unchecked (<code>[ ]</code>) or checked (<code>[X]</code> or
+<code>[x]</code>).</p>
+</section>
+<section id="definition-list-item" class="level4">
+<h4>Definition list item</h4>
+<p>In a definition list item, the first line or lines after the <code>:</code> marker
+is parsed as inline content and taken to be the <em>term</em> defined. Any
+further blocks included in the item are assumed to be the <em>definition</em>.</p>
+<div class="example">
+<div class="djot">
+<pre><code>: orange
+
+  A citrus fruit.</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;dl&gt;
+&lt;dt&gt;orange&lt;/dt&gt;
+&lt;dd&gt;
+&lt;p&gt;A citrus fruit.&lt;/p&gt;
+&lt;/dd&gt;
+&lt;/dl&gt;
+</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="list" class="level3">
+<h3>List</h3>
+<p>A list is simply a sequence of list items of the same type (where each
+line in the table above defines a type). Note that changing ordered list
+style or bullet will stop one list and start a new one.
+Hence the following list items get grouped into four distinct lists:</p>
+<div class="example">
+<div class="djot">
+<pre><code>i) one
+i. one (style change)
++ bullet
+* bullet (style change)</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;ol start=&quot;9&quot; type=&quot;a&quot;&gt;
+&lt;li&gt;
+one
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;ol start=&quot;9&quot; type=&quot;a&quot;&gt;
+&lt;li&gt;
+one (style change)
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;ul&gt;
+&lt;li&gt;
+bullet
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;ul&gt;
+&lt;li&gt;
+bullet (style change)
+&lt;/li&gt;
+&lt;/ul&gt;
+</code></pre>
+</div>
+</div>
+<p>Sometimes list items are ambiguous as to type. In this case the
+ambiguity will be resolved in such a way as to continue the list, if
+possible. For example, in</p>
+<div class="example">
+<div class="djot">
+<pre><code>i. item
+j. next item</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;ol start=&quot;9&quot; type=&quot;a&quot;&gt;
+&lt;li&gt;
+item
+&lt;/li&gt;
+&lt;li&gt;
+next item
+&lt;/li&gt;
+&lt;/ol&gt;
+</code></pre>
+</div>
+</div>
+<p>the first item is ambiguous between lower-roman-enumerated and
+lower-alpha-enumerated. But only the latter interpretation works for the
+next item, so we prefer the reading that allows us to have one
+continuous list rather than two separate ones.</p>
+<p>The start number of an ordered list will be determined by the number of
+its first item. The numbers of subsequent items are irrelevant.</p>
+<div class="example">
+<div class="djot">
+<pre><code>5) five
+8) six</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;ol start=&quot;5&quot;&gt;
+&lt;li&gt;
+five
+&lt;/li&gt;
+&lt;li&gt;
+six
+&lt;/li&gt;
+&lt;/ol&gt;
+</code></pre>
+</div>
+</div>
+<p>A list is classed as <em>tight</em> if it contains blank lines between items,
+or between blocks inside an item. Blank lines at the start or end of a
+list do not count against tightness.</p>
+<div class="example">
+<div class="djot">
+<pre><code>- one
+- two
+
+  - sub
+  - sub</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;ul&gt;
+&lt;li&gt;
+one
+&lt;/li&gt;
+&lt;li&gt;
+two
+&lt;ul&gt;
+&lt;li&gt;
+sub
+&lt;/li&gt;
+&lt;li&gt;
+sub
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+</code></pre>
+</div>
+</div>
+<p>A list that is not tight is <em>loose</em>. The intended significance
+of this distinction is that tight lists should be rendered with
+less space between items.</p>
+<div class="example">
+<div class="djot">
+<pre><code>- one
+
+- two</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;one&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;two&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+</code></pre>
+</div>
+</div>
+</section>
+<section id="code-block" class="level3">
+<h3>Code block</h3>
+<p>A code block starts with a line of three or more consecutive backticks,
+optionally followed by whitespace and a language specifier, but nothing
+else. It ends with a line of backticks equal or greater in length to the
+opening backtick “fence,” or the end of the document or enclosing block,
+if no such line is encountered. Its contents are interpreted as verbatim
+text. If the contents contain a line of backticks, be sure to select a
+longer string of backticks to use as the “fence”:</p>
+<div class="example">
+<div class="djot">
+<pre><code>````
+This is how you do a code block:
+
+``` ruby
+x = 5 * 6
+```
+````</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;pre&gt;&lt;code&gt;This is how you do a code block:
+
+``` ruby
+x = 5 * 6
+```
+&lt;/code&gt;&lt;/pre&gt;
+</code></pre>
+</div>
+</div>
+<p>Here is an example of a code block that is implicitly closed when its
+parent container is closed;</p>
+<div class="example">
+<div class="djot">
+<pre><code>&gt; ```
+&gt; code in a
+&gt; block quote
+
+Paragraph.</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;blockquote&gt;
+&lt;pre&gt;&lt;code&gt;code in a
+block quote
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Paragraph.&lt;/p&gt;
+</code></pre>
+</div>
+</div>
+</section>
+<section id="thematic-break" class="level3">
+<h3>Thematic break</h3>
+<p>A line containing four or more <code>*</code> or <code>-</code> characters, and nothing else
+(except spaces or tabs) is treated is a thematic break (<code>&lt;hr&gt;</code> in HTML).
+Unlike in Markdown, a thematic break may be indented:</p>
+<div class="example">
+<div class="djot">
+<pre><code>Then they went to sleep.
+
+      * * * *
+
+When they woke up, ...</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;p&gt;Then they went to sleep.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;When they woke up, &amp;hellip;&lt;/p&gt;
+</code></pre>
+</div>
+</div>
+</section>
+<section id="raw-block" class="level3">
+<h3>Raw block</h3>
+<p>A code block with <code>=FORMAT</code> where the language specification would
+normally go is interpreted as raw content in <code>FORMAT</code> and will be passed
+through verbatim to output in that format. For example:</p>
+<div class="example">
+<div class="djot">
+<pre><code>``` =html
+&lt;video width=&quot;320&quot; height=&quot;240&quot; controls&gt;
+  &lt;source src=&quot;movie.mp4&quot; type=&quot;video/mp4&quot;&gt;
+  &lt;source src=&quot;movie.ogg&quot; type=&quot;video/ogg&quot;&gt;
+  Your browser does not support the video tag.
+&lt;/video&gt;
+```</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;video width=&quot;320&quot; height=&quot;240&quot; controls&gt;
+  &lt;source src=&quot;movie.mp4&quot; type=&quot;video/mp4&quot;&gt;
+  &lt;source src=&quot;movie.ogg&quot; type=&quot;video/ogg&quot;&gt;
+  Your browser does not support the video tag.
+&lt;/video&gt;
+</code></pre>
+</div>
+</div>
+</section>
+<section id="div" class="level3">
+<h3>Div</h3>
+<p>A div begins with a line of three or more consecutive colons, optionally
+followed by white space and a class name (but nothing else). It ends
+with a line of consecutive colons at least as long as the opening fence,
+or with the end of the document or containing block.</p>
+<p>The contents of a div are interpreted as block-level content.</p>
+<div class="example">
+<div class="djot">
+<pre><code>::: warning
+Here is a paragraph.
+
+And here is another.
+:::</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;div class=&quot;warning&quot;&gt;
+&lt;p&gt;Here is a paragraph.&lt;/p&gt;
+&lt;p&gt;And here is another.&lt;/p&gt;
+&lt;/div&gt;
+</code></pre>
+</div>
+</div>
+</section>
+<section id="pipe-table" class="level3">
+<h3>Pipe table</h3>
+<p>A pipe table consists of a sequence of <em>rows</em>. Each row starts and ends
+with a pipe character (<code>|</code>) and contains one or more <em>cells</em> separated
+by pipe characters.</p>
+<p>A <em>separator line</em> is a row in which every cell consists of a sequence
+of one of more <code>-</code> characters, optional prefixed and/or suffixed by a
+<code>:</code> character.</p>
+<p>When a separator line is encountered, the previous row is treated as a
+header, and alignments on that row and any subsequent rows are
+determined by the separator line (until a new header is found). The
+separator line itself does not contribute a row to the parsed table.</p>
+<p>Column alignments are determined by the separator line in the following
+way:</p>
+<ul>
+<li>if the line of <code>-</code> begins with a <code>:</code> and does not end with one, the
+column is left-aligned</li>
+<li>if it ends with <code>:</code> and does not begin with one, the column is
+right-aligned</li>
+<li>if it both begins and ends with <code>:</code>, the column is center-aligned</li>
+<li>if it neither begins nor ends with <code>:</code>, the column is default-aligned</li>
+</ul>
+<p>Here is an example:</p>
+<div class="example">
+<div class="djot">
+<pre><code>| a  |  b |
+|----|:--:|
+| 1  | 2  |
+|:---|---:|
+| 3  | 4  |</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;table&gt;
+&lt;tr&gt;
+&lt;th&gt;a&lt;/th&gt;
+&lt;th style=&quot;text-align: center;&quot;&gt;b&lt;/th&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;th style=&quot;text-align: left;&quot;&gt;1&lt;/th&gt;
+&lt;th style=&quot;text-align: right;&quot;&gt;2&lt;/th&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: left;&quot;&gt;3&lt;/td&gt;
+&lt;td style=&quot;text-align: right;&quot;&gt;4&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+</code></pre>
+</div>
+</div>
+<p>Here the row with <code>a</code> and <code>b</code> is a header, with the left column
+default-aligned and the right column center-aligned. The next real row,
+containing <code>1</code> and <code>2</code>, is also a header, in which the left column is
+left-aligned and the right column is right-aligned. This alignment is
+also applied to the row that follows, containing <code>3</code> and <code>4</code>.</p>
+<p>A table need not have a header: just omit any separator lines, or (if
+you need to specify column alignments) <em>begin</em> with a separator line:</p>
+<div class="example">
+<div class="djot">
+<pre><code>|:--|---:|
+| x | 2  |</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;table&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align: left;&quot;&gt;x&lt;/td&gt;
+&lt;td style=&quot;text-align: right;&quot;&gt;2&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+</code></pre>
+</div>
+</div>
+<p>Contents of table cells are parsed as inlines. Block-level content is
+not possible in pipe table cells.</p>
+<p>Djot is smart enough to recognize backslash-escaped pipes and pipes in
+verbatim spans; these do not count as cell separators:</p>
+<div class="example">
+<div class="djot">
+<pre><code>| just two \| `|` | cells in this table |</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;table&gt;
+&lt;tr&gt;
+&lt;td&gt;just two \&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;|&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;cells in this table&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+</code></pre>
+</div>
+</div>
+</section>
+<section id="reference-link-definition" class="level3">
+<h3>Reference link definition</h3>
+<p>A reference link definition consists of the reference label in square
+brackets, followed by a colon, followed by whitespace (or a newline) and
+the URL. The URL may be split over multiple lines (in which case the
+lines will be concatenated, with any leading or trailing space removed).</p>
+<div class="example">
+<div class="djot">
+<pre><code>[google]: https://google.com
+
+[product page]: http://example.com?item=983459873087120394870128370
+  0981234098123048172304</code></pre>
+</div>
+<div class="html">
+<pre><code></code></pre>
+</div>
+</div>
+<p>No case normalization is done on reference labels, a reference defined
+as <code>[link]</code> cannot be used as <code>[Link]</code>, as it can in Markdown.</p>
+<p>Attributes on reference definitions get transferred to the link:</p>
+<div class="example">
+<div class="djot">
+<pre><code>{title=foo}
+[ref]: /url
+
+[ref][]</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;p&gt;&lt;a title=&quot;foo&quot; href=&quot;/url&quot;&gt;ref&lt;/a&gt;&lt;/p&gt;
+</code></pre>
+</div>
+</div>
+<p>produces a link with text “ref”, URL <code>/url</code>, and title “foo”. However,
+if the same attribute is defined on both a link and a reference
+definition, the attribute on the link overrides the one on the reference
+definition.</p>
+<div class="example">
+<div class="djot">
+<pre><code>{title=foo}
+[ref]: /url
+
+[ref][]{title=bar}</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;p&gt;&lt;a title=&quot;bar&quot; href=&quot;/url&quot;&gt;ref&lt;/a&gt;&lt;/p&gt;
+</code></pre>
+</div>
+</div>
+<p>Here we get a link with title “bar”.</p>
+</section>
+<section id="footnote" class="level3">
+<h3>Footnote</h3>
+<p>A footnote consists of a footnote reference followed by a colon followed
+by the contents of the note, indented to any column beyond the column in
+which the reference starts. The contents of the note are parsed as
+block-level content.</p>
+<div class="example">
+<div class="djot">
+<pre><code>Here&#39;s the reference.[^foo]
+
+[^foo]: This is a note
+  with two paragraphs.
+
+  Second paragraph.
+
+  &gt; a block quote in the note.</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;p&gt;Here&amp;rsquo;s the reference.&lt;a href=&quot;#fn1&quot; role=&quot;doc-noteref&quot;&gt;&lt;sup&gt;1&lt;/sup&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;section role=&quot;doc-endnotes&quot;&gt;
+&lt;hr&gt;
+&lt;ol&gt;
+&lt;li id=&quot;fn1&quot;&gt;
+&lt;p&gt;This is a note
+with two paragraphs.&lt;/p&gt;
+&lt;p&gt;Second paragraph.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;a block quote in the note.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;&lt;a href=&quot;#fnref1&quot; role=&quot;doc-backlink&quot;&gt;↩︎︎&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/section&gt;
+</code></pre>
+</div>
+</div>
+<p>As with block quotes and list items, subsequent lines in paragraphs can
+“lazily” omit the indentation:</p>
+<div class="example">
+<div class="djot">
+<pre><code>Here&#39;s the reference.[^foo]
+
+[^foo]: This is a note
+with two paragraphs.
+
+  Second paragraph must
+be indented, at least in the first line.</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;p&gt;Here&amp;rsquo;s the reference.&lt;a href=&quot;#fn1&quot; role=&quot;doc-noteref&quot;&gt;&lt;sup&gt;1&lt;/sup&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;section role=&quot;doc-endnotes&quot;&gt;
+&lt;hr&gt;
+&lt;ol&gt;
+&lt;li id=&quot;fn1&quot;&gt;
+&lt;p&gt;This is a note
+with two paragraphs.&lt;/p&gt;
+&lt;p&gt;Second paragraph must
+be indented, at least in the first line.&lt;a href=&quot;#fnref1&quot; role=&quot;doc-backlink&quot;&gt;↩︎︎&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/section&gt;
+</code></pre>
+</div>
+</div>
+</section>
+<section id="block-attributes" class="level3">
+<h3>Block attributes</h3>
+<p>To attach attributes to a block-level element, put the attributes on the
+line immediately before the block. Block attributes have the same syntax
+as inline attributes, but they must fit on one line. Repeated attribute
+specifiers can be used, and the attributes will accumulate.</p>
+<div class="example">
+<div class="djot">
+<pre><code>{#water}
+{.important .large}
+Don&#39;t forget to turn off the water!
+
+{source=&quot;Iliad&quot;}
+&gt; Sing, muse, of the wrath of Achilles</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;p id=&quot;water&quot; class=&quot;important large&quot;&gt;Don&amp;rsquo;t forget to turn off the water!&lt;/p&gt;
+&lt;blockquote source=&quot;Iliad&quot;&gt;
+&lt;p&gt;Sing, muse, of the wrath of Achilles&lt;/p&gt;
+&lt;/blockquote&gt;
+</code></pre>
+</div>
+</div>
+</section>
+<section id="links-to-headings" class="level3">
+<h3>Links to headings</h3>
+<p>Identifiers are added automatically to any headings that
+do not have explicit identifiers attached to them.
+The identifier is formed by taking the textual content of
+the heading, removing punctuation (other than <code>_</code> and <code>-</code>),
+replacing spaces with <code>-</code>, and if necessary for uniqueness,
+adding a numerical suffix.</p>
+<div class="example">
+<div class="djot">
+<pre><code>## My heading + auto-identifier</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;h2 id=&quot;My-heading-auto-identifier&quot;&gt;My heading + auto-identifier&lt;/h2&gt;
+</code></pre>
+</div>
+</div>
+<p>However, for the most part you do not need to know the
+identifiers that are assigned to headings, because
+implicit link references are created for all headings.
+Thus, to link to a heading titled “Introduction” in the same
+document, one can simply use a reference link:</p>
+<div class="example">
+<div class="djot">
+<pre><code>See the [Epilogue][].
+
+    * * * *
+
+# Epilogue</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;p&gt;See the &lt;a href=&quot;#Epilogue&quot;&gt;Epilogue&lt;/a&gt;.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h1 id=&quot;Epilogue&quot;&gt;Epilogue&lt;/h1&gt;
+</code></pre>
+</div>
+</div>
+</section>
+</section>
+</section>
+</body>
+</html>
