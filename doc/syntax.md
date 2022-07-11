@@ -49,7 +49,7 @@ emphasis, while `_}` behaves like `_` but can *only* close emphasis:
 Anything that isn’t given a special meaning is parsed as literal text.
 
 All ASCII punctuation characters (even those that have no special
-meaning in djot) may be backslash-escaped. Thus, `\\*` includes a
+meaning in djot) may be backslash-escaped. Thus, `\*` includes a
 literal `*` character. Backslashes before characters other than ASCII
 punctuation characters are just treated as literal backslashes, with the
 following exceptions:
