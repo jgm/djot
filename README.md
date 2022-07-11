@@ -326,6 +326,12 @@ For a full syntax reference, see the
 A vim syntax highlighting definition for djot is provided in
 `editors/vim/`.
 
+## Playground
+
+You can play with djot on the live [djot
+playground](https://djot.net/playground/), designed
+by @dtinth.
+
 ## Using the Lua library
 
 ### Quick start
