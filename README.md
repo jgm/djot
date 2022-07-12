@@ -163,7 +163,8 @@ These goals motivated the following decisions:
   syntaxes (goal 11).
 
 - To meet goal 5, we have a very simple rule: anything that is
-  indented further than the list marker belongs in the list item.
+  indented further than the start of the list marker belongs in
+  the list item.
 
   ```
   1. list item
