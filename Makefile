@@ -10,6 +10,8 @@ LUAOPTIONS=-O2
 BUNDLE=djot
 VIMDIR?=~/.vim
 
+all: test doc/syntax.html
+
 test:
 	LUA_PATH='./?.lua' lua test.lua
 .PHONY: test
