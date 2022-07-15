@@ -13,7 +13,7 @@ local footnotes = {}
 
 -- Escape special characters
 local function escape(s)
-  return literal(s:gsub("[][\\`{}_*<>~^'\"]", function(s) return "\\" .. s end))
+  return (s:gsub("[][\\`{}_*<>~^'\"]", function(s) return "\\" .. s end))
 end
 
 local function to_roman(x)
@@ -113,23 +113,23 @@ local function render_attributes(el, isblock)
     return empty
   end
   local attr = el.attr
-  local buff = {literal "{"}
+  local buff = {"{"}
   if #attr.identifier > 0 then
-    buff[#buff + 1] = literal("#" .. attr.identifier)
+    buff[#buff + 1] = "#" .. attr.identifier
   end
   for i=1,#attr.classes do
     if #buff > 1 then
       buff[#buff + 1] = space
     end
-    buff[#buff + 1] = literal("." .. attr.classes[i])
+    buff[#buff + 1] = "." .. attr.classes[i]
   end
   for k,v in pairs(attr.attributes) do
     if #buff > 1 then
       buff[#buff + 1] = space
     end
-    buff[#buff + 1] = literal(k .. '="' .. v:gsub('"', '\\"') .. '"')
+    buff[#buff + 1] = k .. '="' .. v:gsub('"', '\\"') .. '"'
   end
-  buff[#buff + 1] = literal("}")
+  buff[#buff + 1] = "}"
   if isblock then
     return rblock(nowrap(concat(buff)), PANDOC_WRITER_OPTIONS.columns)
   else
@@ -183,20 +183,20 @@ end
 
 Blocks.Header = function(el)
   local attr = render_attributes(el, true)
-  local result = {attr, cr, literal(string.rep("#", el.level)), space, inlines(el.content)}
+  local result = {attr, cr, (string.rep("#", el.level)), space, inlines(el.content)}
   return concat(result)
 end
 
 Blocks.Div = function(el)
   local attr = render_attributes(el, true)
-  return concat{attr, cr, literal ":::", cr, blocks(el.content, blankline), cr, literal ":::"}
+  return concat{attr, cr, ":::", cr, blocks(el.content, blankline), cr, ":::"}
 end
 
 Blocks.RawBlock = function(el)
   local ticks = 3
   el.text:gsub("(`+)", function(s) if #s >= ticks then ticks = #s + 1 end end)
-  local fence = literal(string.rep("`", ticks))
-  return concat{fence, literal(" {<" .. el.format .. "}"), cr,
+  local fence = string.rep("`", ticks)
+  return concat{fence, " {<" .. el.format .. "}", cr,
                 el.text, cr, fence, cr}
 end
 
@@ -209,7 +209,7 @@ Blocks.LineBlock = function(el)
   for i=1,#el.content do
     result[#result + 1] = inlines(el.content[i])
   end
-  return concat(result, concat{literal("\\"), cr})
+  return concat(result, concat{"\\", cr})
 end
 
 Blocks.Table = function(el)
@@ -227,7 +227,7 @@ Blocks.Table = function(el)
       end
     end
   end
-  local cellsep = literal(" | ")
+  local cellsep = " | "
   local rows = {}
   local hdrcells = {}
   for j=1, #tbl.headers do
@@ -236,7 +236,7 @@ Blocks.Table = function(el)
   end
   if #hdrcells > 0 then
     rows[#rows + 1] =
-      concat{literal("| "), concat(hdrcells, cellsep), literal(" |"), cr}
+      concat{"| ", concat(hdrcells, cellsep), " |", cr}
     local bordercells = {}
     for j=1, #hdrcells do
       local w = layout.offset(hdrcells[j])
@@ -248,10 +248,10 @@ Blocks.Table = function(el)
       if align == "AlignRight" or align == "AlignCenter" then
         rm = ":"
       end
-      bordercells[#bordercells + 1] = literal(lm .. string.rep("-", w) .. rm)
+      bordercells[#bordercells + 1] = lm .. string.rep("-", w) .. rm
     end
     rows[#rows + 1] =
-      nowrap(concat{literal("|"), concat(bordercells, literal("|")), literal("|"), cr})
+      nowrap(concat{"|", concat(bordercells, "|"), "|", cr})
   end
   for i=1, #tbl.rows do
     local cells = {}
@@ -261,11 +261,11 @@ Blocks.Table = function(el)
       cells[#cells + 1] = blocks(cell)
     end
     rows[#rows + 1] =
-      nowrap(concat{literal("| "), concat(cells, cellsep), literal(" |"), cr})
+      nowrap(concat{"| ", concat(cells, cellsep), " |", cr})
   end
   local caption = empty
   if #tbl.caption > 0 then
-    caption = concat{blankline, literal("^ "), inlines(tbl.caption), cr}
+    caption = concat{blankline, "^ ", inlines(tbl.caption), cr}
   end
   return concat{attr, concat(rows), caption}
 end
@@ -279,7 +279,7 @@ Blocks.DefinitionList = function(el)
       inner = concat{inner, blankline, blocks(defs[j], blankline)}
     end
     result[#result + 1] =
-      hang(inner, 2, concat{ literal(":"), space, inlines(term), cr })
+      hang(inner, 2, concat{ ":", space, inlines(term), cr })
   end
   return concat(result, blankline)
 end
@@ -288,7 +288,7 @@ Blocks.BulletList = function(el)
   local attr = render_attributes(el, true)
   local result = {attr, cr}
   for i=1,#el.content do
-    result[#result + 1] = hang(blocks(el.content[i]), 2, concat{literal "-",space})
+    result[#result + 1] = hang(blocks(el.content[i]), 2, concat{"-",space})
   end
   local sep = blankline
   if is_tight_list(el) then
@@ -321,7 +321,7 @@ Blocks.OrderedList = function(el)
     if sps < 1 then
       numsp = space
     else
-      numsp = literal(string.rep(" ", sps))
+      numsp = string.rep(" ", sps)
     end
     result[#result + 1] = hang(blocks(el.content[i]), width, concat{numstr,numsp})
     num = num + 1
@@ -336,19 +336,19 @@ end
 Blocks.CodeBlock = function(el)
   local ticks = 3
   el.text:gsub("(`+)", function(s) if #s >= ticks then ticks = #s + 1 end end)
-  local fence = literal(string.rep("`", ticks))
+  local fence = string.rep("`", ticks)
   local lang = empty
   if #el.classes > 0 then
-    lang = literal(" " .. el.classes[1])
+    lang = " " .. el.classes[1]
     table.remove(el.classes, 1)
   end
   local attr = render_attributes(el, true)
-  local result = { attr, cr, fence, lang, cr, literal(el.text), cr, fence, cr }
+  local result = { attr, cr, fence, lang, cr, el.text, cr, fence, cr }
   return concat(result)
 end
 
 Blocks.HorizontalRule = function(el)
-  return cblock(literal("* * * * *"), PANDOC_WRITER_OPTIONS.columns)
+  return cblock("* * * * *", PANDOC_WRITER_OPTIONS.columns)
 end
 
 Inlines.Str = function(el)
@@ -368,50 +368,50 @@ Inlines.SoftBreak = function(el)
 end
 
 Inlines.LineBreak = function(el)
-  return concat{ literal("\\"), cr }
+  return concat{ "\\", cr }
 end
 
 Inlines.RawInline = function(el)
-  return concat{Inlines.Code(el), literal "`{<", literal(el.format), literal "}"}
+  return concat{Inlines.Code(el), "`{<", el.format, "}"}
 end
 
 Inlines.Code = function(el)
   local ticks = 0
   el.text:gsub("(`+)", function(s) if #s > ticks then ticks = #s end end)
   local use_spaces = el.text:match("^`") or el.text:match("`$")
-  local start = literal(string.rep("`", ticks + 1) .. (use_spaces and " " or ""))
-  local finish = literal((use_spaces and " " or "") .. string.rep("`", ticks + 1))
+  local start = string.rep("`", ticks + 1) .. (use_spaces and " " or "")
+  local finish = (use_spaces and " " or "") .. string.rep("`", ticks + 1)
   local attr = render_attributes(el)
-  local result = { start, literal(el.text), finish, attr }
+  local result = { start, el.text, finish, attr }
   return concat(result)
 end
 
 Inlines.Emph = function(el)
-  return concat{ literal "_", inlines(el.content), literal "_" }
+  return concat{ "_", inlines(el.content), "_" }
 end
 
 Inlines.Strong = function(el)
-  return concat{ literal "*", inlines(el.content), literal "*" }
+  return concat{ "*", inlines(el.content), "*" }
 end
 
 Inlines.Strikeout = function(el)
-  return concat{ literal "{-", inlines(el.content), literal "-}"}
+  return concat{ "{-", inlines(el.content), "-}"}
 end
 
 Inlines.Subscript = function(el)
-  return concat{ literal "{~", inlines(el.content), literal "~}"}
+  return concat{ "{~", inlines(el.content), "~}"}
 end
 
 Inlines.Superscript = function(el)
-  return concat{ literal "{^", inlines(el.content), literal "^}"}
+  return concat{ "{^", inlines(el.content), "^}"}
 end
 
 Inlines.SmallCaps = function(el)
-  return concat{ literal "[", inlines(el.content), literal "]{.smallcaps}"}
+  return concat{ "[", inlines(el.content), "]{.smallcaps}"}
 end
 
 Inlines.Underline = function(el)
-  return concat{ literal "[", inlines(el.content), literal "]{.underline}"}
+  return concat{ "[", inlines(el.content), "]{.underline}"}
 end
 
 Inlines.Cite = function(el)
@@ -421,16 +421,16 @@ end
 Inlines.Math = function(el)
   local marker
   if el.mathtype == "DisplayMath" then
-    marker = literal "$$"
+    marker = "$$"
   else
-    marker = literal "$"
+    marker = "$"
   end
   return concat{ marker, Inlines.Code(el) }
 end
 
 Inlines.Span = function(el)
   local attr = render_attributes(el)
-  return concat{literal "[", inlines(el.content), literal "]", attr}
+  return concat{"[", inlines(el.content), "]", attr}
 end
 
 Inlines.Link = function(el)
@@ -439,8 +439,8 @@ Inlines.Link = function(el)
     el.title = nil
   end
   local attr = render_attributes(el)
-  local result = {literal "[", inlines(el.content), literal "](",
-                  literal(el.target), literal ")", attr}
+  local result = {"[", inlines(el.content), "](",
+                  el.target, ")", attr}
   return concat(result)
 end
 
@@ -450,16 +450,16 @@ Inlines.Image = function(el)
     el.title = nil
   end
   local attr = render_attributes(el)
-  local result = {literal "![", inlines(el.caption), literal "](",
-                  literal(el.src), literal ")", attr}
+  local result = {"![", inlines(el.caption), "](",
+                  el.src, ")", attr}
   return concat(result)
 end
 
 Inlines.Quoted = function(el)
   if el.quotetype == "DoubleQuoted" then
-    return concat{literal('"'), inlines(el.content), literal('"')}
+    return concat{'"', inlines(el.content), '"'}
   else
-    return concat{literal("'"), inlines(el.content), literal("'")}
+    return concat{"'", inlines(el.content), "'"}
   end
 end
 
@@ -473,7 +473,7 @@ function Writer (doc, opts)
   local d = blocks(doc.blocks, blankline)
   local notes = {}
   for i=1,#footnotes do
-    local note = hang(blocks(footnotes[i]), 4, concat{literal(format("[^%d]:",i)),space})
+    local note = hang(blocks(footnotes[i]), 4, concat{format("[^%d]:",i),space})
     table.insert(notes, note)
   end
   return layout.render(concat{d, blankline, concat(notes, blankline)}, PANDOC_WRITER_OPTIONS.columns)
