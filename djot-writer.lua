@@ -8,62 +8,13 @@ local literal, empty, cr, concat, blankline, chomp, space, cblock, rblock,
   layout.literal, layout.empty, layout.cr, layout.concat, layout.blankline,
   layout.chomp, layout.space, layout.cblock, layout.rblock,
   layout.prefixed, layout.nest, layout.hang, layout.nowrap
+local to_roman = pandoc.utils.to_roman_numeral
 
 local footnotes = {}
 
 -- Escape special characters
 local function escape(s)
   return (s:gsub("[][\\`{}_*<>~^'\"]", function(s) return "\\" .. s end))
-end
-
-local function to_roman(x)
-  local result = {}
-  if x >= 4000 or x < 0 then
-    return "?"
-  end
-  while x > 0 do
-    if x >= 1000 then
-      result[#result + 1] = "M"
-      x = x - 1000
-    elseif x >= 900 then
-      result[#result + 1] = "CM"
-      x = x - 900
-    elseif x >= 500 then
-      result[#result + 1] = "D"
-      x = x - 500
-    elseif x >= 400 then
-      result[#result + 1] = "CD"
-      x = x - 400
-    elseif x >= 100 then
-      result[#result + 1] = "C"
-      x = x - 100
-    elseif x >= 90 then
-      result[#result + 1] = "XC"
-      x = x - 90
-    elseif x >= 50 then
-      result[#result + 1] = "L"
-      x = x - 50
-    elseif x >= 40 then
-      result[#result + 1] =  "XL"
-      x = x - 40
-    elseif x >= 10 then
-      result[#result + 1] =  "X"
-      x = x - 10
-    elseif x == 9 then
-      result[#result + 1] =  "IX"
-      x = x - 9
-    elseif x >= 5 then
-      result[#result + 1] =  "V"
-      x = x - 5
-    elseif x == 4 then
-      result[#result + 1] =  "IV"
-      x = x - 4
-    elseif x >= 1 then
-      result[#result + 1] =  "I"
-      x = x - 1
-    end
-  end
-  return table.concat(result)
 end
 
 local format_number = {}
