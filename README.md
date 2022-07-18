@@ -299,7 +299,7 @@ These goals motivated the following decisions:
   ```
 
 - Since we are going to have generic attributes, we no longer
-  use support quoted titles in links. One can add a title
+  support quoted titles in links. One can add a title
   attribute if needed, but this isn't very common, so we don't
   need a special syntax for it:
 
