@@ -504,9 +504,9 @@ its first item. The numbers of subsequent items are irrelevant.
     5) five
     8) six
 
-A list is classed as *tight* if it contains blank lines between items,
-or between blocks inside an item. Blank lines at the start or end of a
-list do not count against tightness.
+A list is classed as *tight* if it does not contain blank lines between
+items, or between blocks inside an item. Blank lines at the start or end
+of a list do not count against tightness.
 
     - one
     - two
