@@ -13,7 +13,7 @@ VIMDIR?=~/.vim
 all: test doc/syntax.html
 
 test:
-	LUA_PATH='./?.lua' lua test.lua
+	luarocks test
 .PHONY: test
 
 testall: test pathological fuzz
