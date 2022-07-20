@@ -35,9 +35,9 @@ with a close quote will be treated as an
 apostrophe:
 
 ```
-Were you alive in the 70's?
+Were you alive in the '70s?
 .
-<p>Were you alive in the 70&rsquo;s?</p>
+<p>Were you alive in the &rsquo;70s?</p>
 ```
 
 ```
