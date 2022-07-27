@@ -1,5 +1,8 @@
 # Djot
 
+[![GitHub
+CI](https://github.com/jgm/djot/workflows/CI%20tests/badge.svg)](https://github.com/jgm/djot/actions)
+
 Djot is a light markup syntax. It derives most of its features
 from [commonmark](https://spec.commonmark.org), but it fixes
 a few things that made commonmark's syntax complex and difficult
