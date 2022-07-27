@@ -12,7 +12,7 @@ VIMDIR?=~/.vim
 
 all: test doc/syntax.html
 
-test:
+test: $(ROCKSPEC)
 	luarocks test
 .PHONY: test
 
