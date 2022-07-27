@@ -109,9 +109,9 @@ function Parser.between_matched(c, annotation, defaultmatch, opentest)
       endcloser = pos + 1
     end
 
-    if (not can_close) and defaultmatch:match("^right") then
+    if has_open_marker and defaultmatch:match("^right") then
       defaultmatch = defaultmatch:gsub("^right", "left")
-    elseif (not can_open) and defaultmatch:match("^left") then
+    elseif has_close_marker and defaultmatch:match("^left") then
       defaultmatch = defaultmatch:gsub("^left", "right")
     end
 
