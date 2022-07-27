@@ -1,4 +1,6 @@
 -- run tests
+package.path = "./?.lua;" .. package.path
+
 local lfs = require("lfs")
 local djot = require("./djot")
 
