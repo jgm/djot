@@ -1,0 +1,17 @@
+name: CI tests
+
+on: [push, pull_request]
+
+jobs:
+  linux:
+
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - uses: leafo/gh-actions-lua@v9
+    - uses: leafo/gh-actions-luarocks@v4
+    - name: Build and test
+      run: |
+          make install
+          make testall
+
