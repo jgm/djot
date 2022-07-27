@@ -12,6 +12,5 @@ jobs:
     - uses: leafo/gh-actions-luarocks@v4
     - name: Build and test
       run: |
-          make install
-          make testall
+          make testall install
 
