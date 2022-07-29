@@ -360,6 +360,17 @@ _}not emphasized{_</code></pre>
 </code></pre>
 </div>
 </div>
+<p>When there are multiple openers that might be matched with a
+given closer, the closest one is used. For example:</p>
+<div class="example">
+<div class="djot">
+<pre><code>*not strong *strong*</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;p&gt;*not strong &lt;strong&gt;strong&lt;/strong&gt;&lt;/p&gt;
+</code></pre>
+</div>
+</div>
 </section>
 <section id="ordinary-text" class="level3">
 <h3>Ordinary text</h3>

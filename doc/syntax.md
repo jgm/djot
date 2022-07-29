@@ -44,6 +44,11 @@ emphasis, while `_}` behaves like `_` but can *only* close emphasis:
     {_Emphasized_}
     _}not emphasized{_
 
+When there are multiple openers that might be matched with a
+given closer, the closest one is used.  For example:
+
+    *not strong *strong*
+
 ### Ordinary text
 
 Anything that isn’t given a special meaning is parsed as literal text.
