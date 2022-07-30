@@ -5,7 +5,7 @@ CI](https://github.com/jgm/djot/workflows/CI%20tests/badge.svg)](https://github.
 
 Djot is a light markup syntax. It derives most of its features
 from [commonmark](https://spec.commonmark.org), but it fixes
-a few things that made commonmark's syntax complex and difficult
+a few things that make commonmark's syntax complex and difficult
 to parse efficiently. It is also much fuller-featured than
 commonmark, with support for definition lists, footnotes,
 tables, several new kinds of inline formatting (insert, delete,
@@ -14,11 +14,7 @@ attributes that can be applied to any element, and generic
 containers for block-level, inline-level, and raw content.
 
 The project began as an attempt to implement some of the
-ideas I suggested in my essay [Beyond Markdown](https://johnmacfarlane.net/beyond-markdown.html).
-I wanted to keep the good parts of Markdown, while fixing
-the pain points. I also wanted to extend the syntax to make
-djot a more flexible tool for writing. (See
-[Rationale](#rationale), below.)
+ideas I suggested in my essay [Beyond Markdown](https://johnmacfarlane.net/beyond-markdown.html). (See [Rationale](#rationale), below.)
 
 This repository contains a reference implementation, written
 in Lua, and a [syntax
@@ -335,6 +331,16 @@ A vim syntax highlighting definition for djot is provided in
 You can play with djot on the live [djot
 playground](https://djot.net/playground/), designed
 by @dtinth.
+
+## Installing
+
+To install djot using [luarocks](https://luarocks.org), just
+
+```
+luarocks install djot
+```
+
+This will install both the library and the executable `djot`.
 
 ## Using the Lua library
 
