@@ -18,7 +18,12 @@ ideas I suggested in my essay [Beyond Markdown](https://johnmacfarlane.net/beyon
 
 This repository contains a reference implementation, written
 in Lua, and a [syntax
-description](https://htmlpreview.github.io/?https://github.com/jgm/djot/blob/master/doc/syntax.html). Despite being
+description](https://htmlpreview.github.io/?https://github.com/jgm/djot/blob/master/doc/syntax.html).
+There is also a [Quick Start for Markdown
+Users](doc/quickstart-for-markdown-users.md) that outlines
+the main differences.
+
+Despite being
 written in an interpreted language, the reference implementation
 is very fast (converting a 260K test document in 141 ms on an M1 mac
 using the standard `lua` interpreter). It can produce
