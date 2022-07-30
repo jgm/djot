@@ -19,7 +19,7 @@ syn region emphasis matchgroup=delimiter start='_[^\s}]\@=\|{_' end='_}\|[^\s{]\
 syn region strong matchgroup=delimiter start='\*[^\s}]\@=\|{\*' end='[^\s{]\@=\*\|\*}\|^\s*$' contains=@inline
 
 syn region superscript matchgroup=delimiter start='\^[^\s}]\@=\|{\^' end='\^}\|[^\s{]\@=\^\|^\s*$' contains=@inline
-syn region superscript matchgroup=delimiter start='\~[^\s}]\@=\|{\~' end='\~}\|[^\s{]\@=\~\|^\s*$' contains=@inline
+syn region subscript matchgroup=delimiter start='\~[^\s}]\@=\|{\~' end='\~}\|[^\s{]\@=\~\|^\s*$' contains=@inline
 
 syn region highlight matchgroup=delimiter start='{=' end='=}$\|^\s*$' contains=@inline
 
