@@ -265,6 +265,7 @@ function Renderer:definition(node)
 end
 
 function Renderer:reference_definition()
+  return ""
 end
 
 function Renderer:footnote_reference(node)
