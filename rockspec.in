@@ -32,7 +32,7 @@ build = {
          ["djot.inline"]          = "djot/inline.lua",
          ["djot.block"]           = "djot/block.lua",
          ["djot.ast"]             = "djot/ast.lua",
-         ["djot.emjoi"]           = "djot/emoji.lua",
+         ["djot.emoji"]           = "djot/emoji.lua",
          ["djot.html"]            = "djot/html.lua",
    },
    install = {
