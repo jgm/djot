@@ -32,6 +32,7 @@ you must write
 
 ```
 Text.
+
 > a blockquote.
 ```
 
@@ -88,7 +89,7 @@ by a newline.
 
 #### Emphasis
 
-Use single `_` delimiters for regular emphasis, and
+Use single `_` delimiters for regular emphasis and
 single `*` delimiters for strong emphasis.
 
 #### Links
@@ -143,7 +144,7 @@ but this is:
 | 1 | 2 |
 ```
 
-#### What's new?
+#### That's enough to get started!
 
 Here we have just focused on things that might trip up
 Markdown users.  If you keep these in mind, you should be
