@@ -278,6 +278,7 @@ Parser.matchers = {
           self:add_match(pos, pos + 1, "str")
           return pos + 2
         elseif bounded_find(subject, "^%(", pos + 1, endpos) then
+          self.openers["("] = {} -- clear ( openers
           opener[3] = "explicit_link"
           opener[4] = pos  -- intermediate ]
           opener[5] = pos + 1  -- intermediate (
@@ -331,6 +332,7 @@ Parser.matchers = {
           end
           self:add_match(startdest, startdest, "+destination")
           self:add_match(enddest, enddest, "-destination")
+          self.destination = false
           -- convert all matches to str
           self:str_matches(opener[5] + 1, pos - 1)
           -- remove from openers
