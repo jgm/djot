@@ -407,7 +407,7 @@ Inlines.Image = function(el)
 end
 
 Inlines.Quoted = function(el)
-  if el.quotetype == "DoubleQuoted" then
+  if el.quotetype == "DoubleQuote" then
     return concat{'"', inlines(el.content), '"'}
   else
     return concat{"'", inlines(el.content), "'"}
