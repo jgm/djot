@@ -147,7 +147,7 @@ Blocks.RawBlock = function(el)
   local ticks = 3
   el.text:gsub("(`+)", function(s) if #s >= ticks then ticks = #s + 1 end end)
   local fence = string.rep("`", ticks)
-  return concat{fence, " {=" .. el.format .. "}", cr,
+  return concat{fence, " =" .. el.format, cr,
                 el.text, cr, fence, cr}
 end
 
