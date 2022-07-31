@@ -22,6 +22,7 @@ syn region superscript matchgroup=delimiter start='\^[^\s}]\@=\|{\^' end='\^}\|[
 syn region subscript matchgroup=delimiter start='\~[^\s}]\@=\|{\~' end='\~}\|[^\s{]\@=\~\|^\s*$' contains=@inline
 
 syn region highlight matchgroup=delimiter start='{=' end='=}$\|^\s*$' contains=@inline
+syn match rawattribute "`\@<={=[A-Za-z0-9]*}"
 
 syn region insert matchgroup=delimiter start='{+' end='+}\|^\s*$' contains=@inline
 syn region delete matchgroup=delimiter start='{-' end='-}\|^\s*$' contains=@inline
@@ -43,7 +44,7 @@ syn match emoji ':[a-zA-Z0-9_+-]\+:'
 
 syn match escape '\\[\r\n ~!@#$%^&*(){}`\[\]/=\\?+|\'",<-]'he=e-1
 
-syn cluster inline contains=linkurl,emphasis,strong,codespan,attributes,insert,delete,superscript,subscript,highlight,math,smartquote,openbrace,closebrace,emoji,escape,footnoteref,span
+syn cluster inline contains=linkurl,emphasis,strong,codespan,attributes,rawattribute,insert,delete,superscript,subscript,highlight,math,smartquote,openbrace,closebrace,emoji,escape,footnoteref,span
 
 syn region codeblock matchgroup=delimiter start='^\s*\z(````*\)\s*\w*\s*$' end='^\s*\z1`*\s*$'
 
@@ -67,6 +68,7 @@ hi def link linkurl Underlined
 hi def link linklabel Underlined
 hi def link escaped Typedef
 hi def link attributes Identifier
+hi def link rawattribute Identifier
 hi def link delimiter Ignore
 hi def link escape Ignore
 hi def link openbrace Ignore
