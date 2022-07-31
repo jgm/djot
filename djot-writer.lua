@@ -147,7 +147,7 @@ Blocks.RawBlock = function(el)
   local ticks = 3
   el.text:gsub("(`+)", function(s) if #s >= ticks then ticks = #s + 1 end end)
   local fence = string.rep("`", ticks)
-  return concat{fence, " {<" .. el.format .. "}", cr,
+  return concat{fence, " {=" .. el.format .. "}", cr,
                 el.text, cr, fence, cr}
 end
 
@@ -323,7 +323,7 @@ Inlines.LineBreak = function(el)
 end
 
 Inlines.RawInline = function(el)
-  return concat{Inlines.Code(el), "`{<", el.format, "}"}
+  return concat{Inlines.Code(el), "{=", el.format, "}"}
 end
 
 Inlines.Code = function(el)
