@@ -107,6 +107,16 @@ If you want a title attribute on a link, use the general attribute syntax:
 [link](http://example.com){title="Go to my website"}
 ```
 
+#### Hard line breaks
+
+In Markdown you can create a hard line break by ending a line
+with two spaces. In djot you use a backslash before the newline.
+
+```
+A new\
+line.
+```
+
 #### Raw HTML
 
 In Markdown you can just insert raw HTML "as is."  In djot,
@@ -143,6 +153,7 @@ but this is:
 | - | - |
 | 1 | 2 |
 ```
+
 
 #### That's enough to get started!
 
