@@ -178,23 +178,6 @@ local function make_definition_list_item(result)
   end
 end
 
-local node_metatable = {}
-node_metatable.__index = function(table, key)
-  if key == "annot" then
-    return rawget(table, 1)
-  else
-    return rawget(table, key)
-  end
-end
-node_metatable.__newindex = function(table, key, value)
-  if key == "annot" then
-    rawset(table, 1, value)
-  else
-    rawset(table,key,value)
-  end
-end
-
-
 -- create an abstract syntax tree based on an event
 -- stream and references
 local function to_ast(subject, matches, options)
@@ -573,7 +556,6 @@ local function to_ast(subject, matches, options)
         end
       end
     end
-    setmetatable(nodes, node_metatable)
     return nodes
   end
 

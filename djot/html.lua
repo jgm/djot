@@ -82,7 +82,7 @@ function Renderer:render(doc, handle)
       handle:write(s)
     end
   end
-  self[doc.annot](self, doc)
+  self[doc[1]](self, doc)
 end
 
 
