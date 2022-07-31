@@ -183,7 +183,7 @@ Blocks.Table = function(el)
   local hdrcells = {}
   for j=1, #tbl.headers do
     local cell = tbl.headers[j]
-    hdrcells[#hdrcells + 1] = blocks(cell)
+    hdrcells[#hdrcells + 1] = blocks(cell, blankline)
   end
   if #hdrcells > 0 then
     rows[#rows + 1] =
@@ -209,7 +209,7 @@ Blocks.Table = function(el)
     local row = tbl.rows[i]
     for j=1, #row do
       local cell = row[j]
-      cells[#cells + 1] = blocks(cell)
+      cells[#cells + 1] = blocks(cell, blankline)
     end
     rows[#rows + 1] =
       nowrap(concat{"| ", concat(cells, cellsep), " |", cr})
@@ -239,7 +239,7 @@ Blocks.BulletList = function(el)
   local attr = render_attributes(el, true)
   local result = {attr, cr}
   for i=1,#el.content do
-    result[#result + 1] = hang(blocks(el.content[i]), 2, concat{"-",space})
+    result[#result + 1] = hang(blocks(el.content[i], blankline), 2, concat{"-",space})
   end
   local sep = blankline
   if is_tight_list(el) then
@@ -274,7 +274,7 @@ Blocks.OrderedList = function(el)
     else
       numsp = string.rep(" ", sps)
     end
-    result[#result + 1] = hang(blocks(el.content[i]), width, concat{numstr,numsp})
+    result[#result + 1] = hang(blocks(el.content[i], blankline), width, concat{numstr,numsp})
     num = num + 1
   end
   local sep = blankline
@@ -424,7 +424,7 @@ function Writer (doc, opts)
   local d = blocks(doc.blocks, blankline)
   local notes = {}
   for i=1,#footnotes do
-    local note = hang(blocks(footnotes[i]), 4, concat{format("[^%d]:",i),space})
+    local note = hang(blocks(footnotes[i], blankline), 4, concat{format("[^%d]:",i),space})
     table.insert(notes, note)
   end
   return layout.render(concat{d, blankline, concat(notes, blankline)}, PANDOC_WRITER_OPTIONS.columns)
