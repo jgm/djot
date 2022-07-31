@@ -571,9 +571,18 @@ end
 function Parser:get_matches()
   local sorted = {}
   local subject = self.subject
+  local lastsp, lastep, lastannot
   for i=self.firstpos, self.lastpos do
     if self.matches[i] then
-      sorted[#sorted + 1] = self.matches[i]
+      local sp, ep, annot = unpack_match(self.matches[i])
+      if annot == "str" and lastannot == "str" and lastep + 1 == sp then
+          -- consolidate adjacent strs
+        sorted[#sorted] = make_match(lastsp, ep, annot)
+        lastsp, lastep, lastannot = lastsp, ep, annot
+      else
+        sorted[#sorted + 1] = self.matches[i]
+        lastsp, lastep, lastannot = sp, ep, annot
+      end
     end
   end
   if #sorted > 0 then

@@ -257,21 +257,15 @@ local function to_ast(subject, matches, options)
             block_attributes = nil
           end
           if tag == "verbatim" then
-            if #result >= 3 then
-              -- trim space next to ` at beginning or end
-              local a, b, c, d = result[2], result[3],
-                                 result[#result - 1], result[#result]
-              if b[1] == "str" and find(b[2], "^`") and
-                 ((a[1] == "str" and find(a[2], "^ *$"))
-                  or a[1] == "softbreak") then
-                 table.remove(result, 2)
-              end
-              if c[1] == "str" and find(c[2], "^`") and
-                 ((d[1] == "str" and find(d[2], "^ *$"))
-                  or d[1] == "softbreak") then
-                 table.remove(result, #result)
-              end
+            local s = get_string_content(result)
+            -- trim space next to ` at beginning or end
+            if find(s, "^ +`") then
+              s = s:sub(2)
             end
+            if find(s, "` +$") then
+              s = s:sub(1, #s - 1)
+            end
+            result = {"verbatim", {"str", s}}
             -- check for raw_format, which makes this a raw node
             local sp,ep,ann = unpack_match(matches[idx])
             if ann == "raw_format" then
