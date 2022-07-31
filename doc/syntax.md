@@ -59,8 +59,9 @@ literal `*` character. Backslashes before characters other than ASCII
 punctuation characters are just treated as literal backslashes, with the
 following exceptions:
 
+- Backslash before a newline (or before spaces or tabs followed
+  by a newline) is parsed as a hard line break.
 - Backslash before a space is parsed as a nonbreaking space.
-- Backslash before a newline is parsed as a hard line break.
 
 ### Link
 

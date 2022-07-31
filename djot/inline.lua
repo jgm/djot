@@ -167,7 +167,7 @@ Parser.matchers = {
     -- 92 = \
     [92] = function(self, pos, endpos)
       local subject = self.subject
-      local _, endchar = bounded_find(subject, "^\r?\n",  pos + 1, endpos)
+      local _, endchar = bounded_find(subject, "^[ \t]*\r?\n",  pos + 1, endpos)
       self:add_match(pos, pos, "escape")
       if endchar then
         self:add_match(pos + 1, endchar, "hardbreak")

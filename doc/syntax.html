@@ -381,8 +381,9 @@ literal <code>*</code> character. Backslashes before characters other than ASCII
 punctuation characters are just treated as literal backslashes, with the
 following exceptions:</p>
 <ul>
+<li>Backslash before a newline (or before spaces or tabs followed
+by a newline) is parsed as a hard line break.</li>
 <li>Backslash before a space is parsed as a nonbreaking space.</li>
-<li>Backslash before a newline is parsed as a hard line break.</li>
 </ul>
 </section>
 <section id="link" class="level3">
