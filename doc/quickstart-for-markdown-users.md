@@ -5,7 +5,7 @@ differences you need to be aware of in making the transition.
 
 #### Blank lines
 
-In djot you generally need blank lines around block-level
+In djot you need blank lines around block-level
 elements.  Hence, instead of
 
 ```
@@ -20,6 +20,25 @@ This is some text.
 
 ## My next heading
 ```
+
+Instead of
+
+````
+This is some text.
+``` lua
+local foo = bar.baz or false
+```
+````
+
+you must write
+
+````
+This is some text.
+
+``` lua
+local foo = bar.baz or false
+```
+````
 
 Instead of
 

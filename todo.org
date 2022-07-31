@@ -1,24 +1,6 @@
-* TODO think about whether code blocks should interrupt paragraphs
-If they do, there's room for ambiguity with code spans.
-* TODO vim syntax highlighting
-- [X] Smart punctuation (make sure we get {' '} {" "})
-- [X] Math
-- [X] Footnote reference
-- [X] Line break
-- [X] Comment
-- [X] Emoji
-- [X] Span
-- [ ] Paragraph (need this to avoid capturing block elements mid-para?)
-- [ ] Block quote
-- [ ] List item
-- [ ] Thematic break
-- [ ] Div
-- [ ] Pipe table
-- [ ] Reference link definition
-- [ ] Footnote
-* TODO emacs syntax highlighting
-* TODO create filter API
-as in lcmark
+* TODO create a Lua filter API
+see lcmark for walk code
+but make the API more like pandoc's, with function-based pattern matching
 * TODO build --highlight mode into djot cli
 * TODO API documentation
 * TODO support list tables
@@ -46,6 +28,16 @@ Any content below the list is the caption.
 | address
 | here
 * TODO support wikilinks
-* TODO support example lists
-* TODO support implicit figures?
+obsidian style =[[page name|optional description]]=
+* TODO develop cross-reference / numbering system
+flexible like Tex?
+something to replace pandoc example lists, but also allow you to refer to figures,
+tables, sections, list items, equations?
+* TODO figure syntax
+* TODO syntax for columns
 * TODO support citations
+perhaps worth changing
+@foo [p. 15]
+to
+[+@foo, p. 15]
+or something, to make the syntax cleaner.
