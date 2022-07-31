@@ -46,7 +46,7 @@ syn match escape '\\[\r\n ~!@#$%^&*(){}`\[\]/=\\?+|\'",<-]'he=e-1
 
 syn cluster inline contains=linkurl,emphasis,strong,codespan,attributes,rawattribute,insert,delete,superscript,subscript,highlight,math,smartquote,openbrace,closebrace,emoji,escape,footnoteref,span
 
-syn region codeblock matchgroup=delimiter start='^\s*\z(````*\)\s*\w*\s*$' end='^\s*\z1`*\s*$'
+syn region codeblock matchgroup=delimiter start='^\s*\z(````*\)\s*=\?\w*\s*$' end='^\s*\z1`*\s*$'
 
 hi emphasis term=italic cterm=italic gui=italic
 hi strong term=bold cterm=bold gui=bold
