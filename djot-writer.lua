@@ -18,10 +18,10 @@ local function escape(s)
 end
 
 local format_number = {}
-format_number.Example = format_number.Decimal
 format_number.Decimal = function(n)
   return format("%d", n)
 end
+format_number.Example = format_number.Decimal
 format_number.DefaultStyle = format_number.Decimal
 format_number.LowerAlpha = function(n)
   return string.char(96 + (n % 26))
