@@ -24,6 +24,26 @@ c
 c</p>
 ```
 
+There can be spaces andtabs between the backslash and the newline:
+
+```
+ab\	  
+c
+.
+<p>ab<br>
+c</p>
+```
+
+There can also be spaces and tabs before the backslash, which are ignored:
+
+```
+ab 	 \  	
+c
+.
+<p>ab<br>
+c</p>
+```
+
 An escaped space is a nonbreaking space:
 
 ```

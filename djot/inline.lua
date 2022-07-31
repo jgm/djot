@@ -170,6 +170,20 @@ Parser.matchers = {
       local _, endchar = bounded_find(subject, "^[ \t]*\r?\n",  pos + 1, endpos)
       self:add_match(pos, pos, "escape")
       if endchar then
+        -- see if there were preceding spaces
+        if #self.matches > 0 then
+          local sp, ep, annot = unpack_match(self.matches[#self.matches])
+          if annot == "str" then
+            while subject:byte(ep) == 32 or subject:byte(ep) == 9 do
+              ep = ep -1
+            end
+            if sp == ep then
+              self.matches[#self.matches] = nil
+            else
+              self:add_match(sp, ep, "str")
+            end
+          end
+        end
         self:add_match(pos + 1, endchar, "hardbreak")
         return endchar + 1
       else

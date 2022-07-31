@@ -60,7 +60,8 @@ punctuation characters are just treated as literal backslashes, with the
 following exceptions:
 
 - Backslash before a newline (or before spaces or tabs followed
-  by a newline) is parsed as a hard line break.
+  by a newline) is parsed as a hard line break.  Spaces and tab
+  characters before the backslash are ignored in this case.
 - Backslash before a space is parsed as a nonbreaking space.
 
 ### Link
