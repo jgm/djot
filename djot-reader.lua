@@ -149,7 +149,7 @@ function Renderer:code_block(node)
   else
     attr.class = node.lang .. " " .. attr.class
   end
-  return pandoc.CodeBlock(to_text(node), attr)
+  return pandoc.CodeBlock(to_text(node):gsub("\n$",""), attr)
 end
 
 function Renderer:table(node)
