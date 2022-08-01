@@ -1,0 +1,13 @@
+=============
+str and space
+=============
+
+Hi  there.
+
+---
+
+(source_file
+  (paragraph
+    (str)
+    (space)
+    (str)))
