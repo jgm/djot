@@ -7,8 +7,8 @@
 | `_italic_` or `{_italic_}` | *italic* |
 | `*bold*` or `{*bold*}` | **bold** |
 | `` `verbatim/code` `` | `verbatim/code` |
-| `H~2~O` | H~2~O |
-| `20^th^` | 20^th^ |
+| `H~2~O` | H<sub>2</sub>O |
+| `20^th^` | 20<sup>th</sup> |
 | `{=highlighted=}` | <mark>highlighted</mark> |
 | `{+insert+}` | <ins>insert</ins> |
 | `{-delete-}` | <del>delete</del> |
