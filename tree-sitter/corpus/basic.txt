@@ -7,4 +7,5 @@ Hi  there.
 ---
 
 (source_file
+  (text)
   (text))

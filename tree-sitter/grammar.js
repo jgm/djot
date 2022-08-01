@@ -14,6 +14,8 @@ module.exports = grammar({
     ),
 
     _inlines: $ => choice(
+      prec(3, seq($._space,
+                 choice (prec(4, $.emph), prec(2, $.text)))),
       $.emph,
       $.text,
       $._linebreak
@@ -21,17 +23,17 @@ module.exports = grammar({
 
     emph: $ => seq(
       $.emph_open_delim,
-      $._inlines,
+      prec.right(4, repeat1($._inlines)),
       $.emph_close_delim
     ),
 
-    emph_open_delim: $ => /_/,
+    emph_open_delim: $ => prec(5,/_/),
 
-    emph_close_delim: $ => /_/,
+    emph_close_delim: $ => prec(6,/_/),
 
-    text: $ => prec.right(repeat1(choice(
-      $._space,
-      $._str))),
+    text: $ => choice(
+        $._str,
+        $._space),
 
     _str: $ => /[^ \t_]+/,
 
