@@ -1,0 +1,26 @@
+====
+emph
+====
+
+Hi  _there
+friend_.
+
+_Nested _emph_ ok_
+---
+
+(source_file
+  (text)
+  (emph
+    (emph_open_delim)
+    (text)
+    (emph_close_delim))
+  (text)
+  (emph
+    (emph_open_delim)
+    (text)
+    (emph
+      (emph_open_delim)
+      (text)
+      (emph_close_delim))
+    (text)
+    (emph_close_delim)))

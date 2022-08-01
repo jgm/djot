@@ -6,25 +6,38 @@ module.exports = grammar({
       $._block,
       $.blankline)),
 
-    blankline: $ => /[ \t]\r?\n/,
+    blankline: $ => /\r?\n[ \t]\r?\n/,
 
     _block: $ => choice(
-      $.paragraph
+      $._inlines,
+      prec(20, $.blankline)
     ),
 
-    paragraph: $ => prec.right(repeat1($._inline)),
-
-    _inline: $ => choice(
-      $.str,
-      $.space,
-      $.softbreak
+    _inlines: $ => choice(
+      $.emph,
+      $.text,
+      $._linebreak
     ),
 
-    str: $ => /[^ \t]+/,
+    emph: $ => seq(
+      $.emph_open_delim,
+      $._inlines,
+      $.emph_close_delim
+    ),
 
-    space: $ => /[ \t]+/,
+    emph_open_delim: $ => /_/,
 
-    softbreak: $ => /\r?\n/
+    emph_close_delim: $ => /_/,
+
+    text: $ => prec.right(repeat1(choice(
+      $._space,
+      $._str))),
+
+    _str: $ => /[^ \t_]+/,
+
+    _space: $ => /[ \t]+/,
+
+    _linebreak: $ => /\r?\n/
 
   }
 });
