@@ -144,11 +144,15 @@ Blocks.Div = function(el)
 end
 
 Blocks.RawBlock = function(el)
-  local ticks = 3
-  el.text:gsub("(`+)", function(s) if #s >= ticks then ticks = #s + 1 end end)
-  local fence = string.rep("`", ticks)
-  return concat{fence, " =" .. el.format, cr,
-                el.text, cr, fence, cr}
+  if el.format == "djot" then
+    return concat{el.text, cr}
+  else
+    local ticks = 3
+    el.text:gsub("(`+)", function(s) if #s >= ticks then ticks = #s + 1 end end)
+    local fence = string.rep("`", ticks)
+    return concat{fence, " =" .. el.format, cr,
+                  el.text, cr, fence, cr}
+  end
 end
 
 Blocks.Null = function(el)
@@ -323,7 +327,11 @@ Inlines.LineBreak = function(el)
 end
 
 Inlines.RawInline = function(el)
-  return concat{Inlines.Code(el), "{=", el.format, "}"}
+  if el.format == "djot" then
+    return el.text
+  else
+    return concat{Inlines.Code(el), "{=", el.format, "}"}
+  end
 end
 
 Inlines.Code = function(el)
