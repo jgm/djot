@@ -87,7 +87,7 @@ function Parser.between_matched(c, annotation, defaultmatch, opentest)
     local defaultmatch = defaultmatch or "str"
     local subject = self.subject
     local can_open = find(subject, "^%S", pos + 1)
-    local can_close = true -- find(subject, "^%S", pos - 1)
+    local can_close = find(subject, "^%S", pos - 1)
     local has_open_marker = matches_pattern(self.matches[pos - 1], "^open%_marker")
     local has_close_marker = byte(subject, pos + 1) == 125 -- }
     local endcloser = pos
