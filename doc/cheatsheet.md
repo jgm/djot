@@ -184,7 +184,7 @@ e.g.:
 ## Footnotes
 
 ~~~
-The proof is elementary [^proof].
+The proof is elementary.[^proof]
 
 ...
 
