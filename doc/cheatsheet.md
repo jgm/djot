@@ -57,7 +57,7 @@ for display math.
   * `...` → … (ellipsis)
   * `--` → – (an en-dash)
   * `---` → — (an em-dash)
-  * straight quotes (`"foo"`) are converted to curved style (`“foo”`)
+  * Straight quotes (`"foo"`) are converted to curved style (“foo”).
   * Backslash-escape a punctuation character to remove
     its special meaning.
   * Backslash space = non-breaking space.
