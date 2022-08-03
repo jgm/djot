@@ -1,4 +1,4 @@
-% djot cheatsheet
+# djot cheatsheet
 
 ## Basics
 
