@@ -13,10 +13,12 @@
 | `{+insert+}` | <ins>insert</ins> |
 | `{-delete-}` | <del>delete</del> |
 
-Use triple-backticks for fenced verbatim blocks:
+Use triple-backticks for fenced verbatim blocks. If it's a code
+block, you may append the language name after the opening backticks
+to get syntax highlighting:
 
 ~~~~~~
-```
+```mylang
 func say-hello(nm) {
     print("hello ${nm}!");
 }
@@ -53,8 +55,9 @@ for display math.
 ## Special Characters
 
   * `...` → … (ellipsis)
-  * `--` → – (an n-dash)
-  * `---` → — (an m-dash)
+  * `--` → – (an en-dash)
+  * `---` → — (an em-dash)
+  * straight quotes (`"foo"`) are converted to curved style (`“foo”`)
   * Backslash-escape a punctuation character to remove
     its special meaning.
   * Backslash space = non-breaking space.
@@ -89,9 +92,11 @@ then later:
 
 ## Headings
 
-`# H1`\
-`## H2`\
-`### H3`
+~~~
+# H1
+## H2
+### H3
+~~~
 
 etc.
 
@@ -105,25 +110,24 @@ Itemized list:
  * bears
 ~~~
 
-You can indent your list marker zero or more spaces, using same
+You can indent your list marker zero or more spaces, using the same
 indent for items at same level. If you want a subsequent paragraph to
-be part of a list item, indent at least past the list item marker.
-Sublists must be preceded by a blank line, and must also be indented
-at least past the previous list item's marker.
+be part of a list item, indent at least past the list marker.
 
-See the djot reference for the list of different types of markers
-allowed.
-
-Note that djot supports multi-line forms of almost everything,
-including list items.
+Like subsequent paragraphs, sublists must be preceded by a blank line
+(blank lines are almost always required between block-level elements).
+The sublist markers must also be indented at least past the previous
+list item's marker.
 
 ~~~ 
 Another list:
 
- * First item. This item has a
-long line.
+ * First item. This item has a rather long
+   line, indented after the line breaks to
+   look nice.
 
- * Second item.
+ * Second item. This item has a rather long
+line too, but without the pretty indent.
  
    Second paragraph of second item.
 
@@ -157,11 +161,11 @@ Definition list:
 ## Tables
 
 ~~~
-| Size | Color | Description |
+| Name | Size | Color |
 | --- | --- | --- |
-| small | green | sour, like a lemon, but more zesty |
-| medium | orange | an orange |
-| large | yellow or pink | like a modern pomelo |
+| lime | small | green |
+| orange | medium | orange |
+| grapefruit | large | yellow or pink |
 ~~~
 
 You can alter the alignment of the cells using colons in the
@@ -239,9 +243,9 @@ a top hat and cuff links.
 ## Raw Inline
 
 djot is not HTML-centric. You can add raw content in any format,
-inline and in blocks:
+inline and in blocks, but it must be explicitly marked:
 
-~~~
+~~~~~~
 We had `<sometag>foos</sometag>`{=html} for dinner.
 Then wrapped the leftovers in `\LaTeX`{=latex}.
 
@@ -252,4 +256,4 @@ Then wrapped the leftovers in `\LaTeX`{=latex}.
   Your browser does not support the video tag.
 </video>
 ```
-~~~
+~~~~~~
