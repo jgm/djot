@@ -216,7 +216,7 @@ Watch out!
 :::
 ~~~
 
-is the same as
+is equivalent to
 
 ~~~
 {.warning}
