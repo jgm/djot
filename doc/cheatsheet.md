@@ -111,8 +111,8 @@ Itemized list:
 ~~~
 
 You can indent your list marker zero or more spaces, using the same
-indent for items at same level. If you want a subsequent paragraph to
-be part of a list item, indent at least past the list marker.
+indent for items at same level. If you want a subsequent paragraph
+to be part of a list item, indent at least past the list marker.
 
 Like subsequent paragraphs, sublists must be preceded by a blank line
 (blank lines are almost always required between block-level elements).
@@ -240,7 +240,7 @@ a top hat and cuff links.
 ~~~
 
 
-## Raw Inline
+## Raw Content
 
 djot is not HTML-centric. You can add raw content in any format,
 inline and in blocks, but it must be explicitly marked:
@@ -257,3 +257,6 @@ Then wrapped the leftovers in `\LaTeX`{=latex}.
 </video>
 ```
 ~~~~~~
+
+Raw content is passed through as-is when rendering the specified
+format, otherwise it's ignored.
