@@ -13,17 +13,8 @@
 | `{+insert+}` | <ins>insert</ins> |
 | `{-delete-}` | <del>delete</del> |
 
-Use triple-backticks for fenced verbatim blocks. If it's a code
-block, you may append the language name after the opening backticks
-to get syntax highlighting:
-
-~~~~~~
-```mylang
-func say-hello(nm) {
-    print("hello ${nm}!");
-}
-```
-~~~~~~
+Leave blank lines between paragraphs. A single line break is interpreted
+as a space.
 
 **Block quote**:
 
@@ -41,6 +32,40 @@ func say-hello(nm) {
 Can be longer than three characters, and may contain or be indented
 by spaces/tabs.
 
+
+## Verbatim Block
+
+Use triple-backticks for fenced verbatim blocks.
+
+~~~~~~
+```
+$ tree
+.
+├── aa
+│   └── foo.txt
+├── bb
+│   └── bar.txt
+└── c.png
+```
+~~~~~~
+
+If your verbatim block itself contains triple-backtics, use more
+backticks in your enclosing fence. You may also use tildes instead
+of backticks for your fencing.
+
+
+### Code Blocks
+
+If your verbatim block is a code block, you may append the language
+name after the opening backticks to get syntax highlighting:
+
+~~~~~~
+```mylang
+func say-hello(nm) {
+    print("hello ${nm}!");
+}
+```
+~~~~~~
 
 
 ## Math
