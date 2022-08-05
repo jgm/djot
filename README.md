@@ -17,11 +17,11 @@ The project began as an attempt to implement some of the
 ideas I suggested in my essay [Beyond Markdown](https://johnmacfarlane.net/beyond-markdown.html). (See [Rationale](#rationale), below.)
 
 This repository contains a reference implementation, written
-in Lua, and a [syntax
-description](https://htmlpreview.github.io/?https://github.com/jgm/djot/blob/master/doc/syntax.html).
-There is also a [Quick Start for Markdown
-Users](doc/quickstart-for-markdown-users.md) that outlines
-the main differences.
+in Lua, and a
+[Syntax Description](https://htmlpreview.github.io/?https://github.com/jgm/djot/blob/master/doc/syntax.html).
+There is also a [Cheatsheet](doc/cheatsheet.md) and a
+[Quick Start for Markdown Users](doc/quickstart-for-markdown-users.md)
+that outlines the main differences between djot and Markdown.
 
 Despite being
 written in an interpreted language, the reference implementation
