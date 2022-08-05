@@ -13,8 +13,8 @@
 | `{+insert+}` | <ins>insert</ins> |
 | `{-delete-}` | <del>delete</del> |
 
-Leave blank lines between paragraphs. A single line break is interpreted
-as a space.
+Within a paragraph, a single line break is interpreted as a space.
+Leave a blank line between paragraphs.
 
 **Block quote**:
 
