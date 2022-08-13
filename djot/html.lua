@@ -391,7 +391,10 @@ end
 
 function Renderer:image(node)
   local attrs = {}
-  insert_attribute(attrs, "alt", to_text(node))
+  local alt_text = to_text(node)
+  if #alt_text > 0 then
+    insert_attribute(attrs, "alt", to_text(node))
+  end
   if node.reference then
     local ref = self.references[node.reference]
     if ref then
