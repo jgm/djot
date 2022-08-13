@@ -6,14 +6,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
   <title>Djot syntax reference</title>
   <style>
-    code{white-space: pre-wrap;}
-    span.smallcaps{font-variant: small-caps;}
-    span.underline{text-decoration: underline;}
-    div.column{display: inline-block; vertical-align: top; width: 50%;}
-    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-    ul.task-list{list-style: none;}
-    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
-  </style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: 1;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+</style>
   <style type="text/css">html {
 line-height: 1.4;
 font-family: Georgia, serif;
@@ -1361,7 +1366,7 @@ block quote
 </section>
 <section id="thematic-break" class="level3">
 <h3>Thematic break</h3>
-<p>A line containing four or more <code>*</code> or <code>-</code> characters, and nothing else
+<p>A line containing three or more <code>*</code> or <code>-</code> characters, and nothing else
 (except spaces or tabs) is treated is a thematic break (<code>&lt;hr&gt;</code> in HTML).
 Unlike in Markdown, a thematic break may be indented:</p>
 <div class="example">

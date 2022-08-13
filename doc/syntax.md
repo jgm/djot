@@ -559,7 +559,7 @@ parent container is closed;
 
 ### Thematic break
 
-A line containing four or more `*` or `-` characters, and nothing else
+A line containing three or more `*` or `-` characters, and nothing else
 (except spaces or tabs) is treated is a thematic break (`<hr>` in HTML).
 Unlike in Markdown, a thematic break may be indented:
 
