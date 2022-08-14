@@ -1,7 +1,7 @@
 local make_match, unpack_match
 
-if jit then
-  -- for luajit, we don't have string.pack/unpack, so we use arrays.
+if jit or not string.pack then
+  -- for luajit or lua 5.1, we don't have string.pack/unpack, so we use arrays.
   -- This is faster than using ffi to pack things in C structs.
 
   make_match = function(startpos, endpos, annotation)
@@ -11,7 +11,7 @@ if jit then
   unpack_match = unpack
 
 else
-  -- for standard lua, we use string.pack/unpack which gives a
+  -- for standard lua >= 5.2, we use string.pack/unpack which gives a
   -- more memory-efficient representation than arrays.
 
   make_match = function(startpos, endpos, annotation)

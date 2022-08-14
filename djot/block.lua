@@ -654,35 +654,34 @@ function Parser:parse()
   local subjectlen = #self.subject
   while self.pos <= subjectlen do
 
-    do -- we need our locals inside do so we can goto finish
-      self.indent = 0
-      self.startline = self.pos
-      self.finished_line = false
-      self:get_eol()
+    self.indent = 0
+    self.startline = self.pos
+    self.finished_line = false
+    self:get_eol()
 
-      -- check open containers for continuation
-      self.last_matched_container = 0
-      local idx = 0
-      while idx < #self.containers do
-        idx = idx + 1
-        local container = self.containers[idx]
-        -- skip any indentation
-        self:skip_space()
-        if container:continue() then
-          self.last_matched_container = idx
-        else
-          break
-        end
+    -- check open containers for continuation
+    self.last_matched_container = 0
+    local idx = 0
+    while idx < #self.containers do
+      idx = idx + 1
+      local container = self.containers[idx]
+      -- skip any indentation
+      self:skip_space()
+      if container:continue() then
+        self.last_matched_container = idx
+      else
+        break
       end
+    end
 
-      -- if we hit a close fence, we can move to next line
-      if self.finished_line then
-        while #self.containers > self.last_matched_container do
-          self.containers[#self.containers]:close()
-        end
-        goto finish
+    -- if we hit a close fence, we can move to next line
+    if self.finished_line then
+      while #self.containers > self.last_matched_container do
+        self.containers[#self.containers]:close()
       end
+    end
 
+    if not self.finished_line then
       -- check for new containers
       self:skip_space()
       local is_blank = (self.pos == self.starteol)
@@ -700,66 +699,68 @@ function Parser:parse()
             if spec:open() then
               self.last_matched_container = #self.containers
               if self.finished_line then
-                goto finish
+                check_starts = false
+              else
+                self:skip_space()
+                new_starts = true
+                check_starts = spec.content ~= "text"
               end
-              self:skip_space()
-              new_starts = true
-              check_starts = spec.content ~= "text"
               break
             end
           end
         end
       end
 
-      -- handle remaining content
-      self:skip_space()
+      if not self.finished_line then
+        -- handle remaining content
+        self:skip_space()
 
-      is_blank = (self.pos == self.starteol)
+        is_blank = (self.pos == self.starteol)
 
-      local is_lazy = not is_blank and
-                      not new_starts and
-                      self.last_matched_container < #self.containers and
-                      self.containers[#self.containers].content == 'inline'
+        local is_lazy = not is_blank and
+                        not new_starts and
+                        self.last_matched_container < #self.containers and
+                        self.containers[#self.containers].content == 'inline'
 
-      if not is_lazy and
-        self.last_matched_container < #self.containers then
-        while #self.containers > self.last_matched_container do
-          self.containers[#self.containers]:close()
-        end
-      end
-
-      local tip = self.containers[#self.containers]
-
-      -- add para by default if there's text
-      if not tip or tip.content == 'block' then
-        if is_blank then
-          if not new_starts then
-            -- need to track these for tight/loose lists
-            self:add_match(self.pos, self.endeol, "blankline")
+        if not is_lazy and
+          self.last_matched_container < #self.containers then
+          while #self.containers > self.last_matched_container do
+            self.containers[#self.containers]:close()
           end
-        else
-          para_spec:open()
         end
-        tip = self.containers[#self.containers]
-      end
 
-      if tip then
-        if tip.content == "text" then
-          local startpos = self.pos
-          if tip.indent and self.indent > tip.indent then
-            -- get back the leading spaces we gobbled
-            startpos = startpos - (self.indent - tip.indent)
+        local tip = self.containers[#self.containers]
+
+        -- add para by default if there's text
+        if not tip or tip.content == 'block' then
+          if is_blank then
+            if not new_starts then
+              -- need to track these for tight/loose lists
+              self:add_match(self.pos, self.endeol, "blankline")
+            end
+          else
+            para_spec:open()
           end
-          self:add_match(startpos, self.endeol, "str")
-        elseif tip.content == "inline" then
-          if not is_blank then
-            tip.inline_parser:feed(self.pos, self.endeol)
+          tip = self.containers[#self.containers]
+        end
+
+        if tip then
+          if tip.content == "text" then
+            local startpos = self.pos
+            if tip.indent and self.indent > tip.indent then
+              -- get back the leading spaces we gobbled
+              startpos = startpos - (self.indent - tip.indent)
+            end
+            self:add_match(startpos, self.endeol, "str")
+          elseif tip.content == "inline" then
+            if not is_blank then
+              tip.inline_parser:feed(self.pos, self.endeol)
+            end
           end
         end
       end
     end
 
-    ::finish::
     self.pos = self.endeol + 1
   end
   self:finish()
