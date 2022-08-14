@@ -6,9 +6,20 @@ jobs:
   linux:
 
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        luaVersion:
+          - '5.1'
+          - '5.2'
+          - '5.3'
+          - '5.4'
+          - 'luajit'
     steps:
     - uses: actions/checkout@v1
     - uses: leafo/gh-actions-lua@v9
+      with:
+        luaVersion: ${{ matrix.luaVersion }}
     - uses: leafo/gh-actions-luarocks@v4
     - name: Build and test
       run: |
