@@ -116,7 +116,7 @@ function Parser:parse_table_row(sp, ep)
   end
   local inline_parser = inline.Parser:new(self.subject, self.opts)
   self:add_match(sp, sp, "+cell")
-  while self.pos < ep do
+  while self.pos <= ep do
     -- parse a chunk as inline content
     local _,nextbar = self:find("^[^|\r\n]*|")
     inline_parser:feed(self.pos, nextbar - 1)
