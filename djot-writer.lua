@@ -435,5 +435,5 @@ function Writer (doc, opts)
     local note = hang(blocks(footnotes[i], blankline), 4, concat{format("[^%d]:",i),space})
     table.insert(notes, note)
   end
-  return layout.render(concat{d, blankline, concat(notes, blankline)}, PANDOC_WRITER_OPTIONS.columns)
+  return layout.render(concat{d, blankline, concat(notes, blankline)}, opts.columns)
 end
