@@ -23,13 +23,15 @@ end
 
 local function to_text(node)
   local buffer = {}
-  if node[1] == "str" then
-    buffer[#buffer + 1] = node[2]
-  elseif node[1] == "softbreak" then
+  if node.t == "str" then
+    buffer[#buffer + 1] = node.s
+  elseif node.t == "nbsp" then
+    buffer[#buffer + 1] = "\160"
+  elseif node.t == "softbreak" then
     buffer[#buffer + 1] = " "
-  elseif #node > 1 then
-    for i=2,#node do
-      buffer[#buffer + 1] = to_text(node[i])
+  elseif node.c and #node.c > 0 then
+    for i=1,#node.c do
+      buffer[#buffer + 1] = to_text(node.c[i])
     end
   end
   return table.concat(buffer)
@@ -82,19 +84,19 @@ function Renderer:render(doc, handle)
       handle:write(s)
     end
   end
-  self[doc[1]](self, doc)
+  self[doc.t](self, doc)
 end
 
 
 function Renderer:render_children(node)
-  if #node > 1 then
+  if node.c and #node.c > 0 then
     local oldtight
     if node.tight ~= nil then
       oldtight = self.tight
       self.tight = node.tight
     end
-    for i=2,#node do
-      self[node[i][1]](self, node[i])
+    for i=1,#node.c do
+      self[node.c[i].t](self, node.c[i])
     end
     if node.tight ~= nil then
       self.tight = oldtight
@@ -128,13 +130,14 @@ function Renderer:render_tag(tag, node)
 end
 
 function Renderer:add_backlink(nodes, i)
-  local backlink = {"link", {"str","↩︎︎"}}
-  backlink.destination = "#fnref" .. tostring(i)
-  backlink.attr = {role = "doc-backlink", _keys = {"role"}}
-  if nodes[#nodes][1] == "para" then
-    nodes[#nodes][#(nodes[#nodes]) + 1] = backlink
+  local backlink = {t = "link",
+                    destination = "#fnref" .. tostring(i),
+                    attr = {role = "doc-backlink", _keys = {"role"}},
+                    c = {{t = "str", s = "↩︎︎"}}}
+  if nodes.c[#nodes.c].t == "para" then
+    table.insert(nodes.c[#nodes.c].c, backlink)
   else
-    nodes[#nodes + 1] = {"para", backlink}
+    table.insert(nodes.c, {t = "para", c = {backlink}})
   end
 end
 
@@ -161,7 +164,7 @@ end
 
 function Renderer:raw_block(node)
   if node.format == "html" then
-    self.out(node[2])  -- no escaping
+    self.out(node.s)  -- no escaping
   end
 end
 
@@ -208,7 +211,7 @@ function Renderer:code_block(node)
     self.out(" class=\"language-" .. node.lang .. "\"")
   end
   self.out(">")
-  self:render_children(node)
+  self.out(self:escape_html(node.s))
   self.out("</code></pre>\n")
 end
 
@@ -323,7 +326,7 @@ function Renderer:reference_definition()
 end
 
 function Renderer:footnote_reference(node)
-  local label = node[2]
+  local label = node.s
   local index = self.footnote_index[label]
   if not index then
     index = self.next_footnote_index
@@ -336,7 +339,7 @@ end
 
 function Renderer:raw_inline(node)
   if node.format == "html" then
-    self.out(node[2])  -- no escaping
+    self.out(node.s)  -- no escaping
   end
 end
 
@@ -344,10 +347,10 @@ function Renderer:str(node)
   -- add a span, if needed, to contain attribute on a bare string:
   if node.attr then
     self:render_tag("span", node)
-    self.out(self:escape_html(node[2]))
+    self.out(self:escape_html(node.s))
     self.out("</span>")
   else
-    self.out(self:escape_html(node[2]))
+    self.out(self:escape_html(node.s))
   end
 end
 
@@ -365,7 +368,7 @@ end
 
 function Renderer:verbatim(node)
   self:render_tag("code", node)
-  self:render_children(node)
+  self.out(self:escape_html(node.s))
   self.out("</code>")
 end
 
@@ -501,27 +504,27 @@ end
 
 function Renderer:emoji(node)
   emoji = require("djot.emoji")
-  local found = emoji[node[2]:sub(2,-2)]
+  local found = emoji[node.s:sub(2,-2)]
   if found then
     self.out(found)
   else
-    self.out(node[2])
+    self.out(node.s)
   end
 end
 
 function Renderer:math(node)
-  local math_type = "inline"
+  local math_t = "inline"
   if find(node.attr.class, "display") then
-    math_type = "display"
+    math_t = "display"
   end
   self:render_tag("span", node)
-  if math_type == "inline" then
+  if math_t == "inline" then
     self.out("\\(")
   else
     self.out("\\[")
   end
   self:render_children(node)
-  if math_type == "inline" then
+  if math_t == "inline" then
     self.out("\\)")
   else
     self.out("\\]")

@@ -9,16 +9,13 @@ local unpack_match, get_length, matches_pattern =
 
 local function get_string_content(node)
   local buffer = {}
-  for i=2,#node do
-    local n = node[i]
-    if type(n) ~= "table" then
-      break
-    elseif n[1] == "str" or n[1] == "nbsp" then
-      buffer[#buffer + 1] = n[2]
-    elseif n[1] == "softbreak" then
-      buffer[#buffer + 1] = "\n"
-    else
-      buffer[#buffer + 1] = get_string_content(n)
+  if node.s then
+    buffer[#buffer + 1] = node.s
+  elseif node.t == "softbreak" then
+    buffer[#buffer + 1] = "\n"
+  elseif node.c then
+    for i=1, #node.c do
+      buffer[#buffer + 1] = get_string_content(node.c[i])
     end
   end
   return table.concat(buffer)
@@ -141,18 +138,18 @@ local function copy_attributes(target, source)
   end
 end
 
-local function insert_attributes(targetnode, attrnode)
+local function insert_attributes(targetnode, cs)
   targetnode.attr = targetnode.attr or {_keys = {}}
-  local i=2
-  while i <= #attrnode do
-    local x,y = unpack(attrnode[i])
+  local i=1
+  while i <= #cs do
+    local x, y = cs[i].t, cs[i].s
     if x == "id" or x == "class" then
       insert_attribute(targetnode.attr, x, y)
     elseif x == "key" then
-      local valnode = attrnode[i + 1]
-      if valnode[1] == "value" then
+      local valnode = cs[i + 1]
+      if valnode.t == "value" then
         -- resolve backslash escapes
-        insert_attribute(targetnode.attr, y, valnode[2]:gsub("\\(%p)", "%1"))
+        insert_attribute(targetnode.attr, y, valnode.s:gsub("\\(%p)", "%1"))
       end
       i = i + 1
     end
@@ -161,20 +158,20 @@ local function insert_attributes(targetnode, attrnode)
 end
 
 local function make_definition_list_item(result)
-  assert(result[1] and result[1][1] ~= "list_item", "sanity check")
-  result[1] = "definition_list_item"
-  if result[2] and result[2][1] == "para" then
-    result[2][1] = "term"
+  result.t = "definition_list_item"
+  if result.c and #result.c > 0 and
+     result.c[1].t == "para" then
+    result.c[1].t = "term"
   else
-    table.insert(result, 2, {"term"})
+    table.insert(result.c, 1, {t = "term", c = {}})
   end
-  if result[3] then
-    local defn = {"definition"}
-    for i=3,#result do
-      defn[#defn + 1] = result[i]
-      result[i] = nil
+  if result.c[2] then
+    local defn = {t = "definition", c = {}}
+    for i=2,#result.c do
+      defn.c[#defn.c + 1] = result.c[i]
+      result.c[i] = nil
     end
-    result[3] = defn
+    result.c[2] = defn
   end
 end
 
@@ -219,7 +216,7 @@ local function to_ast(subject, matches, options)
   end
 
   local function get_node(maintag)
-    local nodes = {maintag}
+    local node = { t = maintag, c = {} }
     local stopper
     local block_attributes = nil
     if maintag then
@@ -231,7 +228,7 @@ local function to_ast(subject, matches, options)
       local startpos, endpos, annot = unpack_match(match)
       if stopper and find(annot, stopper) then
         idx = idx + 1
-        return nodes
+        return node
       else
         local mod, tag = string.match(annot, "^([-+]?)(.*)")
         if ignorable[tag] then
@@ -255,6 +252,7 @@ local function to_ast(subject, matches, options)
               identifiers[result.attr.id] = true
             end
             block_attributes = nil
+            -- TODO where do we ever set this to true??
           end
           if tag == "verbatim" then
             local s = get_string_content(result)
@@ -265,55 +263,57 @@ local function to_ast(subject, matches, options)
             if find(s, "` +$") then
               s = s:sub(1, #s - 1)
             end
-            result = {"verbatim", {"str", s}}
+            result = {t = "verbatim", s = s}
             -- check for raw_format, which makes this a raw node
             local sp,ep,ann = unpack_match(matches[idx])
             if ann == "raw_format" then
               local s = get_string_content(result)
-              result = {"raw_inline", s}
+              result.t = "raw_inline"
+              result.s = s
               result.format = sub(subject, sp + 2, ep - 1)
               idx = idx + 1 -- skip the raw_format
             end
           elseif tag == "caption" then
-            if nodes[#nodes][1] == "table" then
+            local prevnode = node.c[#node.c]
+            if prevnode.t == "table" then
               -- move caption in table node
-              table.insert(nodes[#nodes], 2, result)
+              table.insert(prevnode.c, 1, result)
               result = nil
             end
           elseif tag == "reference_definition" then
             local dest = ""
             local key
-            for i=2,#result do
-              if result[i][1] == "reference_key" then
-                key = result[i][2]
+            for i=1,#result.c do
+              if result.c[i].t == "reference_key" then
+                key = result.c[i].s
               end
-              if result[i][1] == "reference_value" then
-                dest = dest .. result[i][2]
+              if result.c[i].t == "reference_value" then
+                dest = dest .. result.c[i].s
               end
             end
             references[key] = { destination = dest,
                                 attributes = result.attr }
           elseif tag == "footnote" then
             local label
-            if result[2][1] == "note_label" then
-              label = result[2][2]
+            if result.c[1].t == "note_label" then
+              label = result.c[1].s
+              table.remove(result.c, 1)
             end
             if label then
-              table.remove(result,2)
               footnotes[label] = result
             end
             result = nil
           elseif tag == "inline_math" then
-            result[1] = "math"
+            result.t = "math"
             result.attr = {class = "math inline", _keys={"class"}}
           elseif tag == "display_math" then
-            result[1] = "math"
+            result.t = "math"
             result.attr = {class = "math display", _keys={"class"}}
           elseif tag == "url" then
-            result[1] = "link"
+            result.t = "link"
             result.destination = get_string_content(result)
           elseif tag == "email" then
-            result[1] = "link"
+            result.t = "link"
             result.destination = "mailto:" .. get_string_content(result)
           elseif tag == "imagetext" or tag == "linktext" then
             -- gobble destination or reference
@@ -326,20 +326,20 @@ local function to_ast(subject, matches, options)
             elseif nextannot == "+reference" then
               idx = idx + 1
               local ref = get_node("reference")
-              if #ref == 1 then -- []
-                result.reference = get_string_content(result):gsub("\r?\n", " ")
-              else
+              if ref.t == "reference" and #ref.c > 0 then
                 result.reference = get_string_content(ref):gsub("\r?\n", " ")
+              else
+                result.reference = get_string_content(result):gsub("\r?\n", " ")
               end
             end
-            result[1] = result[1]:gsub("text","")
+            result.t = result.t:gsub("text","")
           elseif tag == "heading" then
             result.level = get_length(match)
             local heading_str = get_string_content(result)
                                  :gsub("^%s+",""):gsub("%s+$","")
             if not (result.attr and result.attr.id) then
               local ident = get_identifier(heading_str)
-              insert_attributes(result, {nil,{"id", ident}})
+              insert_attributes(result, {{t = "id", s = ident}})
             end
             -- insert into references unless there's a same-named one already:
             if not references[heading_str] then
@@ -350,39 +350,39 @@ local function to_ast(subject, matches, options)
             -- look for a separator line
             -- if found, make the preceding rows headings
             -- and set attributes for column alignments on the table
-            local i=2
+            local i=1
             local aligns = {}
-            while i <= #result do
+            while i <= #result.c do
               local found, align
-              if result[i][1] == "row" then
-                local row = result[i]
-                for j=2,#row do
-                  found, _, align = find(row[j][1], "^separator_(.*)")
+              if result.c[i].t == "row" then
+                local row = result.c[i].c
+                for j=1,#row do
+                  found, _, align = find(row[j].t, "^separator_(.*)")
                   if not found then
                     break
                   end
-                  aligns[j - 1] = align
+                  aligns[j] = align
                 end
                 if found and #aligns > 0 then
                   -- set previous row to head and adjust aligns
-                  local prevrow = result[i - 1]
-                  if prevrow[1] == "row" then
+                  local prevrow = result.c[i - 1]
+                  if prevrow and prevrow.t == "row" then
                     prevrow.head = true
-                    for k=2,#prevrow do
+                    for k=1,#prevrow.c do
                       -- set head on cells too
-                      prevrow[k].head = true
-                      if aligns[k - 1] ~= "default" then
-                        prevrow[k].align = aligns[k - 1]
+                      prevrow.c[k].head = true
+                      if aligns[k] ~= "default" then
+                        prevrow.c[k].align = aligns[k]
                       end
                     end
                   end
-                  table.remove(result,i) -- remove sep line
+                  table.remove(result.c, i) -- remove sep line
                   -- we don't need to increment i because we removed ith elt
                 else
                   if #aligns > 0 then
-                    for l=2,#result[i] do
-                      if aligns[l - 1] ~= "default" then
-                        result[i][l].align = aligns[l - 1]
+                    for l=1,#result.c[i].c do
+                      if aligns[l] ~= "default" then
+                        result.c[i].c[l].align = aligns[l]
                       end
                     end
                   end
@@ -392,50 +392,54 @@ local function to_ast(subject, matches, options)
             end
             result.level = get_length(match)
           elseif tag == "div" then
-            if result[2] and result[2][1] == "class" then
+            if result.c[1] and result.c[1].t == "class" then
               result.attr = result.attr or {_keys = {}}
-              insert_attribute(result.attr, "class", result[2][2])
-              table.remove(result, 2)
+              insert_attribute(result.attr, "class", get_string_content(result.c[1]))
+              table.remove(result.c, 1)
             end
           elseif tag == "code_block" then
-            if result[2] then
-              if result[2][1] == "code_language" then
-                result.lang = result[2][2]
-                table.remove(result, 2)
-              elseif result[2][1] == "raw_format" then
-                local fmt = result[2][2]:sub(2)
-                local s = get_string_content(result)
-                result = {"raw_block", s}
+            if result.c[1] then
+              if result.c[1].t == "code_language" then
+                result.lang = result.c[1].s
+                table.remove(result.c, 1)
+              end
+              if result.c[1].t == "raw_format" then
+                local fmt = result.c[1].s:sub(2)
+                table.remove(result.c, 1)
+                result.t = "raw_block"
                 result.format = fmt
               end
+              result.s = get_string_content(result)
+              result.c = nil
             end
           elseif tag == "block_attributes" then
             if block_attributes then
-              block_attributes[#block_attributes + 1] = result
+              block_attributes[#block_attributes + 1] = result.c
             else
-              block_attributes = {result}
+              block_attributes = {result.c}
             end
             result = nil
           elseif tag == "attributes" then
             -- parse attributes, add to last node
-            local prevnode = nodes[#nodes]
+            local prevnode = node.c[#node.c]
             local endswithspace = false
             if type(prevnode) == "table" then
-              if prevnode[1] == "str" then
+              if prevnode.t == "str" then
                 -- split off last consecutive word of string
                 -- to which to attach attributes
-                local lastwordpos = string.find(prevnode[2], "%w+$")
+                local lastwordpos = string.find(prevnode.s, "%w+$")
                 if not lastwordpos then
                   endswithspace = true
                 elseif lastwordpos > 1 then
-                  local newnode = {"str", sub(prevnode[2], lastwordpos, -1)}
-                  prevnode[2] = sub(prevnode[2], 1, lastwordpos - 1)
-                  nodes[#nodes + 1] = newnode
+                  local newnode = {t = "str",
+                                   s = sub(prevnode.s, lastwordpos, -1)}
+                  prevnode.s = sub(prevnode.s, 1, lastwordpos - 1)
+                  node.c[#node.c + 1] = newnode
                   prevnode = newnode
                 end
               end
               if not endswithspace then
-                insert_attributes(prevnode, result)
+                insert_attributes(prevnode, result.c)
               end
             end
             result = nil
@@ -445,11 +449,11 @@ local function to_ast(subject, matches, options)
             gsub(tag, "%[([^]]*)%]", function(x) styles[#styles + 1] = x end)
             -- create a list node with the consecutive list items
             -- of the same kind
-            local list = {"list", result}
+            local list = {t = "list", c = {result}}
             -- put the attributes from the first item on the list itself:
             list.attr = result.attr
             result.attr = nil
-            result[1] = "list_item"
+            result.t = "list_item"
             if marker == ":" then
               make_definition_list_item(result)
             end
@@ -480,14 +484,17 @@ local function to_ast(subject, matches, options)
               -- at this point styles contains the styles that match all items
               -- in the list so far...
 
-              list[#list].tight = is_tight(matches, startidx, idx - 1, false)
+              if #list.c > 0 then
+                list.c[#list.c].tight =
+                  is_tight(matches, startidx, idx - 1, false)
+              end
               startidx = idx
               idx = idx + 1
               local item = get_node(tag)
               if tag == "list_item[X]" then
                 set_checkbox(item, startidx)
               end
-              item[1] = "list_item"
+              item.t = "list_item"
               if sourcepos then
                 item.pos = {sp, finalpos}
                 list.pos[2] = item.pos[2]
@@ -495,21 +502,24 @@ local function to_ast(subject, matches, options)
               if marker == ":" then
                 make_definition_list_item(item)
               end
-              list[#list + 1] = item
+              list.c[#list.c + 1] = item
               nextitem = matches[idx]
             end
-            list[#list].tight = is_tight(matches, startidx, idx - 1, true)
+            if #list.c > 0 then
+              list.c[#list.c].tight =
+                is_tight(matches, startidx, idx - 1, true)
+            end
             local tight = true
-            for i=2,#list do
-              tight = tight and list[i].tight
-              list[i].tight = nil
+            for i=1,#list.c do
+              tight = tight and list.c[i].tight
+              list.c[i].tight = nil
             end
             list.list_style = styles[1] -- resolve, if still ambiguous
             list.tight = tight
             list.start = get_list_start(marker, list.list_style)
             result = list
           end
-          nodes[#nodes + 1] = result
+          node.c[#node.c + 1] = result
         elseif mod == "-" then -- close
           assert(false, "unmatched " .. annot .. " encountered at byte " ..
                    startpos)
@@ -517,22 +527,22 @@ local function to_ast(subject, matches, options)
           return nil
         elseif tag == "reference_key" then
           local key = sub(subject, startpos + 1, endpos - 1)
-          local result = {tag, key}
+          local result = {t = "reference_key", s = key}
           idx = idx + 1
-          nodes[#nodes + 1] = result
+          node.c[#node.c + 1] = result
         elseif tag == "reference_value" then
           local val = sub(subject, startpos, endpos)
-          local result = {tag, val}
+          local result = {t = "reference_value", s = val}
           idx = idx + 1
-          nodes[#nodes + 1] = result
+          node.c[#node.c + 1] = result
         else -- leaf
           local result
           if tag == "softbreak" then
-            result = {tag}
+            result = {t = tag}
           elseif tag == "footnote_reference" then
-            result = {tag, sub(subject, startpos + 2, endpos - 1)}
+            result = {t = tag, s = sub(subject, startpos + 2, endpos - 1)}
           else
-            result = {tag, sub(subject, startpos, endpos)}
+            result = {t = tag, s = sub(subject, startpos, endpos)}
           end
           if sourcepos then
             result.pos = {startpos, endpos}
@@ -545,12 +555,12 @@ local function to_ast(subject, matches, options)
           end
           idx = idx + 1
           if result then
-            nodes[#nodes + 1] = result
+            node.c[#node.c + 1] = result
           end
         end
       end
     end
-    return nodes
+    return node
   end
 
   local doc = get_node("doc")
@@ -559,41 +569,45 @@ local function to_ast(subject, matches, options)
   return doc
 end
 
-local function render_nodes(nodes, handle, init, indent)
+local function render_node(node, handle, init, indent)
   indent = indent or 0
   init = init or 1
-  for i=init,#nodes do
-    local node = nodes[i]
-    handle:write(rep(" ", indent))
-    if type(node) == "string" then
-      handle:write(format("%q",node))
-    else
-      handle:write(node[1])
-      if node.pos then
-        handle:write(format(" (%d-%d)", node.pos[1], node.pos[2]))
-      end
-      for k,v in pairs(node) do
-        if type(k) == "string" and k ~= "pos" and k ~= "attr" then
-          handle:write(format(" %s=%q", k, tostring(v)))
-        end
-      end
-      if node.attr then
-        local keys = node.attr._keys
-        for j=1,#keys do
-          local k = keys[j]
-          handle:write(format(" %s=%q", k, node.attr[k]))
-        end
+  handle:write(rep(" ", indent))
+  if node.t then
+    handle:write(node.t)
+    if node.pos then
+      handle:write(format(" (%d-%d)", node.pos[1], node.pos[2]))
+    end
+    for k,v in pairs(node) do
+      if type(k) == "string" and k ~= "c" and
+          k ~= "type" and k ~= "pos" and k ~= "attr"  and
+          k ~= "references" and k ~= "footnotes" then
+        handle:write(format(" %s=%q", k, tostring(v)))
       end
     end
-    handle:write("\n")
-    if node[2] then -- children
-      render_nodes(node, handle, 2, indent + 2)
+    if node.attr then
+      local keys = node.attr._keys
+      for j=1,#keys do
+        local k = keys[j]
+        handle:write(format(" %s=%q", k, node.attr[k]))
+      end
+    end
+  else
+    print("UNKNOWN:")
+    print(require'inspect'(node))
+    os.exit(1)
+  end
+  handle:write("\n")
+  if node.c then
+    for _,v in ipairs(node.c) do
+      render_node(v, handle, 2, indent + 2)
     end
   end
 end
 
 local function render(doc, handle)
-  render_nodes(doc, handle, 2, 0)
+  handle:write(require'djot.json'.encode(doc) .. "\n")
+  render_node(doc, handle, 2, 0)
   if doc.references then
     handle:write("references = {\n")
     for k,v in pairs(doc.references) do
@@ -605,7 +619,7 @@ local function render(doc, handle)
     handle:write("footnotes = {\n")
     for k,v in pairs(doc.footnotes) do
       handle:write(format("  [%q] =\n", k))
-      render_nodes(v, handle, 2, 4)
+      render_node(v, handle, 2, 4)
     end
     handle:write("}\n")
   end
