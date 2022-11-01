@@ -1,4 +1,5 @@
 local make_match, unpack_match
+local unpack = unpack or table.unpack
 
 if jit or not string.pack then
   -- for luajit or lua 5.1, we don't have string.pack/unpack, so we use arrays.
@@ -8,7 +9,7 @@ if jit or not string.pack then
     return {startpos, endpos, annotation}
   end
 
-  unpack_match = table.unpack
+  unpack_match = unpack
 
 else
   -- for standard lua >= 5.2, we use string.pack/unpack which gives a
