@@ -8,7 +8,7 @@ if jit or not string.pack then
     return {startpos, endpos, annotation}
   end
 
-  unpack_match = unpack
+  unpack_match = table.unpack
 
 else
   -- for standard lua >= 5.2, we use string.pack/unpack which gives a
