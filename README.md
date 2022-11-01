@@ -431,7 +431,7 @@ parser:render_html(io.stdout)
 
 The code for djot (excluding the test suite) is standard Lua,
 compatible with lua 5.1--5.4 and with luajit. It has no external
-dependencies.
+dependencies. You can run it with `lua ./bin/main.lua`.
 
 `make install` will build the rockspec and install the
 library and executable using luarocks. Once installed,
