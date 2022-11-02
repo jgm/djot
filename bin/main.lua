@@ -6,6 +6,7 @@ djot [opts] [file*]
 Options:
 -m        Show matches.
 -a        Show AST.
+-j        Use JSON for -m or -a.
 -r        Show references.
 -p        Include source positions in AST.
 -M        Show memory usage.
@@ -27,6 +28,8 @@ for _,arg in ipairs(arg) do
       opts.matches = true
     elseif arg == "-a" then
       opts.ast = true
+    elseif arg == "-j" then
+      opts.json = true
     elseif arg == "-p" then
       opts.sourcepos = true
     elseif arg == "-v" then
@@ -80,9 +83,9 @@ end
 
 
 if opts.matches then
-  parser:render_matches(io.stdout)
+  parser:render_matches(io.stdout, opts.json)
 elseif opts.ast then
-  parser:render_ast(io.stdout)
+  parser:render_ast(io.stdout, opts.json)
 else
   parser:render_html(io.stdout)
 end

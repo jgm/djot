@@ -606,7 +606,6 @@ local function render_node(node, handle, init, indent)
 end
 
 local function render(doc, handle)
-  handle:write(require'djot.json'.encode(doc) .. "\n")
   render_node(doc, handle, 2, 0)
   if doc.references then
     handle:write("references = {\n")
