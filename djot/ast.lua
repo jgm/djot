@@ -291,8 +291,10 @@ local function to_ast(subject, matches, options)
                 dest = dest .. result.c[i].s
               end
             end
-            references[key] = { destination = dest,
-                                attributes = result.attr }
+            references[key] = { destination = dest }
+             if result.attr then
+               references[key].attributes = result.attr
+             end
           elseif tag == "footnote" then
             local label
             if result.c[1].t == "note_label" then
@@ -343,8 +345,7 @@ local function to_ast(subject, matches, options)
             end
             -- insert into references unless there's a same-named one already:
             if not references[heading_str] then
-              references[heading_str] =
-                {destination = "#" .. result.attr.id, attributes = {_keys={}}}
+              references[heading_str] = {destination = "#" .. result.attr.id}
             end
           elseif tag == "table" then
             -- look for a separator line
