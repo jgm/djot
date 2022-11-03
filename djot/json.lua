@@ -59,6 +59,10 @@ local function encode_nil(val)
   return "null"
 end
 
+local longnames =
+  { c = "children",
+    t = "type",
+    s = "text" }
 
 local function encode_table(val, stack)
   local res = {}
@@ -94,8 +98,10 @@ local function encode_table(val, stack)
       if type(k) ~= "string" then
         error("invalid table: mixed or invalid key types")
       end
+      -- Added by JGM:
       if string.sub(k,1,1) ~= "_" then
-        table.insert(res, encode(k, stack) .. ":" .. encode(v, stack))
+        local key = longnames[k] or k
+        table.insert(res, encode(key, stack) .. ":" .. encode(v, stack))
       end
     end
     stack[val] = nil
