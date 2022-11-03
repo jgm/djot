@@ -600,8 +600,8 @@ local function render_node(node, handle, init, indent)
       end
     end
   else
-    print("UNKNOWN:")
-    print(require'inspect'(node))
+    io.stderr:write("Encountered node without tag:\n" ..
+                      require'inspect'(node))
     os.exit(1)
   end
   handle:write("\n")
