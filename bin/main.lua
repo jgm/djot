@@ -24,24 +24,26 @@ local files = {}
 
 for _,arg in ipairs(arg) do
   if string.find(arg, "^%-") then
-    if arg == "-m" then
-      opts.matches = true
-    elseif arg == "-a" then
-      opts.ast = true
-    elseif arg == "-j" then
-      opts.json = true
-    elseif arg == "-p" then
-      opts.sourcepos = true
-    elseif arg == "-v" then
-      opts.verbose = true
-    elseif arg == "-M" then
-      opts.memory = true
-    elseif arg == "-h" then
-      io.stdout:write(help)
-      os.exit(0)
-    else
-      err("Unknown option " .. arg, 1)
-    end
+    string.gsub(arg, "(%l)", function(arg)
+      if arg == "m" then
+        opts.matches = true
+      elseif arg == "a" then
+        opts.ast = true
+      elseif arg == "j" then
+        opts.json = true
+      elseif arg == "p" then
+        opts.sourcepos = true
+      elseif arg == "v" then
+        opts.verbose = true
+      elseif arg == "M" then
+        opts.memory = true
+      elseif arg == "h" then
+        io.stdout:write(help)
+        os.exit(0)
+      else
+        err("Unknown option " .. arg, 1)
+      end
+    end)
   else
     files[#files + 1] = arg
   end
