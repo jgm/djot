@@ -24,7 +24,8 @@
 --
 -- * Removed JSON decoding code
 -- * Add code to ignore keys beginning with '_'
-
+-- * Revise short names used in internal AST to longer descriptive names,
+--   e.g. c -> children.
 
 local json = { _version = "0.1.2" }
 
