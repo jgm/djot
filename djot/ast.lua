@@ -542,6 +542,12 @@ local function to_ast(subject, matches, options)
             result = {t = tag}
           elseif tag == "footnote_reference" then
             result = {t = tag, s = sub(subject, startpos + 2, endpos - 1)}
+          elseif tag == "emoji" then
+            result = {t = "emoji",
+                      alias = sub(subject, startpos + 1, endpos - 1)}
+            emoji = require("djot.emoji")
+            local found = emoji[result.alias]
+            result.s = found or (":" .. result.alias .. ":")
           else
             result = {t = tag, s = sub(subject, startpos, endpos)}
           end
@@ -581,7 +587,7 @@ local function render_node(node, handle, init, indent)
     end
     for k,v in pairs(node) do
       if type(k) == "string" and k ~= "c" and
-          k ~= "type" and k ~= "pos" and k ~= "attr"  and
+          k ~= "t" and k ~= "pos" and k ~= "attr"  and
           k ~= "references" and k ~= "footnotes" then
         handle:write(format(" %s=%q", k, tostring(v)))
       end

@@ -503,13 +503,7 @@ function Renderer:en_dash()
 end
 
 function Renderer:emoji(node)
-  emoji = require("djot.emoji")
-  local found = emoji[node.s:sub(2,-2)]
-  if found then
-    self.out(found)
-  else
-    self.out(node.s)
-  end
+  self.out(node.s)
 end
 
 function Renderer:math(node)
