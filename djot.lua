@@ -44,7 +44,7 @@ function Parser:render_matches(handle, use_json)
   end
   local matches = self:get_matches()
   self:issue_warnings(io.stderr)
-  if json then
+  if use_json then
     local formatted_matches = {}
     for i=1,#matches do
       local startpos, endpos, annotation = unpack_match(matches[i])
@@ -72,7 +72,7 @@ function Parser:render_ast(handle, use_json)
     self:build_ast()
   end
   self:issue_warnings(io.stderr)
-  if json then
+  if use_json then
     handle:write(json.encode(self.ast) .. "\n")
   else
     ast.render(self.ast, handle)
