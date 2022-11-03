@@ -62,7 +62,7 @@ end
 
 local longnames =
   { c = "children",
-    t = "type",
+    t = "tag",
     s = "text" }
 
 local function encode_table(val, stack)
