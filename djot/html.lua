@@ -503,7 +503,7 @@ function Renderer:en_dash()
 end
 
 function Renderer:emoji(node)
-  self.out(node.s)
+  self.out(node.s or (":" .. node.alias .. ":"))
 end
 
 function Renderer:math(node)

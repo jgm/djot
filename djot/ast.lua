@@ -547,7 +547,7 @@ local function to_ast(subject, matches, options)
                       alias = sub(subject, startpos + 1, endpos - 1)}
             emoji = require("djot.emoji")
             local found = emoji[result.alias]
-            result.s = found or (":" .. result.alias .. ":")
+            result.s = found
           else
             result = {t = tag, s = sub(subject, startpos, endpos)}
           end
