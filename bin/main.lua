@@ -7,7 +7,6 @@ Options:
 -m        Show matches.
 -a        Show AST.
 -j        Use JSON for -m or -a.
--r        Show references.
 -p        Include source positions in AST.
 -M        Show memory usage.
 -v        Verbose (show warnings).
