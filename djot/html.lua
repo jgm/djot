@@ -392,6 +392,10 @@ function Renderer:link(node)
   self.out("</a>")
 end
 
+Renderer.url = Renderer.link
+
+Renderer.email = Renderer.link
+
 function Renderer:image(node)
   local attrs = {}
   local alt_text = to_text(node)

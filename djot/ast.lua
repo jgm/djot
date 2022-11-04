@@ -312,10 +312,10 @@ local function to_ast(subject, matches, options)
             result.t = "math"
             result.attr = {class = "math display", _keys={"class"}}
           elseif tag == "url" then
-            result.t = "link"
+            result.t = "url"
             result.destination = get_string_content(result)
           elseif tag == "email" then
-            result.t = "link"
+            result.t = "email"
             result.destination = "mailto:" .. get_string_content(result)
           elseif tag == "imagetext" or tag == "linktext" then
             -- gobble destination or reference
