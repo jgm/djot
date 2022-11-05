@@ -33,6 +33,7 @@ pathological:
 .PHONY: pathological
 
 bench: m.dj
+	du -h m.dj
 	-bench "LUA_PATH='./?.lua' luajit bin/main.lua m.dj"
 	-bench "LUA_PATH='./?.lua' lua bin/main.lua m.dj"
 .PHONY: bench
