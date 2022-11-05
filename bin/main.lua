@@ -18,12 +18,12 @@ local function err(msg, code)
   os.exit(code)
 end
 
-local opts = { matches = false, references = false }
+local opts = {}
 local files = {}
 
 for _,arg in ipairs(arg) do
   if string.find(arg, "^%-") then
-    string.gsub(arg, "(%l)", function(arg)
+    string.gsub(arg, "(%a)", function(arg)
       if arg == "m" then
         opts.matches = true
       elseif arg == "a" then
