@@ -430,7 +430,7 @@ local function to_ast(subject, matches, options, warn)
               if prevnode.t == "str" then
                 -- split off last consecutive word of string
                 -- to which to attach attributes
-                local lastwordpos = string.find(prevnode.s, "%w+$")
+                local lastwordpos = string.find(prevnode.s, "[^%s]+$")
                 if not lastwordpos then
                   endswithspace = true
                 elseif lastwordpos > 1 then

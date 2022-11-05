@@ -1,3 +1,24 @@
+An inline attribute allies to the preceding element, which might
+be complex (span, emphasis, link) or a simple word (defined as a
+sequence of non-ASCII-whitespace characters).
+```
+foo привет{.ru}
+.
+<p>foo <span class="ru">привет</span></p>
+```
+
+```
+(some text){.attr}
+.
+<p>(some <span class="attr">text)</span></p>
+```
+
+```
+[some text]{.attr}
+.
+<p><span class="attr">some text</span></p>
+```
+
 Ensure that emphasis that starts before the attribute can still close,
 even if the attribute contains a potential closer.
 
@@ -10,7 +31,7 @@ a *b{#id key="*"}*
 ```
 a *b{#id key="*"}o
 .
-<p>a *<span id="id" key="*">b</span>o</p>
+<p>a <span id="id" key="*">*b</span>o</p>
 ```
 
 Don't allow attributes to start when we're parsing a potential
