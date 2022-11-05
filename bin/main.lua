@@ -64,7 +64,15 @@ else
   inp = table.concat(buff, "\n")
 end
 
-local parser = djot.Parser:new(inp, opts)
+local warn
+if opts.verbose then
+  warn = function(warning)
+    io.stderr:write(string.format("%s at byte position %d\n",
+      warning.message, warning.pos))
+    end
+end
+
+local parser = djot.Parser:new(inp, opts, warn)
 
 local function memusage(location)
   collectgarbage("collect")

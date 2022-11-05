@@ -28,22 +28,11 @@ end
 
 local Parser = block.Parser
 
-function Parser:issue_warnings(handle)
-  if self.opts.verbose then
-    local warnings = self.warnings
-    for i=1,#warnings do
-      handle:write(string.format("Warning: %s at byte position %d\n",
-                                    warnings[i][2], warnings[i][1]))
-    end
-  end
-end
-
 function Parser:render_matches(handle, use_json)
   if not handle then
     handle = StringHandle:new()
   end
   local matches = self:get_matches()
-  self:issue_warnings(io.stderr)
   if use_json then
     local formatted_matches = {}
     for i=1,#matches do
@@ -71,7 +60,6 @@ function Parser:render_ast(handle, use_json)
   if not self.ast then
     self:build_ast()
   end
-  self:issue_warnings(io.stderr)
   if use_json then
     handle:write(json.encode(self.ast) .. "\n")
   else
@@ -87,7 +75,6 @@ function Parser:render_html(handle)
   if not self.ast then
     self:build_ast()
   end
-  self:issue_warnings(io.stderr)
   local renderer = html.Renderer:new()
   renderer:render(self.ast, handle)
   return handle:flush()

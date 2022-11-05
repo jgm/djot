@@ -16,12 +16,12 @@ end
 
 local Parser = {}
 
-function Parser:new(subject, opts)
+function Parser:new(subject, opts, warn)
   local state =
     { opts = opts or {}, -- options
-      subject = subject,
+      warn = warn or function() end, -- function to issue warnings
+      subject = subject, -- text to parse
       matches = {}, -- table pos : (endpos, annotation)
-      warnings = {}, -- array of {pos, string} arrays
       openers = {}, -- map from closer_type to array of (pos, data) in reverse order
       verbatim = 0, -- parsing verbatim span to be ended by n backticks
       verbatim_type = nil, -- whether verbatim is math or regular
@@ -569,7 +569,6 @@ function Parser:in_verbatim()
   return self.verbatim > 0
 end
 
--- Return parse results and any warnings.
 function Parser:get_matches()
   local sorted = {}
   local subject = self.subject
@@ -604,13 +603,12 @@ function Parser:get_matches()
       sorted[#sorted] = make_match(startpos, endpos, annot)
     end
     if self.verbatim > 0 then -- unclosed verbatim
-      self.warnings[#self.warnings + 1] =
-        {startpos, "Unclosed verbatim"}
+      self.warn({ message = "Unclosed verbatim", pos = startpos })
       sorted[#sorted + 1] = make_match(startpos, endpos,
                                        "-" .. self.verbatim_type)
     end
   end
-  return sorted, self.warnings
+  return sorted
 end
 
 return { Parser = Parser }

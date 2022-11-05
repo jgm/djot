@@ -403,8 +403,7 @@ local function to_ast(subject, matches, options)
               if result.c[1].t == "code_language" then
                 result.lang = result.c[1].s
                 table.remove(result.c, 1)
-              end
-              if result.c[1].t == "raw_format" then
+              elseif result.c[1].t == "raw_format" then
                 local fmt = result.c[1].s:sub(2)
                 table.remove(result.c, 1)
                 result.t = "raw_block"
