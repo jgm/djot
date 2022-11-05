@@ -177,9 +177,12 @@ end
 
 -- create an abstract syntax tree based on an event
 -- stream and references
-local function to_ast(subject, matches, options)
+local function to_ast(subject, matches, options, warn)
   if not options then
     options = {}
+  end
+  if not warn then
+    warn = function() end
   end
   local idx = 1
   local matcheslen = #matches
@@ -440,6 +443,8 @@ local function to_ast(subject, matches, options)
               end
               if not endswithspace then
                 insert_attributes(prevnode, result.c)
+              else
+                warn({message = "Ignoring unattached attribute", pos = startpos})
               end
             end
             result = nil

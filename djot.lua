@@ -50,7 +50,7 @@ function Parser:render_matches(handle, use_json)
 end
 
 function Parser:build_ast()
-  self.ast = ast.to_ast(self.subject, self.matches, self.opts)
+  self.ast = ast.to_ast(self.subject, self.matches, self.opts, self.warn)
 end
 
 function Parser:render_ast(handle, use_json)
