@@ -22,7 +22,6 @@ end
 
 function StringHandle:flush()
   local result = table.concat(self)
-  self = {}
   return result
 end
 

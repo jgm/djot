@@ -2,7 +2,6 @@ local ast = require("djot.ast")
 local unpack = unpack or table.unpack
 local insert_attribute, copy_attributes =
   ast.insert_attribute, ast.copy_attributes
-local emoji -- require this later, only if emoji encountered
 local format = string.format
 local find, gsub = string.find, string.gsub
 

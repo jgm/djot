@@ -1,5 +1,5 @@
 local match = require("djot.match")
-local unpack = unpack or table.unpack
+local emoji -- require this later, only if emoji encountered
 
 local find, lower, sub, gsub, rep, format =
   string.find, string.lower, string.sub, string.gsub, string.rep, string.format
@@ -83,13 +83,12 @@ local function is_tight(matches, startidx, endidx, is_last_item)
   for i=startidx, endidx do
     local _, _, x = unpack_match(matches[i])
     if x == "blankline" then
-      if matches_pattern(matches[i+1], "%+list_item") then
+      if not ((matches_pattern(matches[i+1], "%+list_item") or
+              (matches_pattern(matches[i+1], "%-list_item") and
+               (is_last_item or
+                 matches_pattern(matches[i+2], "%-list_item"))))) then
         -- don't count blank lines before list starts
-      elseif matches_pattern(matches[i+1], "%-list_item") and
-        (is_last_item or matches_pattern(matches[i+2], "%-list_item")) then
-        -- don't count blank lines at end of nested lists
-        -- or end of last item
-      else
+        -- don't count blank lines at end of nested lists or end of last item
         blanklines = blanklines + 1
       end
     end
@@ -196,7 +195,6 @@ local function to_ast(subject, matches, options, warn)
     local base = s:gsub("[][~!@#$%^&*(){}`,.<>\\|=+/?]","")
                   :gsub("^%s+",""):gsub("%s+$","")
                   :gsub("%s+","-")
-    local suffix = ""
     local i = 0
     local ident = base
     -- generate unique id
@@ -227,8 +225,8 @@ local function to_ast(subject, matches, options, warn)
       stopper = "^%-" .. gsub(maintag, "%[.*$", "")
     end
     while idx <= matcheslen do
-      local match = matches[idx]
-      local startpos, endpos, annot = unpack_match(match)
+      local matched = matches[idx]
+      local startpos, endpos, annot = unpack_match(matched)
       if stopper and find(annot, stopper) then
         idx = idx + 1
         return node
@@ -270,9 +268,9 @@ local function to_ast(subject, matches, options, warn)
             -- check for raw_format, which makes this a raw node
             local sp,ep,ann = unpack_match(matches[idx])
             if ann == "raw_format" then
-              local s = get_string_content(result)
+              local str = get_string_content(result)
               result.t = "raw_inline"
-              result.s = s
+              result.s = str
               result.format = sub(subject, sp + 2, ep - 1)
               idx = idx + 1 -- skip the raw_format
             end
@@ -339,7 +337,7 @@ local function to_ast(subject, matches, options, warn)
             end
             result.t = result.t:gsub("text","")
           elseif tag == "heading" then
-            result.level = get_length(match)
+            result.level = get_length(matched)
             local heading_str = get_string_content(result)
                                  :gsub("^%s+",""):gsub("%s+$","")
             if not (result.attr and result.attr.id) then
@@ -394,7 +392,7 @@ local function to_ast(subject, matches, options, warn)
                 end
               end
             end
-            result.level = get_length(match)
+            result.level = get_length(matched)
           elseif tag == "div" then
             if result.c[1] and result.c[1].t == "class" then
               result.attr = result.attr or {_keys = {}}
@@ -580,9 +578,8 @@ local function to_ast(subject, matches, options, warn)
   return doc
 end
 
-local function render_node(node, handle, init, indent)
+local function render_node(node, handle, indent)
   indent = indent or 0
-  init = init or 1
   handle:write(rep(" ", indent))
   if node.t then
     handle:write(node.t)
@@ -611,13 +608,13 @@ local function render_node(node, handle, init, indent)
   handle:write("\n")
   if node.c then
     for _,v in ipairs(node.c) do
-      render_node(v, handle, 2, indent + 2)
+      render_node(v, handle, indent + 2)
     end
   end
 end
 
 local function render(doc, handle)
-  render_node(doc, handle, 2, 0)
+  render_node(doc, handle, 0)
   if doc.references then
     handle:write("references = {\n")
     for k,v in pairs(doc.references) do
@@ -629,7 +626,7 @@ local function render(doc, handle)
     handle:write("footnotes = {\n")
     for k,v in pairs(doc.footnotes) do
       handle:write(format("  [%q] =\n", k))
-      render_node(v, handle, 2, 4)
+      render_node(v, handle, 4)
     end
     handle:write("}\n")
   end

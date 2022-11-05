@@ -8,9 +8,10 @@ local find, sub, byte = string.find, string.sub, string.byte
 local Container = {}
 
 function Container:new(spec, data)
+  self = spec
   local contents = {}
-  setmetatable(contents, spec)
-  spec.__index = spec
+  setmetatable(contents, self)
+  self.__index = self
   if data then
     for k,v in pairs(data) do
       contents[k] = v

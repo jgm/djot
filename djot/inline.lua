@@ -116,7 +116,6 @@ function Parser.between_matched(c, annotation, defaultmatch, opentest)
     end
 
     local openers = self.openers[c]
-    local matched = false
     if can_close and openers and #openers > 0 then
        -- check openers for a match
       local openpos, openposend = unpack(openers[#openers])
@@ -253,7 +252,6 @@ Parser.matchers = {
         if opener[3] == "reference_link" then
           -- found a reference link
           -- add the matches
-          local subject = self.subject
           local is_image = bounded_find(subject, "^!", opener[1] - 1, endpos)
                   and not bounded_find(subject, "^[\\]", opener[1] - 2, endpos)
           if is_image then
