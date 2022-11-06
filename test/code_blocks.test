@@ -54,3 +54,12 @@ two
 <pre><code>two
 </code></pre>
 ````
+
+Empty code block:
+
+````
+```
+```
+.
+<pre><code></code></pre>
+````

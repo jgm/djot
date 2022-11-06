@@ -410,9 +410,9 @@ local function to_ast(subject, matches, options, warn)
                 result.t = "raw_block"
                 result.format = fmt
               end
-              result.s = get_string_content(result)
-              result.c = nil
             end
+            result.s = get_string_content(result)
+            result.c = nil
           elseif tag == "block_attributes" then
             if block_attributes then
               block_attributes[#block_attributes + 1] = result.c
