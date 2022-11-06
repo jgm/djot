@@ -66,7 +66,7 @@ Here are some design goals:
 
 4. Expressive blind spots should be avoided. In commonmark,
     you're out of luck if you want to produce the HTML
-    `a<emph>?</emph>b`, because the flanking rules classify
+    `a<em>?</em>b`, because the flanking rules classify
     the first asterisk in `a*?*b` as right-flanking. There is a
     way around this, but it's ugly (using a numerical entity instead
     of `a`). In djot there should not be expressive blind spots of
@@ -296,7 +296,7 @@ These goals motivated the following decisions:
   This is the introductory paragraph, with
   an identifier `introduction`.
 
-                             {.important color="blue" #heading}
+             {.important color="blue" #heading}
   ## heading
 
   The word *atelier*{weight="600"} is French.
