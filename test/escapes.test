@@ -6,7 +6,7 @@ ASCII punctuation characters can be escaped:
 <p>`*_[#</p>
 ```
 
-Non-ASCII pnuctuation characters can't be:
+Non-ASCII punctuation characters can't be escaped:
 
 ```
 \a\«
@@ -24,7 +24,7 @@ c
 c</p>
 ```
 
-There can be spaces andtabs between the backslash and the newline:
+There can be spaces and tabs between the backslash and the newline:
 
 ```
 ab\	  
@@ -44,7 +44,7 @@ c
 c</p>
 ```
 
-An escaped space is a nonbreaking space:
+An escaped space is a non-breaking space:
 
 ```
 a\ b
