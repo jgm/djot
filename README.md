@@ -296,7 +296,7 @@ These goals motivated the following decisions:
   This is the introductory paragraph, with
   an identifier `introduction`.
 
-           {.important color="blue" #heading}
+             {.important color="blue" #heading}
   ## heading
 
   The word *atelier*{weight="600"} is French.
