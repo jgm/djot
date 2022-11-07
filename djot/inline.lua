@@ -53,6 +53,11 @@ end
 
 function Parser:add_opener(name, ...)
   -- 1 = startpos, 2 = endpos, 3 = annotation, 4 = substartpos, 5 = endpos
+  --
+  -- [link text](url)
+  -- ^         ^^
+  -- 1,2      4 5  3 = "explicit_link"
+
   if not self.openers[name] then
     self.openers[name] = {}
   end
