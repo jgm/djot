@@ -14,6 +14,15 @@ local function bounded_find(subj, patt, startpos, endpos)
   end
 end
 
+-- General note on the parsing strategy:  our objective is to
+-- parse without backtracking. To that end, we keep a stack of
+-- potential 'openers' for links, images, emphasis, and other
+-- inline containers.  When we parse a potential closer for
+-- one of these constructions, we can scan the stack of openers
+-- for a match, which will tell us the location of the potential
+-- opener. We can then change the annotation of the match at
+-- that location to '+emphasis' or whatever.
+
 local Parser = {}
 
 function Parser:new(subject, opts, warn)
