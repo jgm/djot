@@ -257,10 +257,10 @@ Parser.matchers = {
           if is_image then
             self:add_match(opener[1] - 1, opener[1] - 1, "image_marker")
             self:add_match(opener[1], opener[2], "+imagetext")
-            self:add_match(opener[4], opener[5], "-imagetext")
+            self:add_match(opener[4], opener[4], "-imagetext")
           else
             self:add_match(opener[1], opener[2], "+linktext")
-            self:add_match(opener[4], opener[5], "-linktext")
+            self:add_match(opener[4], opener[4], "-linktext")
           end
           self:add_match(opener[5], opener[5], "+reference")
           self:add_match(pos, pos, "-reference")
@@ -316,7 +316,6 @@ Parser.matchers = {
         if openers and #openers > 0
             and openers[#openers][3] == "explicit_link" then
           local opener = openers[#openers]
-          local startdest, enddest = opener[5], pos
           -- we have inline link
           local is_image = bounded_find(subject, "^!", opener[1] - 1, endpos)
                  and not bounded_find(subject, "^[\\]", opener[1] - 2, endpos)
@@ -328,14 +327,14 @@ Parser.matchers = {
             self:add_match(opener[1], opener[2], "+linktext")
             self:add_match(opener[4], opener[4], "-linktext")
           end
-          self:add_match(startdest, startdest, "+destination")
-          self:add_match(enddest, enddest, "-destination")
+          self:add_match(opener[5], opener[5], "+destination")
+          self:add_match(pos, pos, "-destination")
           self.destination = false
           -- convert all matches to str
           self:str_matches(opener[5] + 1, pos - 1)
           -- remove from openers
-          self:clear_openers(opener[2], pos)
-          return enddest + 1
+          self:clear_openers(opener[1], pos)
+          return pos + 1
         end
       end
     end,
