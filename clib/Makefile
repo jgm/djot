@@ -3,7 +3,11 @@ LUAHEADERS=/opt/homebrew/include/lua
 MODULES=$(patsubst %, ../%, djot/match.lua djot/attributes.lua djot/inline.lua djot/block.lua djot/ast.lua djot/emoji.lua djot/html.lua djot.lua)
 LUAOBJFILES=$(shell ar -t /opt/homebrew/lib/liblua.a | tail +2)
 
-test: test.c libdjot.a
+test: tests
+	./tests
+.PHONY: test
+
+tests: tests.c libdjot.a
 	$(CC) -o $@ $^
 
 lua.h:
