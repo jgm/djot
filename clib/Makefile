@@ -36,7 +36,7 @@ $(LUADIR):
 	curl $(LUAURL) | tar xv
 	rm $(LUADIR)/src/lua.c # avoid duplicate main
 
-tests.js: djot.c djot.h djot_combined.inc $(LUADIR)
+djot.js: djot.c djot.h djot_combined.inc $(LUADIR)
 	emcc -Os -s 'EXPORTED_RUNTIME_METHODS=["cwrap"]' -s 'EXPORTED_FUNCTIONS=["_djot_open", "_djot_report_error", "_djot_close", "_djot_to_json_ast"]'  -I $(LUADIR)/src $(LUADIR)/src/*.c -o $@ $<
 
 clean:
