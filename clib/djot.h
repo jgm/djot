@@ -2,9 +2,7 @@
 #define DJOT_H
 #include <stdio.h>
 #include <string.h>
-#include <lua.h>
-#include <lauxlib.h>
-#include <lualib.h>
+#include "lua.h"
 
 lua_State *djot_open();
 void djot_close(lua_State *L);
