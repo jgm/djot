@@ -34,6 +34,7 @@ djot_combined.inc: djot_combined.lua
 
 $(LUADIR):
 	curl $(LUAURL) | tar xv
+	rm $(LUADIR)/src/lua.c # avoid duplicate main
 
 tests.js: djot.c djot.h djot_combined.inc $(LUADIR)
 	emcc -I $(LUADIR)/src $(LUADIR)/src/*.c tests.c -o $@ $<
