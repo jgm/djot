@@ -22,7 +22,7 @@ syn region strong matchgroup=delimiter start='\*[^\s}]\@=\|{\*' end='[^\s{]\@=\*
 syn region superscript matchgroup=delimiter start='\^[^\s}]\@=\|{\^' end='\^}\|[^\s{]\@=\^\|^\s*$' contains=@inline
 syn region subscript matchgroup=delimiter start='\~[^\s}]\@=\|{\~' end='\~}\|[^\s{]\@=\~\|^\s*$' contains=@inline
 
-syn region highlight matchgroup=delimiter start='{=' end='=}$\|^\s*$' contains=@inline
+syn region highlight matchgroup=delimiter start='{=' end='=}\|^\s*$' contains=@inline
 syn match rawattribute "`\@<={=[A-Za-z0-9]*}"
 
 syn region insert matchgroup=delimiter start='{+' end='+}\|^\s*$' contains=@inline
