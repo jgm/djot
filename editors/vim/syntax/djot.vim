@@ -45,6 +45,8 @@ syn match emoji ':[a-zA-Z0-9_+-]\+:'
 
 syn match escape '\\[\r\n ~!@#$%^&*(){}`\[\]/=\\?+|\'",<-]'he=e-1
 
+syn region djotautolinkurl matchgroup=delimiter start=/</ end=/>/
+
 syn cluster inline contains=linkurl,emphasis,strong,codespan,attributes,rawattribute,insert,delete,superscript,subscript,highlight,math,smartquote,openbrace,closebrace,emoji,escape,footnoteref,span
 
 syn region codeblock matchgroup=delimiter start='^\s*\z(````*\)\s*=\?\w*\s*$' end='^\s*\z1`*\s*$'
@@ -66,6 +68,7 @@ hi def link string String
 hi def link inlinelink Typedef
 hi def link footnoteref Statement
 hi def link linkurl Underlined
+hi def link djotautolinkurl Underlined
 hi def link comment Comment
 hi def link linklabel Underlined
 hi def link escaped Typedef
