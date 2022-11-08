@@ -4,8 +4,21 @@
 #include <string.h>
 #include "lua.h"
 
+/* Open a Lua virtual machine and load the djot code.
+ * This should only be done once, before all use of djot functions.
+ * The state can be closed with djot_close. */
 lua_State *djot_open();
+
+/* Close the Lua virtual machine opened by djot_open, freeing its
+ * memory. */
 void djot_close(lua_State *L);
+
+/* Report the error on the top of the Lua stack. This should
+ * be run immediately if a function that is supposed to return
+ * a pointer returns NULL. */
+void djot_report_error(lua_State *L);
+
+/* Parse a string and return a C string containing a JSON formatted AST. */
 char * djot_to_json_ast(lua_State *L, char *in);
 
 #endif
