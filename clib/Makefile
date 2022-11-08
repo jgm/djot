@@ -1,9 +1,17 @@
 LIBLUA=/opt/homebrew/lib/liblua.a
 LUAHEADERS=/opt/homebrew/include/lua
 MODULES=$(patsubst %, ../%, djot/match.lua djot/attributes.lua djot/inline.lua djot/block.lua djot/ast.lua djot/emoji.lua djot/html.lua djot.lua)
+LUAOBJFILES=$(shell ar -t /opt/homebrew/lib/liblua.a | tail +2)
 
-test: test.c djot_combined.inc
-	$(CC) $< $(LIBLUA) -I $(LUAHEADERS) -o $@
+test: test.c libdjot.a
+	$(CC) -I$(LUAHEADERS) -o $@ $^
+
+libdjot.a: djot.o $(LIBLUA)
+	ar -x $(LIBLUA) # extract object files
+	ar -rc $@ $< $(LUAOBJFILES)
+
+djot.o: djot.c djot_combined.inc
+	$(CC) -c -I $(LUAHEADERS) $<
 
 djot_combined.lua: $(MODULES)
 	lua combine.lua > $@
@@ -12,5 +20,7 @@ djot_combined.inc: djot_combined.lua
 	(cat $< && printf "\0") | xxd -i -n djot_combined_lua > $@
 
 clean:
-	-rm djot_combined.lua djot_combined.inc test
+	rm -r djot_combined.lua djot_combined.inc *.o test "__.SYMDEF SORTED"
+distclean: clean
+	-rm libdjot.a
 .PHONY: clean
