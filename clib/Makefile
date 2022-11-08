@@ -2,6 +2,9 @@ LIBLUA=/opt/homebrew/lib/liblua.a
 LUAHEADERS=/opt/homebrew/include/lua
 MODULES=$(patsubst %, ../%, djot/match.lua djot/attributes.lua djot/inline.lua djot/block.lua djot/ast.lua djot/emoji.lua djot/html.lua djot.lua)
 LUAOBJFILES=$(shell ar -t /opt/homebrew/lib/liblua.a | tail +2)
+LUAVERSION=5.4.4
+LUAURL=https://www.lua.org/ftp/lua-$(LUAVERSION).tar.gz
+LUADIR=lua-$(LUAVERSION)
 
 test: tests
 	./tests
@@ -29,8 +32,14 @@ djot_combined.lua: $(MODULES)
 djot_combined.inc: djot_combined.lua
 	(cat $< && printf "\0") | xxd -i -n djot_combined_lua > $@
 
+$(LUADIR):
+	curl $(LUAURL) | tar xv
+
+tests.js: djot.c djot.h djot_combined.inc $(LUADIR)
+	emcc -I $(LUADIR)/src $(LUADIR)/src/*.c tests.c -o $@ $<
+
 clean:
-	rm -rf djot_combined.lua djot_combined.inc *.o test "__.SYMDEF SORTED"
+	rm -rf djot_combined.lua djot_combined.inc *.o test "__.SYMDEF SORTED" *.js *.wasm $(LUADIR)
 distclean: clean
 	-rm -f libdjot.a lua.h luaconf.h
 .PHONY: clean
