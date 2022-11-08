@@ -12,8 +12,9 @@ syn match heading '^##* .*$'
 syn region math matchgroup=delimiter skip='[^`]{1,}' start='[$][$]\?\z(``*\)' end='\z1\|^\s*$'
 syn region codespan matchgroup=delimiter skip='[^`]{1,}' start='\z(``*\)' end='\z1\|^\s*$'
 
+syn region comment matchgroup=delimiter start='%' end='%' contained
 syn region string start='"' end='"' skip='\\"'
-syn region attributes matchgroup=delimiter start="{[^\[\]_*'\"=\\+-]\@=" end="}" contains=string
+syn region attributes matchgroup=delimiter start="{[^\[\]_*'\"=\\+-]\@=" end="}" contains=string,comment
 
 syn region emphasis matchgroup=delimiter start='_[^\s}]\@=\|{_' end='_}\|[^\s{]\@=_\|^\s*$' contains=@inline
 syn region strong matchgroup=delimiter start='\*[^\s}]\@=\|{\*' end='[^\s{]\@=\*\|\*}\|^\s*$' contains=@inline
@@ -65,6 +66,7 @@ hi def link string String
 hi def link inlinelink Typedef
 hi def link footnoteref Statement
 hi def link linkurl Underlined
+hi def link comment Comment
 hi def link linklabel Underlined
 hi def link escaped Typedef
 hi def link attributes Identifier
