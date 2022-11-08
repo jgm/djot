@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Test djot.wasm</title>
+    <title>Demo of djot in the browser</title>
     <script id="testsjs" src="tests.js"></script>
     <script>
       var djot = {};
@@ -26,17 +26,14 @@
     </script>
   <style>
     #container { display: flex; flex: columns; flex-wrap: wrap; }
-    #input { width: 30em; padding: 5px; margin-right: 1em; }
-    #result { width: 30em; padding: 5px; }
+    #input {  padding: 5px; margin-right: 1em; font-size: 88%; }
+    #result { width: 20em; padding: 5px; }
   </style>
   </head>
   <body>
+    <h1>Djot in the browser</h1>
     <div id="container">
-      <textarea id="input" style="width:40em;height:30em;">This is a test!
-
-      1. one
-      2. two
-      </textarea>
+      <textarea id="input" cols="80" rows="30" style="width:40em;height:30em;">Type some djot here.</textarea>
       <pre id="result"></pre>
     </div>
   </body>
