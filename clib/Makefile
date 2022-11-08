@@ -37,7 +37,7 @@ $(LUADIR):
 	rm $(LUADIR)/src/lua.c # avoid duplicate main
 
 tests.js: djot.c djot.h djot_combined.inc $(LUADIR)
-	emcc -I $(LUADIR)/src $(LUADIR)/src/*.c tests.c -o $@ $<
+	emcc -s 'EXPORTED_RUNTIME_METHODS=["cwrap"]' -s 'EXPORTED_FUNCTIONS=["_main", "_djot_open", "_djot_report_error", "_djot_close", "_djot_to_json_ast"]'  -I $(LUADIR)/src $(LUADIR)/src/*.c tests.c -o $@ $<
 
 clean:
 	rm -rf djot_combined.lua djot_combined.inc *.o test "__.SYMDEF SORTED" *.js *.wasm $(LUADIR)

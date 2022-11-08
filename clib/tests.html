@@ -2,10 +2,43 @@
 <html>
   <head>
     <title>Test djot.wasm</title>
+    <script id="testsjs" src="tests.js"></script>
+    <script>
+      var djot = {};
+      var initialized = false;
+      Module['onRuntimeInitialized'] = () => {
+        djot.open = Module.cwrap("djot_open", "number", []);
+        djot.close = Module.cwrap("djot_close", null, ["number"]);
+        djot.state = djot.open();
+        djot.to_json_ast = (s) => {
+          const djot_to_json_ast = Module.cwrap("djot_to_json_ast", "string" ,["number", "string"]);
+          return djot_to_json_ast(djot.state, s);
+        }
+        document.getElementById("input").onkeyup = convert;
+        convert();
+      }
+      function convert() {
+        var text = document.getElementById("input").value;
+        document.getElementById("result").innerText = JSON.stringify(JSON.parse(djot.to_json_ast(text)), null, 2);
+      }
+      window.onload = () => {
+      }
+    </script>
+  <style>
+    #container { display: flex; flex: columns; flex-wrap: wrap; }
+    #input { width: 30em; padding: 5px; margin-right: 1em; }
+    #result { width: 30em; padding: 5px; }
+  </style>
   </head>
   <body>
-    <script src="tests.js"> </script>
-    <pre id="result"></pre>
+    <div id="container">
+      <textarea id="input" style="width:40em;height:30em;">This is a test!
+
+      1. one
+      2. two
+      </textarea>
+      <pre id="result"></pre>
+    </div>
   </body>
 </html>
 
