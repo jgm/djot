@@ -26,7 +26,7 @@ djot_combined.inc: djot_combined.lua
 	(cat $< && printf "\0") | xxd -i -n djot_combined_lua > $@
 
 clean:
-	rm -r djot_combined.lua djot_combined.inc *.o test "__.SYMDEF SORTED"
+	rm -rf djot_combined.lua djot_combined.inc *.o test "__.SYMDEF SORTED"
 distclean: clean
-	-rm libdjot.a lua.h luaconf.h
+	-rm -f libdjot.a lua.h luaconf.h
 .PHONY: clean
