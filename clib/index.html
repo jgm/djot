@@ -30,10 +30,23 @@
         djot.to_html = (s) => {
           return djot_to_html(djot.state, s);
         }
-        document.getElementById("input").onkeyup = convert;
+        document.getElementById("input").onkeyup =
+          debounce(convert, 100);
         document.getElementById("mode").onchange = convert;
         convert();
       }
+
+      const debounce = (func, delay) => {
+          let debounceTimer
+          return function() {
+              const context = this
+              const args = arguments
+                  clearTimeout(debounceTimer)
+                      debounceTimer
+                  = setTimeout(() => func.apply(context, args), delay)
+          }
+      }
+
       function convert() {
         var mode = document.getElementById("mode").value;
         var text = document.getElementById("input").value;
