@@ -79,6 +79,67 @@ function Parser:render_html(handle)
   return handle:flush()
 end
 
+-- Functions to export to users
+
+local function parse(input, opts)
+  local parser = Parser:new(input, opts)
+  parser:parse()
+  parser:build_ast()
+  return parser.ast, parser.matches
+end
+
+local function render_ast(ast, handle)
+  if not handle then
+    handle = StringHandle:new()
+  end
+  ast.render(ast, handle)
+  return handle:flush()
+end
+
+local function render_ast_json(ast, handle)
+  if not handle then
+    handle = StringHandle:new()
+  end
+  handle:write(json.encode(self.ast) .. "\n")
+  return handle:flush()
+end
+
+local function render_html(ast, handle)
+  if not handle then
+    handle = StringHandle:new()
+  end
+  local renderer = html.Renderer:new()
+  renderer:render(ast, handle)
+  return handle:flush()
+end
+
+local function render_matches(matches, handle)
+  if not handle then
+    handle = StringHandle:new()
+  end
+  for i=1,#matches do
+    handle:write(format_match(matches[i]))
+  end
+end
+
+local function render_matches_json(matches, handle)
+  if not handle then
+    handle = StringHandle:new()
+  end
+  local formatted_matches = {}
+  for i=1,#matches do
+    local startpos, endpos, annotation = unpack_match(matches[i])
+    formatted_matches[#formatted_matches + 1] =
+      { annotation, {startpos, endpos} }
+  end
+  handle:write(json.encode(formatted_matches) .. "\n")
+end
+
 return {
-  Parser = Parser
+  Parser = Parser,
+  parse = parse,
+  render_ast = render_ast,
+  render_ast_json = render_ast_json,
+  render_matches = render_matches,
+  render_matches_json = render_matches_json
 }
