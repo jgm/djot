@@ -88,28 +88,28 @@ local function parse(input, opts)
   return parser.ast, parser.matches
 end
 
-local function render_ast(ast, handle)
+local function render_ast(doc, handle)
   if not handle then
     handle = StringHandle:new()
   end
-  ast.render(ast, handle)
+  ast.render(doc, handle)
   return handle:flush()
 end
 
-local function render_ast_json(ast, handle)
+local function render_ast_json(doc, handle)
   if not handle then
     handle = StringHandle:new()
   end
-  handle:write(json.encode(self.ast) .. "\n")
+  handle:write(json.encode(doc) .. "\n")
   return handle:flush()
 end
 
-local function render_html(ast, handle)
+local function render_html(doc, handle)
   if not handle then
     handle = StringHandle:new()
   end
   local renderer = html.Renderer:new()
-  renderer:render(ast, handle)
+  renderer:render(doc, handle)
   return handle:flush()
 end
 
@@ -120,6 +120,7 @@ local function render_matches(matches, handle)
   for i=1,#matches do
     handle:write(format_match(matches[i]))
   end
+  return handle:flush()
 end
 
 local function render_matches_json(matches, handle)
@@ -133,11 +134,13 @@ local function render_matches_json(matches, handle)
       { annotation, {startpos, endpos} }
   end
   handle:write(json.encode(formatted_matches) .. "\n")
+  return handle:flush()
 end
 
 return {
   Parser = Parser,
   parse = parse,
+  render_html = render_html,
   render_ast = render_ast,
   render_ast_json = render_ast_json,
   render_matches = render_matches,
