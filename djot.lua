@@ -81,8 +81,8 @@ end
 
 -- Simple functions
 
-local function djot_to_html(input)
-  local parser = Parser:new(input)
+local function djot_to_html(input, sourcepos)
+  local parser = Parser:new(input, {sourcepos = sourcepos})
   parser:parse()
   parser:build_ast()
   local handle = StringHandle:new()
@@ -91,8 +91,8 @@ local function djot_to_html(input)
   return handle:flush()
 end
 
-local function djot_to_ast_json(input)
-  local parser = Parser:new(input)
+local function djot_to_ast_json(input, sourcepos)
+  local parser = Parser:new(input, {sourcepos = sourcepos})
   parser:parse()
   parser:build_ast()
   return (json.encode(parser.ast) .. "\n")
