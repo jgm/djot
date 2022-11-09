@@ -91,6 +91,15 @@ local function djot_to_html(input, sourcepos)
   return handle:flush()
 end
 
+local function djot_to_ast_pretty(input, sourcepos)
+  local parser = Parser:new(input, {sourcepos = sourcepos})
+  parser:parse()
+  parser:build_ast()
+  local handle = StringHandle:new()
+  ast.render(parser.ast, handle)
+  return handle:flush()
+end
+
 local function djot_to_ast_json(input, sourcepos)
   local parser = Parser:new(input, {sourcepos = sourcepos})
   parser:parse()
@@ -117,6 +126,7 @@ end
 return {
   Parser = Parser,
   djot_to_html = djot_to_html,
+  djot_to_ast_pretty = djot_to_ast_pretty,
   djot_to_ast_json = djot_to_ast_json,
   djot_to_matches_json = djot_to_matches_json
 }

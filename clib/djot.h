@@ -22,6 +22,9 @@ void djot_report_error(lua_State *L);
 /* Parse a string and return a C string containing a JSON formatted AST. */
 char * djot_to_ast_json(lua_State *L, char *in, bool sourcepos);
 
+/* Parse a string and return a prettyprinted AST. */
+char * djot_to_ast_pretty(lua_State *L, char *in, bool sourcepos);
+
 /* Parse a string and return a C string containing a JSON formatted array
  * of match object. */
 char * djot_to_matches_json(lua_State *L, char *in);

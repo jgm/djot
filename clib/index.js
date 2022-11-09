@@ -10,6 +10,11 @@ Module['onRuntimeInitialized'] = () => {
   djot.to_ast_json = (s, sourcepos) => {
     return djot_to_ast_json(djot.state, s, sourcepos);
   }
+  const djot_to_ast_pretty =
+      Module.cwrap("djot_to_ast_pretty", "string" ,["number", "string", "boolean"]);
+  djot.to_ast_pretty = (s, sourcepos) => {
+    return djot_to_ast_pretty(djot.state, s, sourcepos);
+  }
   const djot_to_matches_json =
       Module.cwrap("djot_to_matches_json", "string" ,["number", "string"]);
   djot.to_matches_json = (s) => {
@@ -45,9 +50,12 @@ function convert() {
   document.getElementById("preview").innerHTML = "";
   document.getElementById("result").innerHTML = "";
 
-  if (mode == "ast") {
+  if (mode == "astjson") {
     document.getElementById("result").innerText =
       JSON.stringify(JSON.parse(djot.to_ast_json(text, sourcepos)), null, 2);
+  } else if (mode == "ast") {
+    document.getElementById("result").innerText =
+      djot.to_ast_pretty(text, sourcepos);
   } else if (mode == "matches") {
     document.getElementById("result").innerText =
       JSON.stringify(JSON.parse(djot.to_matches_json(text)), null, 2);
