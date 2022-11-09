@@ -10,16 +10,16 @@
         djot.open = Module.cwrap("djot_open", "number", []);
         djot.close = Module.cwrap("djot_close", null, ["number"]);
         djot.state = djot.open();
-        djot.to_json_ast = (s) => {
-          const djot_to_json_ast = Module.cwrap("djot_to_json_ast", "string" ,["number", "string"]);
-          return djot_to_json_ast(djot.state, s);
+        djot.to_ast_json = (s) => {
+          const djot_to_ast_json = Module.cwrap("djot_to_ast_json", "string" ,["number", "string"]);
+          return djot_to_ast_json(djot.state, s);
         }
         document.getElementById("input").onkeyup = convert;
         convert();
       }
       function convert() {
         var text = document.getElementById("input").value;
-        document.getElementById("result").innerText = JSON.stringify(JSON.parse(djot.to_json_ast(text)), null, 2);
+        document.getElementById("result").innerText = JSON.stringify(JSON.parse(djot.to_ast_json(text)), null, 2);
       }
       window.onload = () => {
       }

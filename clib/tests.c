@@ -28,8 +28,8 @@ int main (void) {
   lua_State *L = djot_open();
   if (!L) error(L);
 
-  /* Now use functions like djot_to_json_ast */
-  out = djot_to_json_ast(L, "hi *there*\n");
+  /* Now use functions like djot_to_ast_json */
+  out = djot_to_ast_json(L, "hi *there*\n");
   if (!L) error(L);
 
   /* Note: we just compare lengths, because JSON rendering is

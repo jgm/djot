@@ -79,54 +79,31 @@ function Parser:render_html(handle)
   return handle:flush()
 end
 
--- Functions to export to users
+-- Simple functions
 
-local function parse(input, opts)
-  local parser = Parser:new(input, opts)
+local function djot_to_html(input)
+  local parser = Parser:new(input)
   parser:parse()
   parser:build_ast()
-  return parser.ast, parser.matches
-end
-
-local function render_ast(doc, handle)
-  if not handle then
-    handle = StringHandle:new()
-  end
-  ast.render(doc, handle)
-  return handle:flush()
-end
-
-local function render_ast_json(doc, handle)
-  if not handle then
-    handle = StringHandle:new()
-  end
-  handle:write(json.encode(doc) .. "\n")
-  return handle:flush()
-end
-
-local function render_html(doc, handle)
-  if not handle then
-    handle = StringHandle:new()
-  end
+  local handle = StringHandle:new()
   local renderer = html.Renderer:new()
-  renderer:render(doc, handle)
+  renderer:render(parser.ast, handle)
   return handle:flush()
 end
 
-local function render_matches(matches, handle)
-  if not handle then
-    handle = StringHandle:new()
-  end
-  for i=1,#matches do
-    handle:write(format_match(matches[i]))
-  end
-  return handle:flush()
+local function djot_to_ast_json(input)
+  local parser = Parser:new(input)
+  parser:parse()
+  parser:build_ast()
+  return (json.encode(parser.ast) .. "\n")
 end
 
-local function render_matches_json(matches, handle)
-  if not handle then
-    handle = StringHandle:new()
-  end
+local function djot_to_matches_json(input)
+  local parser = Parser:new(input)
+  parser:parse()
+  parser:build_ast()
+  local matches = parser.matches
+  local handle = StringHandle:new()
   local formatted_matches = {}
   for i=1,#matches do
     local startpos, endpos, annotation = unpack_match(matches[i])
@@ -139,10 +116,7 @@ end
 
 return {
   Parser = Parser,
-  parse = parse,
-  render_html = render_html,
-  render_ast = render_ast,
-  render_ast_json = render_ast_json,
-  render_matches = render_matches,
-  render_matches_json = render_matches_json
+  djot_to_html = djot_to_html,
+  djot_to_ast_json = djot_to_ast_json,
+  djot_to_matches_json = djot_to_matches_json
 }

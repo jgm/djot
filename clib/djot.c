@@ -25,14 +25,6 @@ lua_State *djot_open() {
 
   lua_setglobal(L, "djot");
 
-  if (luaL_dostring(L, "function djot_to_json_ast(s)\n"
-                       "  local x = djot.parse(s)\n"
-                       "  return djot.render_ast_json(x)\n"
-                       "end") != LUA_OK) {
-    printf("error: %s", lua_tostring(L, -1));
-    return NULL;
-  }
-
   return L;
 }
 
@@ -40,16 +32,32 @@ void djot_close(lua_State *L) {
   lua_close(L);
 }
 
-char * djot_to_json_ast(lua_State *L, char *in) {
-  char *out;
-  lua_getglobal(L, "djot_to_json_ast");
+char * djot_to_html(lua_State *L, char *in) {
+  lua_getglobal(L, "djot");
+  lua_getfield(L, -1, "djot_to_html");
   lua_pushstring(L, in);
   if (lua_pcall(L, 1, 1, 0) != LUA_OK) {
     return NULL;
   }
-  out = (char *)lua_tostring(L, -1);
-  if (out == NULL) {
+  return (char *)lua_tostring(L, -1);
+}
+
+char * djot_to_matches_json(lua_State *L, char *in) {
+  lua_getglobal(L, "djot");
+  lua_getfield(L, -1, "djot_to_matches_json");
+  lua_pushstring(L, in);
+  if (lua_pcall(L, 1, 1, 0) != LUA_OK) {
     return NULL;
   }
-  return out;
+  return (char *)lua_tostring(L, -1);
+}
+
+char * djot_to_ast_json(lua_State *L, char *in) {
+  lua_getglobal(L, "djot");
+  lua_getfield(L, -1, "djot_to_ast_json");
+  lua_pushstring(L, in);
+  if (lua_pcall(L, 1, 1, 0) != LUA_OK) {
+    return NULL;
+  }
+  return (char *)lua_tostring(L, -1);
 }
