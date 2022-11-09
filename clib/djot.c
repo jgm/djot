@@ -26,9 +26,8 @@ lua_State *djot_open() {
   lua_setglobal(L, "djot");
 
   if (luaL_dostring(L, "function djot_to_json_ast(s)\n"
-                       "  p = djot.Parser:new(s)\n"
-                       "  p:parse()\n"
-                       "  return p:render_ast(nil, true)\n"
+                       "  local x = djot.parse(s)\n"
+                       "  return djot.render_ast_json(x)\n"
                        "end") != LUA_OK) {
     printf("error: %s", lua_tostring(L, -1));
     return NULL;
