@@ -1,40 +1,84 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Demo of djot in the browser</title>
+    <script type="text/javascript" id="MathJax-script" async
+       src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+     </script>
     <script src="djot.js"></script>
     <script>
       var djot = {};
       var initialized = false;
       Module['onRuntimeInitialized'] = () => {
-        djot.open = Module.cwrap("djot_open", "number", []);
-        djot.close = Module.cwrap("djot_close", null, ["number"]);
-        djot.state = djot.open();
+        const djot_open = Module.cwrap("djot_open", "number", []);
+        const djot_close = Module.cwrap("djot_open", null, ["number"]);
+        djot.state = djot_open();
+        const djot_to_ast_json =
+            Module.cwrap("djot_to_ast_json", "string" ,["number", "string"]);
         djot.to_ast_json = (s) => {
-          const djot_to_ast_json = Module.cwrap("djot_to_ast_json", "string" ,["number", "string"]);
           return djot_to_ast_json(djot.state, s);
         }
+        const djot_to_matches_json =
+            Module.cwrap("djot_to_matches_json", "string" ,["number", "string"]);
+        djot.to_matches_json = (s) => {
+          return djot_to_matches_json(djot.state, s);
+        }
+        const djot_to_html =
+            Module.cwrap("djot_to_html", "string" ,["number", "string"]);
+        djot.to_html = (s) => {
+          return djot_to_html(djot.state, s);
+        }
         document.getElementById("input").onkeyup = convert;
+        document.getElementById("mode").onchange = convert;
         convert();
       }
       function convert() {
+        var mode = document.getElementById("mode").value;
         var text = document.getElementById("input").value;
-        document.getElementById("result").innerText = JSON.stringify(JSON.parse(djot.to_ast_json(text)), null, 2);
-      }
-      window.onload = () => {
+        document.getElementById("preview").innerHTML = "";
+        document.getElementById("result").innerHTML = "";
+
+        if (mode == "ast") {
+          document.getElementById("result").innerText =
+            JSON.stringify(JSON.parse(djot.to_ast_json(text)), null, 2);
+        } else if (mode == "matches") {
+          document.getElementById("result").innerText =
+            JSON.stringify(JSON.parse(djot.to_matches_json(text)), null, 2);
+        } else if (mode == "html") {
+          document.getElementById("result").innerText = djot.to_html(text);
+        } else if (mode == "preview") {
+          document.getElementById("preview").innerHTML = djot.to_html(text);
+          MathJax.typeset();
+        }
       }
     </script>
   <style>
     #container { display: flex; flex: columns; flex-wrap: wrap; }
-    #input {  padding: 5px; margin-right: 1em; font-size: 88%; }
-    #result { width: 20em; padding: 5px; }
+    #input {  padding: 5px; margin-right: 1em; font-size: 88%; min-height: 90vh; width: 40em; }
+    #result { width: 32em; padding: 5px; }
+    #preview { width: 32em; padding: 5px; }
+    h1 { font-size: 150%; }
+    #mode { margin-top: 3em; }
   </style>
   </head>
   <body>
-    <h1>Djot in the browser</h1>
     <div id="container">
-      <textarea id="input" cols="80" rows="30" style="width:40em;height:30em;">Type some djot here.</textarea>
-      <pre id="result"></pre>
+      <div>
+        <h1>Djot in the browser</h1>
+        <textarea id="input" cols="80" rows="30">Type some djot here.</textarea>
+      </div>
+      <div>
+        <select id="mode">
+          <option value="preview">Preview</option>
+          <option value="html">HTML</option>
+          <option value="ast">AST</option>
+          <option value="matches">Matches</option>
+        </select>
+        <div id="preview"></div>
+        <pre id="result"></pre>
+      </div>
     </div>
   </body>
 </html>
