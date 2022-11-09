@@ -17,7 +17,7 @@ wasm/js and run djot in the browser:
 
 ```
 $ make wasm
-$ cd dist
+$ cd web/dist
 $ python3 -m http.server
 $ open http://localhost:8000/
 ```

@@ -5,7 +5,8 @@ LUAOBJFILES=$(shell ar -t $(LIBLUA) | tail +2)
 LUAVERSION=5.4.4
 LUAURL=https://www.lua.org/ftp/lua-$(LUAVERSION).tar.gz
 LUADIR=lua-$(LUAVERSION)
-WASMDIST=dist
+WASMDIST=web/dist
+WEB=web
 
 test: tests
 	./tests
@@ -43,11 +44,14 @@ $(LUADIR):
 	curl $(LUAURL) | tar xv
 	rm $(LUADIR)/src/lua.c # avoid duplicate main
 
-wasm: $(WASMDIST)/djot.js $(WASMDIST)/index.js $(WASMDIST)/index.html
+wasm: $(WASMDIST)/djot.js $(WASMDIST)/index.js $(WASMDIST)/index.html $(WASMDIST)/styles.css
 .PHONY: wasm
 
-$(WASMDIST)/index.%: index.%
+$(WASMDIST)/index.%: $(WEB)/index.%
 	cp $< $@
+
+$(WASMDIST)/styles.css: $(WEB)/index.html
+	tailwindcss --content $< --input $(WEB)/input.css --minify > $@
 
 $(WASMDIST):
 	mkdir -p $@
@@ -56,7 +60,7 @@ $(WASMDIST)/djot.js: djot.c djot.h djot_combined.inc $(LUADIR) $(WASMDIST)
 	emcc -g0 -sALLOW_MEMORY_GROWTH -Oz -sFILESYSTEM=0 -s 'EXPORTED_RUNTIME_METHODS=["cwrap"]' -s 'EXPORTED_FUNCTIONS=["_djot_open", "_djot_report_error", "_djot_close", "_djot_to_ast_json", "_djot_to_ast_pretty", "_djot_to_matches_json", "_djot_to_matches_pretty", "_djot_to_html"]'  -I $(LUADIR)/src $(LUADIR)/src/*.c -o $@ $<
 
 clean:
-	rm -rf djot_combined.lua djot_combined.inc *.o test "__.SYMDEF SORTED" $(WASMDIST)
+	rm -rf djot_combined.lua djot_combined.inc *.o test $(WASMDIST)
 distclean: clean
 	-rm -f libdjot.a lua.h luaconf.h $(LUADIR)
 .PHONY: clean
