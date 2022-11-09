@@ -37,6 +37,15 @@ Module['onRuntimeInitialized'] = () => {
   convert();
 }
 
+function inject(iframe, html) {
+  const doc = iframe.contentDocument;
+  if (doc) {
+    const body = doc.querySelector("#htmlbody");
+    if (body) body.innerHTML = html;
+    iframe.contentWindow.MathJax.typeset();
+  }
+}
+
 const debounce = (func, delay) => {
     let debounceTimer
     return function() {
@@ -49,10 +58,10 @@ const debounce = (func, delay) => {
 }
 
 function convert() {
-  var mode = document.getElementById("mode").value;
-  var text = document.getElementById("input").value;
-  var sourcepos = document.getElementById("sourcepos").checked;
-  document.getElementById("preview").innerHTML = "";
+  const mode = document.getElementById("mode").value;
+  const text = document.getElementById("input").value;
+  const iframe = document.getElementById("preview");
+  const sourcepos = document.getElementById("sourcepos").checked;
   document.getElementById("result").innerHTML = "";
 
   if (mode == "astjson") {
@@ -70,7 +79,7 @@ function convert() {
   } else if (mode == "html") {
     document.getElementById("result").innerText = djot.to_html(text, sourcepos);
   } else if (mode == "preview") {
-    document.getElementById("preview").innerHTML = djot.to_html(text, sourcepos);
-    MathJax.typeset();
+    inject(iframe, djot.to_html(text, sourcepos));
   }
+  iframe.style.display = mode == "preview" ? "block" : "none";
 }

@@ -44,13 +44,16 @@ $(LUADIR):
 	curl $(LUAURL) | tar xv
 	rm $(LUADIR)/src/lua.c # avoid duplicate main
 
-wasm: $(WASMDIST)/djot.js $(WASMDIST)/index.js $(WASMDIST)/index.html $(WASMDIST)/styles.css
+wasm: $(WASMDIST)/djot.js $(WASMDIST)/index.js $(WASMDIST)/index.html $(WASMDIST)/preview.html $(WASMDIST)/styles.css
 .PHONY: wasm
 
-$(WASMDIST)/index.%: $(WEB)/index.%
+$(WASMDIST)/%.html: $(WEB)/%.html
 	cp $< $@
 
-$(WASMDIST)/styles.css: $(WEB)/index.html
+$(WASMDIST)/%.js: $(WEB)/%.js
+	cp $< $@
+
+$(WASMDIST)/styles.css: $(WEB)/index.html $(WEB)/input.css
 	tailwindcss --content $< --input $(WEB)/input.css --minify > $@
 
 $(WASMDIST):

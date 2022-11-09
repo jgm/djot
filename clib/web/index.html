@@ -10,39 +10,47 @@
     <script src="djot.js"></script>
     <script src="index.js"></script>
     <link rel="stylesheet" href="styles.css">
-    <style>
-      #container { display: flex; flex: columns; flex-wrap: wrap; }
-      #input {  padding: 5px; margin-right: 1em; font-size: 88%; min-height: 90vh; width: 40em; }
-      #result { width: 32em; padding: 5px; }
-      #preview { width: 32em; padding: 5px; }
-      h1 { font-size: 150%; }
-      #mode { margin-top: 3em; }
-    </style>
   </head>
   <body>
-    <div id="container">
-      <div>
-        <h1>Djot in the browser</h1>
-        <textarea id="input" cols="80" rows="30">Type some djot here.</textarea>
+    <main class="absolute inset-4 flex gap-4">
+      <div class="w-1/2 flex flex-col gap-2">
+        <h1>
+          <a class="font-bold hover:text-sky-700" href="https://github.com/jgm/djot"
+            >Djot</a
+          >
+          <a
+            class="hover:text-sky-700"
+            href="https://github.com/jgm/djot-playground">Playground</a
+          >
+          (<a href="https://htmlpreview.github.io/?https://github.com/jgm/djot/blob/master/doc/syntax.html">syntax reference</a>)
+        </h1>
+
+        <textarea id="input" class="font-mono inset-0 w-full h-full rounded border border-slate-400 p-4" placeholder="Type some djot here..."></textarea>
       </div>
-      <div>
-        <select id="mode">
-          <option value="preview">Preview</option>
-          <option value="html">HTML</option>
-          <option value="ast">AST</option>
-          <option value="astjson">AST (JSON)</option>
-          <option value="matches">Matches</option>
-          <option value="matchesjson">Matches (JSON)</option>
-        </select>
-        &nbsp;
-        <label>
-          <input type="checkbox" id="sourcepos" value=""/>
-          Source positions
-        </label>
-        <div id="preview"></div>
-        <pre id="result"></pre>
+      <div class="w-1/2 flex flex-col gap-2">
+        <div class="flex flex-row flex-wrap gap-5">
+          <select id="mode">
+            <option value="preview">Preview</option>
+            <option value="html">HTML</option>
+            <option value="ast">AST</option>
+            <option value="astjson">AST (JSON)</option>
+            <option value="matches">Matches</option>
+            <option value="matchesjson">Matches (JSON)</option>
+          </select>
+          &nbsp;
+          <label>
+            <input type="checkbox" id="sourcepos" value=""/>
+            Source positions
+          </label>
+        </div>
+        <div class="w-full h-full rounded border border-slate-400 inset-0 overflow-y-scroll">
+          <div>
+            <iframe id="preview" class="w-full h-full p-4" style="height: 90vh" sandbox="allow-same-origin allow-scripts" src="preview.html" frameborder="0"></iframe>
+          </div>
+          <pre id="result" class="whitespace-pre-wrap"></pre>
+        </div>
       </div>
-    </div>
+    </main>
   </body>
 </html>
 
