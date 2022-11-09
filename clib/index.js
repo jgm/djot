@@ -26,7 +26,7 @@ Module['onRuntimeInitialized'] = () => {
     return djot_to_html(djot.state, s, sourcepos);
   }
   document.getElementById("input").onkeyup =
-    debounce(convert, 100);
+    debounce(convert, 400);
   document.getElementById("mode").onchange = convert;
   document.getElementById("sourcepos").onchange = convert;
   convert();
