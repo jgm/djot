@@ -33,6 +33,7 @@
         document.getElementById("input").onkeyup =
           debounce(convert, 100);
         document.getElementById("mode").onchange = convert;
+        document.getElementById("sourcepos").onchange = convert;
         convert();
       }
 
