@@ -84,43 +84,31 @@ end
 local function djot_to_html(input, sourcepos)
   local parser = Parser:new(input, {sourcepos = sourcepos})
   parser:parse()
-  parser:build_ast()
-  local handle = StringHandle:new()
-  local renderer = html.Renderer:new()
-  renderer:render(parser.ast, handle)
-  return handle:flush()
+  return parser:render_html()
 end
 
 local function djot_to_ast_pretty(input, sourcepos)
   local parser = Parser:new(input, {sourcepos = sourcepos})
   parser:parse()
-  parser:build_ast()
-  local handle = StringHandle:new()
-  ast.render(parser.ast, handle)
-  return handle:flush()
+  return parser:render_ast()
 end
 
 local function djot_to_ast_json(input, sourcepos)
   local parser = Parser:new(input, {sourcepos = sourcepos})
   parser:parse()
-  parser:build_ast()
-  return (json.encode(parser.ast) .. "\n")
+  return parser:render_ast(nil, true)
+end
+
+local function djot_to_matches_pretty(input)
+  local parser = Parser:new(input)
+  parser:parse()
+  return parser:render_matches()
 end
 
 local function djot_to_matches_json(input)
   local parser = Parser:new(input)
   parser:parse()
-  parser:build_ast()
-  local matches = parser.matches
-  local handle = StringHandle:new()
-  local formatted_matches = {}
-  for i=1,#matches do
-    local startpos, endpos, annotation = unpack_match(matches[i])
-    formatted_matches[#formatted_matches + 1] =
-      { annotation, {startpos, endpos} }
-  end
-  handle:write(json.encode(formatted_matches) .. "\n")
-  return handle:flush()
+  return parser:render_matches(nil, true)
 end
 
 return {
@@ -128,5 +116,6 @@ return {
   djot_to_html = djot_to_html,
   djot_to_ast_pretty = djot_to_ast_pretty,
   djot_to_ast_json = djot_to_ast_json,
+  djot_to_matches_pretty = djot_to_matches_pretty,
   djot_to_matches_json = djot_to_matches_json
 }

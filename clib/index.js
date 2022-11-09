@@ -20,6 +20,11 @@ Module['onRuntimeInitialized'] = () => {
   djot.to_matches_json = (s) => {
     return djot_to_matches_json(djot.state, s);
   }
+  const djot_to_matches_pretty =
+      Module.cwrap("djot_to_matches_pretty", "string" ,["number", "string"]);
+  djot.to_matches_pretty = (s) => {
+    return djot_to_matches_pretty(djot.state, s);
+  }
   const djot_to_html =
       Module.cwrap("djot_to_html", "string" ,["number", "string", "boolean"]);
   djot.to_html = (s, sourcepos) => {
@@ -57,6 +62,9 @@ function convert() {
     document.getElementById("result").innerText =
       djot.to_ast_pretty(text, sourcepos);
   } else if (mode == "matches") {
+    document.getElementById("result").innerText =
+      djot.to_matches_pretty(text);
+  } else if (mode == "matchesjson") {
     document.getElementById("result").innerText =
       JSON.stringify(JSON.parse(djot.to_matches_json(text)), null, 2);
   } else if (mode == "html") {

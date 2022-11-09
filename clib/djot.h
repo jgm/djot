@@ -26,8 +26,12 @@ char * djot_to_ast_json(lua_State *L, char *in, bool sourcepos);
 char * djot_to_ast_pretty(lua_State *L, char *in, bool sourcepos);
 
 /* Parse a string and return a C string containing a JSON formatted array
- * of match object. */
+ * of match objects. */
 char * djot_to_matches_json(lua_State *L, char *in);
+
+/* Parse a string and return a C string containing a human-readable list of
+ * match objects. */
+char * djot_to_matches_pretty(lua_State *L, char *in);
 
 /* Parse a string and return a C string containing HTML. */
 char * djot_to_html(lua_State *L, char *in, bool sourcepos);
