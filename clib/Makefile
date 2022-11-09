@@ -21,8 +21,14 @@ luaconf.h:
 	cp $(LUAHEADERS)/$@ .
 
 libdjot.a: djot.o $(LIBLUA)
-	ar -x $(LIBLUA) # extract object files
-	ar -rc $@ $< $(LUAOBJFILES)
+	UNPACKDIR=`mktemp -d djot-archive.XXXX` || exit 1 && \
+	trap 'rm -rf -- "$$UNPACKDIR"' EXIT && \
+	cd $$UNPACKDIR && \
+	cp ../$< . && \
+	ar -x $(LIBLUA)  && \
+	ar -rc $@ $< $(LUAOBJFILES) && \
+	cd .. && \
+	cp $$UNPACKDIR/$@ .
 
 djot.o: djot.c djot_combined.inc lua.h luaconf.h
 	$(CC) -c -I $(LUAHEADERS) $<
