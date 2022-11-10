@@ -575,6 +575,20 @@ local function to_ast(subject, matches, options, warn)
   local doc = get_node("doc")
   doc.references = references
   doc.footnotes = footnotes
+  local mt = {}
+  local special = {
+    children = 'c',
+    string = 's',
+    tag = 't' }
+  mt.__index = function(table, key)
+    local k = special[key]
+    if k then
+      return table[k]
+    else
+      return rawget(table, key)
+    end
+  end
+  setmetatable(doc, mt)
   return doc
 end
 
