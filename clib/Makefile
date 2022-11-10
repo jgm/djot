@@ -1,7 +1,7 @@
 LUAPREFIX=$(shell brew --prefix)
 LIBLUA=$(LUAPREFIX)/lib/liblua.a
 LUAHEADERS=$(LUAPREFIX)/include/lua
-MODULES=$(patsubst %, ../%, djot/match.lua djot/attributes.lua djot/inline.lua djot/block.lua djot/ast.lua djot/emoji.lua djot/html.lua djot.lua)
+MODULES=$(patsubst %, ../%, djot/match.lua djot/attributes.lua djot/inline.lua djot/block.lua djot/ast.lua djot/emoji.lua djot/html.lua djot/filter.lua djot.lua)
 LUAOBJFILES=$(shell ar -t $(LIBLUA) | tail +2)
 LUAVERSION=5.4.4
 LUAURL=https://www.lua.org/ftp/lua-$(LUAVERSION).tar.gz
