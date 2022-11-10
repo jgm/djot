@@ -61,7 +61,7 @@ Line break:
 hi{#id .class
 key="value"}
 .
-<p><span id="id" class="class" key="value">hi</span></p>
+<p><span class="class" id="id" key="value">hi</span></p>
 ```
 
 Here there is nothing for the attribute to attach to:
@@ -86,7 +86,7 @@ Block attributes come before the block, on a line by themselves.
 {#id .class}
 A paragraph
 .
-<p id="id" class="class">A paragraph</p>
+<p class="class" id="id">A paragraph</p>
 ```
 
 Use indentation if you need to continue the attributes over a line break.
@@ -96,7 +96,7 @@ Use indentation if you need to continue the attributes over a line break.
   style="color:red"}
 A paragraph
 .
-<p id="id" class="class" style="color:red">A paragraph</p>
+<p class="class" id="id" style="color:red">A paragraph</p>
 ```
 
 If the attribute block can't be parsed as attributes, it will be
@@ -121,7 +121,7 @@ but classes accumulate:
 {#id2}
 Okay
 .
-<p id="id2" key="val2" class="foo bar baz">Okay</p>
+<p class="foo bar baz" id="id2" key="val2">Okay</p>
 ```
 
 Attributes on different kinds of blocks:
@@ -194,7 +194,7 @@ list or without any real attributes.
 ```
 foo{#ident % this is a comment % .class}
 .
-<p><span id="ident" class="class">foo</span></p>
+<p><span class="class" id="ident">foo</span></p>
 ```
 
 In block-level comment, subsequent lines must

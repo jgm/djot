@@ -123,7 +123,7 @@ the link:
 
 [ref][]
 .
-<p><a title="foo" href="/url">ref</a></p>
+<p><a href="/url" title="foo">ref</a></p>
 ```
 
 Attributes on the link override those on references:
@@ -134,7 +134,7 @@ Attributes on the link override those on references:
 
 [ref][]{title=bar}
 .
-<p><a title="bar" href="/url">ref</a></p>
+<p><a href="/url" title="bar">ref</a></p>
 ```
 
 ```

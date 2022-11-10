@@ -96,44 +96,30 @@ local function is_tight(matches, startidx, endidx, is_last_item)
   return (blanklines == 0)
 end
 
-local function insert_attribute(attr, key, val)
-  if not attr._keys then
-    attr._keys = {}
-  end
-  local function add_key(k)
-    local keys = attr._keys
-    for i=1,#keys do
-      if keys[i] == k then
-        return
+local function sortedpairs(compare_function, to_displaykey)
+  return function(tbl)
+    local keys = {}
+    local k
+    k = next(tbl, k)
+    while k do
+      keys[#keys + 1] = k
+      k = next(tbl, k)
+    end
+    table.sort(keys, compare_function)
+    local keyindex = 0
+    local function ordered_next(tbl,_)
+      keyindex = keyindex + 1
+      local key = keys[keyindex]
+      -- use canonical names
+      local displaykey = to_displaykey(key)
+      if key then
+        return displaykey, tbl[key]
+      else
+        return nil
       end
     end
-    keys[#keys + 1] = k
-  end
-  -- _keys records order of key insertion for deterministic output
-  if key == "id" then
-    attr.id = val
-    add_key("id")
-  elseif key == "class" then
-    if attr.class then
-      attr.class =
-        attr.class .. " " .. val
-    else
-      attr.class = val
-      add_key("class")
-    end
-  else
-    attr[key] = val
-    add_key(key)
-  end
-end
-
-local function copy_attributes(target, source)
-  if source then
-    for k,v in pairs(source) do
-      if k ~= "_keys" then
-        insert_attribute(target, k, v)
-      end
-    end
+    -- Return an iterator function, the table, starting point
+    return ordered_next, tbl, nil
   end
 end
 
@@ -164,15 +150,7 @@ mt.__newindex = function(table, key, val)
     rawset(table, key, val)
   end
 end
-mt.__pairs = function(tbl)
-  local keys = {}
-  local k
-  k = next(tbl, k)
-  while k do
-    keys[#keys + 1] = k
-    k = next(tbl, k)
-  end
-  table.sort(keys, function(a,b)
+mt.__pairs = sortedpairs(function(a,b)
     if a == "t" then -- t is always first
       return true
     elseif a == "s" then -- s is always second
@@ -190,24 +168,7 @@ mt.__pairs = function(tbl)
     else
       return (a < b)
     end
-  end)
-
-  local keyindex = 0
-  local function ordered_next(tbl,_)
-    keyindex = keyindex + 1
-    local key = keys[keyindex]
-    -- use canonical names
-    local displaykey = displaykeys[key] or key
-    if key then
-      return displaykey, tbl[key]
-    else
-      return nil
-    end
-  end
-
-  -- Return an iterator function, the table, starting point
-  return ordered_next, tbl, nil
-end
+  end, function(k) return displaykeys[k] or k end)
 
 
 local function mknode(tag)
@@ -227,8 +188,36 @@ local function has_children(node)
   return (node.c and #node.c > 0)
 end
 
+local function mkattributes(tbl)
+  local attr = tbl or {}
+  -- ensure deterministic order of iteration
+  setmetatable(attr, {__pairs = sortedpairs(function(a,b) return a < b end,
+                                            function(k) return k end)})
+  return attr
+end
+
+local function insert_attribute(attr, key, val)
+  if key == "class" then
+    if attr.class then
+      attr.class = attr.class .. " " .. val
+    else
+      attr.class = val
+    end
+  else
+    attr[key] = val
+  end
+end
+
+local function copy_attributes(target, source)
+  if source then
+    for k,v in pairs(source) do
+      insert_attribute(target, k, v)
+    end
+  end
+end
+
 local function insert_attributes(targetnode, cs)
-  targetnode.attr = targetnode.attr or {_keys = {}}
+  targetnode.attr = targetnode.attr or mkattributes()
   local i=1
   while i <= #cs do
     local x, y = cs[i].t, cs[i].s
@@ -404,10 +393,10 @@ local function to_ast(subject, matches, options, warn)
             result = nil
           elseif tag == "inline_math" then
             result.t = "math"
-            result.attr = {class = "math inline", _keys={"class"}}
+            result.attr = mkattributes{class = "math inline"}
           elseif tag == "display_math" then
             result.t = "math"
-            result.attr = {class = "math display", _keys={"class"}}
+            result.attr = mkattributes{class = "math display"}
           elseif tag == "url" then
             result.t = "url"
             result.destination = get_string_content(result)
@@ -491,7 +480,7 @@ local function to_ast(subject, matches, options, warn)
             result.level = get_length(matched)
           elseif tag == "div" then
             if result.c[1] and result.c[1].t == "class" then
-              result.attr = result.attr or {_keys = {}}
+              result.attr = mkattributes(result.attr)
               insert_attribute(result.attr, "class", get_string_content(result.c[1]))
               table.remove(result.c, 1)
             end
@@ -513,7 +502,7 @@ local function to_ast(subject, matches, options, warn)
             if block_attributes then
               block_attributes[#block_attributes + 1] = result.c
             else
-              block_attributes = {result.c}
+              block_attributes = mkattributes{result.c}
             end
             result = nil
           elseif tag == "attributes" then
@@ -696,10 +685,8 @@ local function render_node(node, handle, indent)
       end
     end
     if node.attr then
-      local keys = node.attr._keys
-      for j=1,#keys do
-        local k = keys[j]
-        handle:write(format(" %s=%q", k, node.attr[k]))
+      for k,v in pairs(keys) do
+        handle:write(format(" %s=%q", k, v))
       end
     end
   else
@@ -737,4 +724,7 @@ end
 return { to_ast = to_ast,
          render = render,
          insert_attribute = insert_attribute,
-         copy_attributes = copy_attributes }
+         copy_attributes = copy_attributes,
+         mkattributes = mkattributes,
+         mknode = mknode,
+         add_child = add_child }

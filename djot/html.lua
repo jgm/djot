@@ -1,4 +1,7 @@
 local ast = require("djot.ast")
+local mknode = ast.mknode
+local mkattributes = ast.mkattributes
+local add_child = ast.add_child
 local unpack = unpack or table.unpack
 local insert_attribute, copy_attributes =
   ast.insert_attribute, ast.copy_attributes
@@ -105,14 +108,9 @@ end
 
 function Renderer:render_attrs(node)
   if node.attr then
-    local keys = node.attr._keys or {}
-    for i=1,#keys do
-      local k = keys[i]
-      if k == nil then
-        break
-      end
+    for k,v in pairs(node.attr) do
       self.out(" " .. k .. "=" .. '"' ..
-            self:escape_html_attribute(node.attr[k]) .. '"')
+            self:escape_html_attribute(v) .. '"')
     end
   end
   if node.pos then
@@ -129,14 +127,18 @@ function Renderer:render_tag(tag, node)
 end
 
 function Renderer:add_backlink(nodes, i)
-  local backlink = {t = "link",
-                    destination = "#fnref" .. tostring(i),
-                    attr = {role = "doc-backlink", _keys = {"role"}},
-                    c = {{t = "str", s = "↩︎︎"}}}
+  local backlink = mknode("link")
+  backlink.destination = "#fnref" .. tostring(i)
+  backlink.attr = ast.mkattributes({role = "doc-backlink"})
+  local arrow = mknode("str")
+  arrow.s = "↩︎︎"
+  add_child(backlink, arrow)
   if nodes.c[#nodes.c].t == "para" then
-    table.insert(nodes.c[#nodes.c].c, backlink)
+    add_child(nodes.c[#nodes.c], backlink)
   else
-    table.insert(nodes.c, {t = "para", c = {backlink}})
+    local para = mknode("para")
+    add_child(para, backlink)
+    add_child(nodes, para)
   end
 end
 
@@ -372,12 +374,12 @@ function Renderer:verbatim(node)
 end
 
 function Renderer:link(node)
-  local attrs = {}
+  local attrs = mkattributes{}
   if node.reference then
     local ref = self.references[node.reference]
     if ref then
       if ref.attributes then
-        attrs = copy(ref.attributes)
+        copy_attributes(attrs, ref.attributes)
       end
       insert_attribute(attrs, "href", ref.destination)
     end
@@ -396,7 +398,7 @@ Renderer.url = Renderer.link
 Renderer.email = Renderer.link
 
 function Renderer:image(node)
-  local attrs = {}
+  local attrs = mkattributes{}
   local alt_text = to_text(node)
   if #alt_text > 0 then
     insert_attribute(attrs, "alt", to_text(node))
@@ -405,7 +407,7 @@ function Renderer:image(node)
     local ref = self.references[node.reference]
     if ref then
       if ref.attributes then
-        attrs = copy(ref.attributes)
+        copy_attributes(attrs, ref.attributes)
       end
       insert_attribute(attrs, "src", ref.destination)
     end

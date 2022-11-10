@@ -23,7 +23,6 @@
 -- Modifications to the original code:
 --
 -- * Removed JSON decoding code
--- * Add code to ignore keys beginning with '_'
 
 local json = { _version = "0.1.2" }
 
@@ -92,10 +91,7 @@ local function encode_table(val, stack)
       if type(k) ~= "string" then
         error("invalid table: mixed or invalid key types")
       end
-      -- Added by JGM:
-      if string.sub(k,1,1) ~= "_" then
-        table.insert(res, encode(k, stack) .. ":" .. encode(v, stack))
-      end
+      table.insert(res, encode(k, stack) .. ":" .. encode(v, stack))
     end
     stack[val] = nil
     return "{" .. table.concat(res, ",") .. "}"

@@ -36,7 +36,7 @@ Hi
 > A block quote.
 :::::::::::::
 .
-<div id="bar" class="foo">
+<div class="foo" id="bar">
 <p>Hi</p>
 <blockquote>
 <p>A block quote.</p>
@@ -56,7 +56,7 @@ Hi
 :::
 ::::
 .
-<div id="bar" class="foo">
+<div class="foo" id="bar">
 <p>Hi</p>
 <div class="baz">
 <blockquote>
