@@ -190,6 +190,30 @@ local function to_ast(subject, matches, options, warn)
   local footnotes = {}
   local identifiers = {} -- identifiers used (to ensure uniqueness)
 
+  -- provide children, tag, and text as aliases of c, t, s,
+  -- which we use above for better performance:
+  local mt = {}
+  local special = {
+      children = 'c',
+      text = 's',
+      tag = 't' }
+  mt.__index = function(table, key)
+    local k = special[key]
+    if k then
+      return rawget(table, k)
+    else
+      return rawget(table, key)
+    end
+  end
+  mt.__newindex = function(table, key, val)
+    local k = special[key]
+    if k then
+      rawset(table, k, val)
+    else
+      rawset(table, key, val)
+    end
+  end
+
   -- generate auto identifier for heading
   local function get_identifier(s)
     local base = s:gsub("[][~!@#$%^&*(){}`,.<>\\|=+/?]","")
@@ -229,6 +253,7 @@ local function to_ast(subject, matches, options, warn)
       local startpos, endpos, annot = unpack_match(matched)
       if stopper and find(annot, stopper) then
         idx = idx + 1
+        setmetatable(node, mt)
         return node
       else
         local mod, tag = string.match(annot, "^([-+]?)(.*)")
@@ -434,6 +459,7 @@ local function to_ast(subject, matches, options, warn)
                 elseif lastwordpos > 1 then
                   local newnode = {t = "str",
                                    s = sub(prevnode.s, lastwordpos, -1)}
+                  setmetatable(newnode, mt)
                   prevnode.s = sub(prevnode.s, 1, lastwordpos - 1)
                   node.c[#node.c + 1] = newnode
                   prevnode = newnode
@@ -564,34 +590,19 @@ local function to_ast(subject, matches, options, warn)
           end
           idx = idx + 1
           if result then
+            setmetatable(result, mt)
             node.c[#node.c + 1] = result
           end
         end
       end
     end
+    setmetatable(node, mt)
     return node
   end
 
   local doc = get_node("doc")
   doc.references = references
   doc.footnotes = footnotes
-
-  -- provide children, tag, and string as aliases of c, t, s,
-  -- which we use above for better performance:
-  local mt = {}
-  local special = {
-    children = 'c',
-    string = 's',
-    tag = 't' }
-  mt.__index = function(table, key)
-    local k = special[key]
-    if k then
-      return table[k]
-    else
-      return rawget(table, key)
-    end
-  end
-  setmetatable(doc, mt)
 
   return doc
 end
