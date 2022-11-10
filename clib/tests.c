@@ -6,12 +6,12 @@
 int failed = 0;
 int num = 0;
 
-static void asserteq(int actual, int expected) {
+static void asserteq(char *actual, char *expected) {
   num = num + 1;
-  if (actual == expected) {
+  if (strcmp(actual, expected) == 0) {
     printf("Test %4d PASSED\n", num);
   } else {
-    printf("Test %4d FAILED\nExpected %d, got %d\n", num, expected, actual);
+    printf("Test %4d FAILED\nExpected:\n%s\nGot:\n%s\n", num, expected, actual);
     failed = failed + 1;
   }
 }
@@ -32,16 +32,14 @@ int main (void) {
   out = djot_to_ast_json(L, "hi *there*\n", 0);
   if (!out) error(L);
 
-  /* Note: we just compare lengths, because JSON rendering is
-   * non-deterministic. */
-  asserteq(strlen(out), strlen("{\"children\":[{\"children\":[{\"text\":\"hi \",\"tag\":\"str\"},{\"children\":[{\"text\":\"there\",\"tag\":\"str\"}],\"tag\":\"strong\"}],\"tag\":\"para\"}],\"tag\":\"doc\",\"references\":[],\"footnotes\":[]}\n"));
+  asserteq(out, "{\"tag\":\"doc\",\"children\":[{\"tag\":\"para\",\"children\":[{\"tag\":\"str\",\"text\":\"hi \"},{\"tag\":\"strong\",\"children\":[{\"tag\":\"str\",\"text\":\"there\"}]}]}],\"references\":[],\"footnotes\":[]}\n");
 
   /* When you're finished, close the djot library */
   djot_close(L);
 
   /* Check that the string returned is still available
    * after closing the lua state: */
-  asserteq(strlen(out), strlen("{\"children\":[{\"children\":[{\"text\":\"hi \",\"tag\":\"str\"},{\"children\":[{\"text\":\"there\",\"tag\":\"str\"}],\"tag\":\"strong\"}],\"tag\":\"para\"}],\"tag\":\"doc\",\"references\":[],\"footnotes\":[]}\n"));
+  asserteq(out, "{\"tag\":\"doc\",\"children\":[{\"tag\":\"para\",\"children\":[{\"tag\":\"str\",\"text\":\"hi \"},{\"tag\":\"strong\",\"children\":[{\"tag\":\"str\",\"text\":\"there\"}]}]}],\"references\":[],\"footnotes\":[]}\n");
 
   if (failed) {
     printf("%d tests failed.\n", failed);

@@ -24,8 +24,6 @@
 --
 -- * Removed JSON decoding code
 -- * Add code to ignore keys beginning with '_'
--- * Revise short names used in internal AST to longer descriptive names,
---   e.g. c -> children.
 
 local json = { _version = "0.1.2" }
 
@@ -59,11 +57,6 @@ end
 local function encode_nil(val)
   return "null"
 end
-
-local longnames =
-  { c = "children",
-    t = "tag",
-    s = "text" }
 
 local function encode_table(val, stack)
   local res = {}
@@ -101,8 +94,7 @@ local function encode_table(val, stack)
       end
       -- Added by JGM:
       if string.sub(k,1,1) ~= "_" then
-        local key = longnames[k] or k
-        table.insert(res, encode(key, stack) .. ":" .. encode(v, stack))
+        table.insert(res, encode(k, stack) .. ":" .. encode(v, stack))
       end
     end
     stack[val] = nil

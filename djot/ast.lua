@@ -144,6 +144,10 @@ local special = {
     children = 'c',
     text = 's',
     tag = 't' }
+local displaykeys = {
+    c = 'children',
+    s = 'text',
+    t = 'tag' }
 mt.__index = function(table, key)
   local k = special[key]
   if k then
@@ -160,6 +164,51 @@ mt.__newindex = function(table, key, val)
     rawset(table, key, val)
   end
 end
+mt.__pairs = function(tbl)
+  local keys = {}
+  local k
+  k = next(tbl, k)
+  while k do
+    keys[#keys + 1] = k
+    k = next(tbl, k)
+  end
+  table.sort(keys, function(a,b)
+    if a == "t" then -- t is always first
+      return true
+    elseif a == "s" then -- s is always second
+      return (b ~= "t")
+    elseif a == "c" then -- c only before references, footnotes
+      return (b == "references" or b == "footnotes")
+    elseif a == "references" then
+      return (b == "footnotes")
+    elseif a == "footnotes" then
+      return false
+    elseif b == "t" or b == "s" then
+      return false
+    elseif b == "c" or b == "references" or b == "footnotes" then
+      return true
+    else
+      return (a < b)
+    end
+  end)
+
+  local keyindex = 0
+  local function ordered_next(tbl,_)
+    keyindex = keyindex + 1
+    local key = keys[keyindex]
+    -- use canonical names
+    local displaykey = displaykeys[key] or key
+    if key then
+      return displaykey, tbl[key]
+    else
+      return nil
+    end
+  end
+
+  -- Return an iterator function, the table, starting point
+  return ordered_next, tbl, nil
+end
+
 
 local function mknode(tag)
   local node = { t = tag, c = nil }
@@ -640,8 +689,8 @@ local function render_node(node, handle, indent)
       handle:write(format(" (%d-%d)", node.pos[1], node.pos[2]))
     end
     for k,v in pairs(node) do
-      if type(k) == "string" and k ~= "c" and
-          k ~= "t" and k ~= "pos" and k ~= "attr"  and
+      if type(k) == "string" and k ~= "children" and
+          k ~= "tag" and k ~= "pos" and k ~= "attr"  and
           k ~= "references" and k ~= "footnotes" then
         handle:write(format(" %s=%q", k, tostring(v)))
       end
