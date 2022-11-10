@@ -280,16 +280,8 @@ Parser.matchers = {
 
     -- 93 = ]
     [93] = function(self, pos, endpos)
-      local openers = self.openers["["]
-      local underscore_openers = self.openers["_"]
       local subject = self.subject
-      if underscore_openers and #underscore_openers > 0
-        and underscore_openers[#underscore_openers][3] == "reference_link" then
-        if not (openers and #openers > 0
-          and openers[#openers][1] > underscore_openers[#underscore_openers][1]) then
-          openers = underscore_openers
-        end
-      end
+      local openers = self.openers["_"]
       if openers and #openers > 0 then
         local opener = openers[#openers]
         if opener[3] == "reference_link" then
@@ -312,24 +304,6 @@ Parser.matchers = {
           -- remove from openers
           self:clear_openers(opener[1], pos)
           return pos + 1
-        elseif bounded_find(subject, "^%[", pos + 1, endpos) then
-          opener[3] = "reference_link"
-          opener[4] = pos  -- intermediate ]
-          opener[5] = pos + 1  -- intermediate [
-          self:add_match(pos, pos + 1, "str")
-          -- remove any openers between [ and ]
-          self:clear_openers(opener[1] + 1, pos - 1)
-          return pos + 2
-        elseif bounded_find(subject, "^%(", pos + 1, endpos) then
-          self.openers["("] = {} -- clear ( openers
-          opener[3] = "explicit_link"
-          opener[4] = pos  -- intermediate ]
-          opener[5] = pos + 1  -- intermediate (
-          self.destination = true
-          self:add_match(pos, pos + 1, "str")
-          -- remove any openers between [ and ]
-          self:clear_openers(opener[1] + 1, pos - 1)
-          return pos + 2
         elseif bounded_find(subject, "^%{", pos + 1, endpos) then
           -- assume this is attributes, bracketed span
           self:add_match(opener[1], opener[2], "+span")
@@ -360,16 +334,7 @@ Parser.matchers = {
         return pos + 1
       else
         local subject = self.subject
-        local openers = self.openers["["]
-        local underscore_openers = self.openers["_"]
-        if underscore_openers and #underscore_openers
-          and underscore_openers[#underscore_openers]
-          and underscore_openers[#underscore_openers][3] == "explicit_link" then
-          if not (openers and #openers > 0
-              and openers[#openers][1] > underscore_openers[#underscore_openers][1]) then
-              openers = underscore_openers
-          end
-        end
+        local openers = self.openers["_"]
         if openers and #openers > 0
             and openers[#openers][3] == "explicit_link" then
           local opener = openers[#openers]
