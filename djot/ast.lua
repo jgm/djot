@@ -162,11 +162,21 @@ mt.__newindex = function(table, key, val)
 end
 
 local function mknode(tag)
-  local node = { t = tag, c = {} }
+  local node = { t = tag, c = nil }
   setmetatable(node, mt)
   return node
 end
 
+local function add_child(node, child)
+  if (not node.c) then
+    node.c = {}
+  end
+  node.c[#node.c + 1] = child
+end
+
+local function has_children(node)
+  return (node.c and #node.c > 0)
+end
 
 local function insert_attributes(targetnode, cs)
   targetnode.attr = targetnode.attr or {_keys = {}}
@@ -189,14 +199,17 @@ end
 
 local function make_definition_list_item(result)
   result.t = "definition_list_item"
-  if result.c and #result.c > 0 and
-     result.c[1].t == "para" then
+  if not has_children(result) then
+    result.c = {}
+  end
+  if result.c[1] and result.c[1].t == "para" then
     result.c[1].t = "term"
   else
     table.insert(result.c, 1, mknode("term"))
   end
   if result.c[2] then
     local defn = mknode("definition")
+    defn.c = {}
     for i=2,#result.c do
       defn.c[#defn.c + 1] = result.c[i]
       result.c[i] = nil
@@ -304,12 +317,12 @@ local function to_ast(subject, matches, options, warn)
               local s = get_string_content(result)
               result.t = "raw_inline"
               result.s = s
-              result.c = nil 
+              result.c = nil
               result.format = sub(subject, sp + 2, ep - 1)
               idx = idx + 1 -- skip the raw_format
             end
           elseif tag == "caption" then
-            local prevnode = node.c[#node.c]
+            local prevnode = has_children(node) and node.c[#node.c]
             if prevnode.t == "table" then
               -- move caption in table node
               table.insert(prevnode.c, 1, result)
@@ -363,7 +376,7 @@ local function to_ast(subject, matches, options, warn)
             elseif nextannot == "+reference" then
               idx = idx + 1
               local ref = get_node("reference")
-              if ref.t == "reference" and #ref.c > 0 then
+              if ref.t == "reference" and has_children(ref) then
                 result.reference = get_string_content(ref):gsub("\r?\n", " ")
               else
                 result.reference = get_string_content(result):gsub("\r?\n", " ")
@@ -434,7 +447,7 @@ local function to_ast(subject, matches, options, warn)
               table.remove(result.c, 1)
             end
           elseif tag == "code_block" then
-            if result.c[1] then
+            if has_children(result) then
               if result.c[1].t == "code_language" then
                 result.lang = result.c[1].s
                 table.remove(result.c, 1)
@@ -456,7 +469,7 @@ local function to_ast(subject, matches, options, warn)
             result = nil
           elseif tag == "attributes" then
             -- parse attributes, add to last node
-            local prevnode = node.c[#node.c]
+            local prevnode = has_children(node) and node.c[#node.c]
             local endswithspace = false
             if type(prevnode) == "table" then
               if prevnode.t == "str" then
@@ -469,7 +482,7 @@ local function to_ast(subject, matches, options, warn)
                   local newnode = {t = "str",
                                    s = sub(prevnode.s, lastwordpos, -1)}
                   prevnode.s = sub(prevnode.s, 1, lastwordpos - 1)
-                  node.c[#node.c + 1] = newnode
+                  add_child(node, newnode)
                   prevnode = newnode
                 end
               end
@@ -557,7 +570,7 @@ local function to_ast(subject, matches, options, warn)
             list.start = get_list_start(marker, list.list_style)
             result = list
           end
-          node.c[#node.c + 1] = result
+          add_child(node, result)
         elseif mod == "-" then -- close
           assert(false, "unmatched " .. annot .. " encountered at byte " ..
                    startpos)
@@ -568,13 +581,13 @@ local function to_ast(subject, matches, options, warn)
           local result = mknode("reference_key")
           result.s = key
           idx = idx + 1
-          node.c[#node.c + 1] = result
+          add_child(node, result)
         elseif tag == "reference_value" then
           local val = sub(subject, startpos, endpos)
           local result = mknode("reference_value")
           result.s = val
           idx = idx + 1
-          node.c[#node.c + 1] = result
+          add_child(node, result)
         else -- leaf
           local result
           if tag == "softbreak" then
@@ -603,7 +616,7 @@ local function to_ast(subject, matches, options, warn)
           end
           idx = idx + 1
           if result then
-            node.c[#node.c + 1] = result
+            add_child(node, result)
           end
         end
       end
