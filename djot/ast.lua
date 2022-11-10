@@ -137,6 +137,37 @@ local function copy_attributes(target, source)
   end
 end
 
+-- provide children, tag, and text as aliases of c, t, s,
+-- which we use above for better performance:
+local mt = {}
+local special = {
+    children = 'c',
+    text = 's',
+    tag = 't' }
+mt.__index = function(table, key)
+  local k = special[key]
+  if k then
+    return rawget(table, k)
+  else
+    return rawget(table, key)
+  end
+end
+mt.__newindex = function(table, key, val)
+  local k = special[key]
+  if k then
+    rawset(table, k, val)
+  else
+    rawset(table, key, val)
+  end
+end
+
+local function mknode(tag)
+  local node = { t = tag, c = {} }
+  setmetatable(node, mt)
+  return node
+end
+
+
 local function insert_attributes(targetnode, cs)
   targetnode.attr = targetnode.attr or {_keys = {}}
   local i=1
@@ -162,10 +193,10 @@ local function make_definition_list_item(result)
      result.c[1].t == "para" then
     result.c[1].t = "term"
   else
-    table.insert(result.c, 1, {t = "term", c = {}})
+    table.insert(result.c, 1, mknode("term"))
   end
   if result.c[2] then
-    local defn = {t = "definition", c = {}}
+    local defn = mknode("definition")
     for i=2,#result.c do
       defn.c[#defn.c + 1] = result.c[i]
       result.c[i] = nil
@@ -189,30 +220,6 @@ local function to_ast(subject, matches, options, warn)
   local references = {}
   local footnotes = {}
   local identifiers = {} -- identifiers used (to ensure uniqueness)
-
-  -- provide children, tag, and text as aliases of c, t, s,
-  -- which we use above for better performance:
-  local mt = {}
-  local special = {
-      children = 'c',
-      text = 's',
-      tag = 't' }
-  mt.__index = function(table, key)
-    local k = special[key]
-    if k then
-      return rawget(table, k)
-    else
-      return rawget(table, key)
-    end
-  end
-  mt.__newindex = function(table, key, val)
-    local k = special[key]
-    if k then
-      rawset(table, k, val)
-    else
-      rawset(table, key, val)
-    end
-  end
 
   -- generate auto identifier for heading
   local function get_identifier(s)
@@ -241,7 +248,7 @@ local function to_ast(subject, matches, options, warn)
   end
 
   local function get_node(maintag)
-    local node = { t = maintag, c = {} }
+    local node = mknode(maintag)
     local stopper
     local block_attributes = nil
     if maintag then
@@ -253,7 +260,6 @@ local function to_ast(subject, matches, options, warn)
       local startpos, endpos, annot = unpack_match(matched)
       if stopper and find(annot, stopper) then
         idx = idx + 1
-        setmetatable(node, mt)
         return node
       else
         local mod, tag = string.match(annot, "^([-+]?)(.*)")
@@ -289,13 +295,16 @@ local function to_ast(subject, matches, options, warn)
             if find(s, "` +$") then
               s = s:sub(1, #s - 1)
             end
-            result = {t = "verbatim", s = s}
+            result.t = "verbatim"
+            result.s = s
+            result.c = nil
             -- check for raw_format, which makes this a raw node
             local sp,ep,ann = unpack_match(matches[idx])
             if ann == "raw_format" then
-              local str = get_string_content(result)
+              local s = get_string_content(result)
               result.t = "raw_inline"
-              result.s = str
+              result.s = s
+              result.c = nil 
               result.format = sub(subject, sp + 2, ep - 1)
               idx = idx + 1 -- skip the raw_format
             end
@@ -459,7 +468,6 @@ local function to_ast(subject, matches, options, warn)
                 elseif lastwordpos > 1 then
                   local newnode = {t = "str",
                                    s = sub(prevnode.s, lastwordpos, -1)}
-                  setmetatable(newnode, mt)
                   prevnode.s = sub(prevnode.s, 1, lastwordpos - 1)
                   node.c[#node.c + 1] = newnode
                   prevnode = newnode
@@ -478,7 +486,8 @@ local function to_ast(subject, matches, options, warn)
             gsub(tag, "%[([^]]*)%]", function(x) styles[#styles + 1] = x end)
             -- create a list node with the consecutive list items
             -- of the same kind
-            local list = {t = "list", c = {result}}
+            local list = mknode("list")
+            list.c = {result}
             -- put the attributes from the first item on the list itself:
             list.attr = result.attr
             result.attr = nil
@@ -556,28 +565,32 @@ local function to_ast(subject, matches, options, warn)
           return nil
         elseif tag == "reference_key" then
           local key = sub(subject, startpos + 1, endpos - 1)
-          local result = {t = "reference_key", s = key}
+          local result = mknode("reference_key")
+          result.s = key
           idx = idx + 1
           node.c[#node.c + 1] = result
         elseif tag == "reference_value" then
           local val = sub(subject, startpos, endpos)
-          local result = {t = "reference_value", s = val}
+          local result = mknode("reference_value")
+          result.s = val
           idx = idx + 1
           node.c[#node.c + 1] = result
         else -- leaf
           local result
           if tag == "softbreak" then
-            result = {t = tag}
+            result = mknode(tag)
           elseif tag == "footnote_reference" then
-            result = {t = tag, s = sub(subject, startpos + 2, endpos - 1)}
+            result = mknode(tag)
+            result.s = sub(subject, startpos + 2, endpos - 1)
           elseif tag == "emoji" then
-            result = {t = "emoji",
-                      alias = sub(subject, startpos + 1, endpos - 1)}
+            result = mknode("emoji")
+            result.alias = sub(subject, startpos + 1, endpos - 1)
             emoji = require("djot.emoji")
             local found = emoji[result.alias]
             result.s = found
           else
-            result = {t = tag, s = sub(subject, startpos, endpos)}
+            result = mknode(tag)
+            result.s = sub(subject, startpos, endpos)
           end
           if sourcepos then
             result.pos = {startpos, endpos}
@@ -590,13 +603,11 @@ local function to_ast(subject, matches, options, warn)
           end
           idx = idx + 1
           if result then
-            setmetatable(result, mt)
             node.c[#node.c + 1] = result
           end
         end
       end
     end
-    setmetatable(node, mt)
     return node
   end
 
