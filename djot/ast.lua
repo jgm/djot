@@ -575,6 +575,9 @@ local function to_ast(subject, matches, options, warn)
   local doc = get_node("doc")
   doc.references = references
   doc.footnotes = footnotes
+
+  -- provide children, tag, and string as aliases of c, t, s,
+  -- which we use above for better performance:
   local mt = {}
   local special = {
     children = 'c',
@@ -589,6 +592,7 @@ local function to_ast(subject, matches, options, warn)
     end
   end
   setmetatable(doc, mt)
+
   return doc
 end
 
