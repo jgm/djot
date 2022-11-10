@@ -30,7 +30,7 @@ int main (void) {
 
   /* Now use functions like djot_to_ast_json */
   out = djot_to_ast_json(L, "hi *there*\n", 0);
-  if (!L) error(L);
+  if (!out) error(L);
 
   /* Note: we just compare lengths, because JSON rendering is
    * non-deterministic. */
