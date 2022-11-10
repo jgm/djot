@@ -97,7 +97,7 @@ function Parser:str_matches(startpos, endpos)
 end
 
 function Parser.between_matched(c, annotation, defaultmatch, opentest)
-  return function(self, pos)
+  return function(self, pos, endpos)
     local defaultmatch = defaultmatch or "str"
     local subject = self.subject
     local can_open = find(subject, "^%S", pos + 1)
@@ -131,13 +131,34 @@ function Parser.between_matched(c, annotation, defaultmatch, opentest)
 
     local openers = self.openers[c]
     if can_close and openers and #openers > 0 then
-       -- check openers for a match
-      local openpos, openposend = unpack(openers[#openers])
+      -- check openers for a match
+      local opener = openers[#openers]
+      local openpos, openposend = unpack(opener)
       if openposend ~= pos - 1 then -- exclude empty emph
-        self:clear_openers(openpos, pos)
-        self:add_match(openpos, openposend, "+" .. annotation)
-        self:add_match(pos, endcloser, "-" .. annotation)
-        return endcloser + 1
+        if bounded_find(subject, "^%[", endcloser + 1, endpos) then
+          opener[3] = "reference_link"
+          opener[4] = pos  -- intermediate _
+          opener[5] = endcloser + 1  -- intermediate [
+          self:add_match(pos, endcloser + 1, "str")
+          -- remove any openers between [ and ]
+          self:clear_openers(opener[1] + 1, pos - 1)
+          return endcloser + 2
+        elseif bounded_find(subject, "^%(", endcloser + 1, endpos) then
+          self.openers["("] = {} -- clear ( openers
+          opener[3] = "explicit_link"
+          opener[4] = pos  -- intermediate _
+          opener[5] = endcloser + 1  -- intermediate (
+          self.destination = true
+          self:add_match(pos, endcloser + 1, "str")
+          -- remove any openers between [ and ]
+          self:clear_openers(opener[1] + 1, pos - 1)
+          return endcloser + 2
+        else
+          self:clear_openers(openpos, pos)
+          self:add_match(openpos, openposend, "+" .. annotation)
+          self:add_match(pos, endcloser, "-" .. annotation)
+          return endcloser + 1
+        end
       end
     end
     -- if we get here, we didn't match an opener
@@ -260,7 +281,15 @@ Parser.matchers = {
     -- 93 = ]
     [93] = function(self, pos, endpos)
       local openers = self.openers["["]
+      local underscore_openers = self.openers["_"]
       local subject = self.subject
+      if underscore_openers and #underscore_openers > 0
+        and underscore_openers[#underscore_openers][3] == "reference_link" then
+        if not (openers and #openers > 0
+          and openers[#openers][1] > underscore_openers[#underscore_openers][1]) then
+          openers = underscore_openers
+        end
+      end
       if openers and #openers > 0 then
         local opener = openers[#openers]
         if opener[3] == "reference_link" then
@@ -332,6 +361,15 @@ Parser.matchers = {
       else
         local subject = self.subject
         local openers = self.openers["["]
+        local underscore_openers = self.openers["_"]
+        if underscore_openers and #underscore_openers
+          and underscore_openers[#underscore_openers]
+          and underscore_openers[#underscore_openers][3] == "explicit_link" then
+          if not (openers and #openers > 0
+              and openers[#openers][1] > underscore_openers[#underscore_openers][1]) then
+              openers = underscore_openers
+          end
+        end
         if openers and #openers > 0
             and openers[#openers][3] == "explicit_link" then
           local opener = openers[#openers]
