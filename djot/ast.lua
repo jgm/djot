@@ -12,6 +12,24 @@ local find, lower, sub, gsub, rep, format =
 local unpack_match, get_length, matches_pattern =
   match.unpack_match, match.get_length, match.matches_pattern
 
+-- Creates a sparse array whose indices are byte positions.
+-- source_pos_map[bytepos] = {line, column}
+local function make_source_position_map(input)
+  local source_pos_map = {}
+  local line = 1
+  local col = 0
+  for bytepos, codepoint in utf8.codes(input) do
+    if codepoint == 10 then -- newline
+      line = line + 1
+      col = 0
+    else
+      col = col + 1
+    end
+    source_pos_map[bytepos] = {line, col}
+  end
+  return source_pos_map
+end
+
 local function get_string_content(node)
   local buffer = {}
   if node.s then
