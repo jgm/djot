@@ -13,9 +13,9 @@ local unpack_match, get_length, matches_pattern =
   match.unpack_match, match.get_length, match.matches_pattern
 
 -- Creates a sparse array whose indices are byte positions.
--- source_pos_map[bytepos] = "line:column:bytepos"
-local function make_source_position_map(input)
-  local source_pos_map = {}
+-- sourcepos_map[bytepos] = "line:column:bytepos"
+local function make_sourcepos_map(input)
+  local sourcepos_map = {}
   local line = 1
   local col = 0
   for bytepos, codepoint in utf8.codes(input) do
@@ -25,9 +25,9 @@ local function make_source_position_map(input)
     else
       col = col + 1
     end
-    source_pos_map[bytepos] = string.format("%d:%d:%d", line, col, bytepos)
+    sourcepos_map[bytepos] = string.format("%d:%d:%d", line, col, bytepos)
   end
-  return source_pos_map
+  return sourcepos_map
 end
 
 local function get_string_content(node)
@@ -291,7 +291,10 @@ local function to_ast(subject, matches, options, warn)
   local idx = 1
   local matcheslen = #matches
   local sourcepos = options.sourcepos
-  local sourceposmap = make_source_position_map(subject)
+  local sourceposmap
+  if sourcepos then
+    sourceposmap = make_sourcepos_map(subject)
+  end
   local references = {}
   local footnotes = {}
   local identifiers = {} -- identifiers used (to ensure uniqueness)
@@ -611,7 +614,7 @@ local function to_ast(subject, matches, options, warn)
               end
               item.t = "list_item"
               if sourcepos then
-                item.pos = {sp, finalpos}
+                item.pos = {sourceposmap[sp], sourceposmap[finalpos]}
                 list.pos[2] = item.pos[2]
               end
               if marker == ":" then
