@@ -14,12 +14,9 @@ test: tests
 .PHONY: test
 
 tests: tests.c libdjot.a
-	$(CC) -o $@ $^
+	$(CC) -I $(LUAHEADERS) -o $@ $^
 
 lua.h:
-	cp $(LUAHEADERS)/$@ .
-
-luaconf.h:
 	cp $(LUAHEADERS)/$@ .
 
 libdjot.a: djot.o $(LIBLUA)
@@ -32,7 +29,7 @@ libdjot.a: djot.o $(LIBLUA)
 	cd .. && \
 	cp $$UNPACKDIR/$@ .
 
-djot.o: djot.c djot_combined.inc lua.h luaconf.h
+djot.o: djot.c djot_combined.inc
 	$(CC) -c -I $(LUAHEADERS) $<
 
 djot_combined.lua: $(MODULES)
@@ -66,5 +63,5 @@ $(WASMDIST)/djot.js: djot.c djot.h djot_combined.inc $(LUADIR) $(WASMDIST)
 clean:
 	rm -rf djot_combined.lua djot_combined.inc *.o test $(WASMDIST)
 distclean: clean
-	-rm -rf libdjot.a lua.h luaconf.h $(LUADIR)
+	-rm -rf libdjot.a lua.h $(LUADIR)
 .PHONY: clean
