@@ -21,9 +21,11 @@ end
 local opts = {}
 local files = {}
 
-for _,arg in ipairs(arg) do
-  if string.find(arg, "^%-") then
-    string.gsub(arg, "(%a)", function(x)
+local argi = 1
+while arg[argi] do
+  local thisarg = arg[argi]
+  if string.find(thisarg, "^%-") then
+    string.gsub(thisarg, "(%a)", function(x)
       if x == "m" then
         opts.matches = true
       elseif x == "a" then
@@ -36,6 +38,12 @@ for _,arg in ipairs(arg) do
         opts.verbose = true
       elseif x == "M" then
         opts.memory = true
+      elseif x == "f" then
+        if arg[argi + 1] then
+          opts.filters = opts.filters or {}
+          table.insert(opts.filters, arg[argi + 1])
+          argi = argi + 1
+        end
       elseif x == "h" then
         io.stdout:write(help)
         os.exit(0)
@@ -44,8 +52,9 @@ for _,arg in ipairs(arg) do
       end
     end)
   else
-    files[#files + 1] = arg
+    table.insert(files, thisarg)
   end
+  argi = argi + 1
 end
 
 local inp
@@ -85,11 +94,18 @@ if opts.memory then
 end
 
 parser:parse()
+parser:build_ast()
 
 if opts.memory then
   memusage("after parse")
 end
 
+if opts.filters then
+  for _,fp in ipairs(opts.filters) do
+    local filter = dofile(fp)
+    djot.traverse(parser.ast, filter)
+  end
+end
 
 if opts.matches then
   parser:render_matches(io.stdout, opts.json)

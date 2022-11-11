@@ -3,6 +3,7 @@ local ast = require("djot.ast")
 local html = require("djot.html")
 local match = require("djot.match")
 local json = require("djot.json")
+local filter = require("djot.filter")
 
 local unpack_match = match.unpack_match
 local format_match = match.format_match
@@ -113,6 +114,7 @@ end
 
 return {
   Parser = Parser,
+  traverse = filter.traverse,
   djot_to_html = djot_to_html,
   djot_to_ast_pretty = djot_to_ast_pretty,
   djot_to_ast_json = djot_to_ast_json,
