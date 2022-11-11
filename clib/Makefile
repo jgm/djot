@@ -66,5 +66,5 @@ $(WASMDIST)/djot.js: djot.c djot.h djot_combined.inc $(LUADIR) $(WASMDIST)
 clean:
 	rm -rf djot_combined.lua djot_combined.inc *.o test $(WASMDIST)
 distclean: clean
-	-rm -f libdjot.a lua.h luaconf.h $(LUADIR)
+	-rm -rf libdjot.a lua.h luaconf.h $(LUADIR)
 .PHONY: clean
