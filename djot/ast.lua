@@ -340,6 +340,10 @@ local function to_ast(subject, matches, options, warn)
       local startpos, endpos, annot = unpack_match(matched)
       if stopper and find(annot, stopper) then
         idx = idx + 1
+        if sourcepos then
+          node.pos = {nil, sourceposmap[endpos]}
+          -- startpos filled in below under "+"
+        end
         return node
       else
         local mod, tag = string.match(annot, "^([-+]?)(.*)")
@@ -352,9 +356,9 @@ local function to_ast(subject, matches, options, warn)
           if tag == "list_item[X]" then
             set_checkbox(result, startidx)
           end
-          local _, finalpos = unpack_match(matches[idx - 1])
           if sourcepos then
-            result.pos = {sourceposmap[startpos], sourceposmap[finalpos]}
+             result.pos[1] = sourceposmap[startpos]
+             -- endpos is given at the top
           end
           if block_attributes and tag ~= "block_attributes" then
             for i=1,#block_attributes do
@@ -583,7 +587,7 @@ local function to_ast(subject, matches, options, warn)
             -- now get remaining items
             local nextitem = matches[idx]
             while nextitem do
-              local sp, _, ann = unpack_match(nextitem)
+              local sp, ep, ann = unpack_match(nextitem)
               if not find(ann, "^%+list_item") then
                 break
               end
@@ -616,7 +620,12 @@ local function to_ast(subject, matches, options, warn)
               end
               item.t = "list_item"
               if sourcepos then
-                item.pos = {sourceposmap[sp], sourceposmap[finalpos]}
+                item.pos = {sourceposmap[sp]}
+                if has_children(item) then
+                  item.pos[2] = item.c[#item.c].pos[2]
+                else
+                  item.pos[2] = sourceposmap[ep]
+                end
                 list.pos[2] = item.pos[2]
               end
               if marker == ":" then
