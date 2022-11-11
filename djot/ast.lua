@@ -216,7 +216,7 @@ local function copy_attributes(target, source)
   end
 end
 
-local function insert_attributes(targetnode, cs)
+local function insert_attributes_from_nodes(targetnode, cs)
   targetnode.attr = targetnode.attr or mkattributes()
   local i=1
   while i <= #cs do
@@ -329,7 +329,7 @@ local function to_ast(subject, matches, options, warn)
           end
           if block_attributes and tag ~= "block_attributes" then
             for i=1,#block_attributes do
-              insert_attributes(result, block_attributes[i])
+              insert_attributes_from_nodes(result, block_attributes[i])
             end
             if result.attr and result.attr.id then
               identifiers[result.attr.id] = true
@@ -425,9 +425,11 @@ local function to_ast(subject, matches, options, warn)
             result.level = get_length(matched)
             local heading_str = get_string_content(result)
                                  :gsub("^%s+",""):gsub("%s+$","")
-            if not (result.attr and result.attr.id) then
-              local ident = get_identifier(heading_str)
-              insert_attributes(result, {{t = "id", s = ident}})
+            if not result.attr then
+              result.attr = mkattributes{}
+            end
+            if not result.attr.id then
+              insert_attribute(result.attr, "id", get_identifier(heading_str))
             end
             -- insert into references unless there's a same-named one already:
             if not references[heading_str] then
@@ -525,7 +527,7 @@ local function to_ast(subject, matches, options, warn)
                 end
               end
               if not endswithspace then
-                insert_attributes(prevnode, result.c)
+                insert_attributes_from_nodes(prevnode, result.c)
               else
                 warn({message = "Ignoring unattached attribute", pos = startpos})
               end
@@ -648,7 +650,7 @@ local function to_ast(subject, matches, options, warn)
           end
           if block_attributes then
             for i=1,#block_attributes do
-              insert_attributes(result, block_attributes[i])
+              insert_attributes_from_nodes(result, block_attributes[i])
             end
             block_attributes = nil
           end
@@ -685,7 +687,7 @@ local function render_node(node, handle, indent)
       end
     end
     if node.attr then
-      for k,v in pairs(keys) do
+      for k,v in pairs(node.attr) do
         handle:write(format(" %s=%q", k, v))
       end
     end
