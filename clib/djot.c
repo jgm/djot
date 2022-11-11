@@ -9,7 +9,11 @@
 /* unsigned char djot_combined_lua[], unsigned int djot_combined_lua_len */
 
 void djot_report_error(lua_State *L) {
-  printf("error: %s", lua_tostring(L, -1));
+  if(!L) {
+    fprintf(stderr, "lua_State is NULL\n");
+  } else {
+    fprintf(stderr, "error: %s", lua_tostring(L, -1));
+  }
 }
 
 lua_State *djot_open() {
@@ -20,6 +24,7 @@ lua_State *djot_open() {
   luaL_openlibs(L);               /* opens Lua libraries */
 
   if (luaL_dostring(L, (const char*)djot_combined_lua) != LUA_OK) {
+    djot_report_error(L);
     return NULL;
   }
 

@@ -26,7 +26,10 @@ int main (void) {
 
   /* Do this once, before any use of the djot library */
   lua_State *L = djot_open();
-  if (!L) error(L);
+  if (!L) {
+    fprintf(stderr, "djot_open returned NULL.\n");
+    return -1;
+  }
 
   /* Now use functions like djot_to_ast_json */
   out = djot_to_ast_json(L, "hi *there*\n", 0);
