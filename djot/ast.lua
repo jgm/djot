@@ -13,7 +13,7 @@ local unpack_match, get_length, matches_pattern =
   match.unpack_match, match.get_length, match.matches_pattern
 
 -- Creates a sparse array whose indices are byte positions.
--- source_pos_map[bytepos] = {line, column}
+-- source_pos_map[bytepos] = "line:column:bytepos"
 local function make_source_position_map(input)
   local source_pos_map = {}
   local line = 1
@@ -25,7 +25,7 @@ local function make_source_position_map(input)
     else
       col = col + 1
     end
-    source_pos_map[bytepos] = {line, col}
+    source_pos_map[bytepos] = string.format("%d:%d:%d", line, col, bytepos)
   end
   return source_pos_map
 end
@@ -291,6 +291,7 @@ local function to_ast(subject, matches, options, warn)
   local idx = 1
   local matcheslen = #matches
   local sourcepos = options.sourcepos
+  local sourceposmap = make_source_position_map(subject)
   local references = {}
   local footnotes = {}
   local identifiers = {} -- identifiers used (to ensure uniqueness)
@@ -348,7 +349,7 @@ local function to_ast(subject, matches, options, warn)
           end
           local _, finalpos = unpack_match(matches[idx - 1])
           if sourcepos then
-            result.pos = {startpos, finalpos}
+            result.pos = {sourceposmap[startpos], sourceposmap[finalpos]}
           end
           if block_attributes and tag ~= "block_attributes" then
             for i=1,#block_attributes do
@@ -669,7 +670,7 @@ local function to_ast(subject, matches, options, warn)
             result.s = sub(subject, startpos, endpos)
           end
           if sourcepos then
-            result.pos = {startpos, endpos}
+            result.pos = {sourceposmap[startpos], sourceposmap[endpos]}
           end
           if block_attributes then
             for i=1,#block_attributes do
@@ -700,7 +701,7 @@ local function render_node(node, handle, indent)
   if node.t then
     handle:write(node.t)
     if node.pos then
-      handle:write(format(" (%d-%d)", node.pos[1], node.pos[2]))
+      handle:write(format(" (%s-%s)", node.pos[1], node.pos[2]))
     end
     for k,v in pairs(node) do
       if type(k) == "string" and k ~= "children" and
