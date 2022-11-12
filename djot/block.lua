@@ -20,30 +20,30 @@ function Container:new(spec, data)
   return contents
 end
 
-local function get_list_style(marker)
+local function get_list_styles(marker)
   if marker == "+" or marker == "-" or marker == "*" or marker == ":" then
-    return marker
+    return {marker}
   elseif find(marker, "^[+*-] %[[Xx ]%]") then
-    return "X" -- task list
+    return {"X"} -- task list
   elseif find(marker, "^%[[Xx ]%]") then
-    return "X"
+    return {"X"}
   elseif find(marker, "^[(]?%d+[).]") then
-    return (marker:gsub("%d+","1"))
+    return {(marker:gsub("%d+","1"))}
   -- in ambiguous cases we return two values
   elseif find(marker, "^[(]?[ivxlcdm][).]") then
-    return (marker:gsub("%a+", "a")), (marker:gsub("%a+", "i"))
+    return {(marker:gsub("%a+", "a")), (marker:gsub("%a+", "i"))}
   elseif find(marker, "^[(]?[IVXLCDM][).]") then
-    return (marker:gsub("%a+", "A")), (marker:gsub("%a+", "I"))
+    return {(marker:gsub("%a+", "A")), (marker:gsub("%a+", "I"))}
   elseif find(marker, "^[(]?%l[).]") then
-    return (marker:gsub("%l", "a"))
+    return {(marker:gsub("%l", "a"))}
   elseif find(marker, "^[(]?%u[).]") then
-    return (marker:gsub("%u", "A"))
+    return {(marker:gsub("%u", "A"))}
   elseif find(marker, "^[(]?[ivxlcdm]+[).]") then
-    return (marker:gsub("%a+", "i"))
+    return {(marker:gsub("%a+", "i"))}
   elseif find(marker, "^[(]?[IVXLCDM]+[).]") then
-    return (marker:gsub("%a+", "I"))
-  else
-    assert(false, "Could not identify list style for " .. marker)
+    return {(marker:gsub("%a+", "I"))}
+  else -- doesn't match any list style
+    return {}
   end
 end
 
@@ -321,7 +321,10 @@ function Parser:specs()
           checkbox = sub(self.subject, sp + 3, sp + 3)
         end
         -- some items have ambiguous style
-        local styles = {get_list_style(marker)}
+        local styles = get_list_styles(marker)
+        if #styles == 0 then
+          return nil
+        end
         local data = { styles = styles,
                        indent = self.indent }
         -- adding container will close others
