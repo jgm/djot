@@ -2,20 +2,22 @@ local djot = require("djot")
 local to_html = djot.djot_to_html
 math.randomseed(os.time())
 
-local function randomstring(len)
+local MAXLENGTH = 256
+local NUMTESTS = 50000
+
+local function randomstring()
   local res = ""
+  local len = math.random(0,MAXLENGTH)
   for i=1,len do
-    res = res .. string.char(math.random(1, 127))
+    res = res .. utf8.char(math.random(1, 200))
   end
   return res
 end
 
-local LENGTH = 128
-local NUMTESTS = 50000
 local failures = 0
 
 for i=1,NUMTESTS do
-  local s = randomstring(LENGTH)
+  local s = randomstring()
   local ok, err = pcall(function () return to_html(s) end)
   if ok then
     if i % 1000 == 0 then
