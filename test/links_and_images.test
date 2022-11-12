@@ -1,5 +1,5 @@
 ```
-[basic _link_][a_b_]
+_basic _link__[a_b_]
 
 [a_b_]: url
 .
@@ -7,7 +7,7 @@
 ```
 
 ```
-![basic _image_][a_b_]
+!_basic _image__[a_b_]
 
 [a_b_]: url
 .
@@ -15,7 +15,7 @@
 ```
 
 ```
-[link][]
+_link_[]
 
 [link]: url
 .
@@ -23,7 +23,7 @@
 ```
 
 ```
-[link][]
+_link_[]
 
 [link]:
  url
@@ -34,7 +34,7 @@
 The URL can be split over multiple lines:
 
 ```
-[link][]
+_link_[]
 
 [link]:
  url
@@ -44,14 +44,14 @@ The URL can be split over multiple lines:
 ```
 
 ```
-[link](url
+_link_(url
 andurl)
 .
 <p><a href="urlandurl">link</a></p>
 ```
 
 ```
-[link][]
+_link_[]
 
 [link]:
 [link2]: url
@@ -60,8 +60,8 @@ andurl)
 ```
 
 ```
-[link][]
-[link][link2]
+_link_[]
+_link_[link2]
 
 [link2]:
   url2
@@ -73,7 +73,7 @@ andurl)
 ```
 
 ```
-[link][a and
+_link_[a and
 b]
 
 [a and b]: url
@@ -84,7 +84,7 @@ b]
 If the reference isn't found, we get an empty link.
 
 ```
-[link][a and
+_link_[a and
 b]
 .
 <p><a>link</a></p>
@@ -93,7 +93,7 @@ b]
 Reference definitions can't have line breaks in the key:
 
 ```
-[link][a and
+_link_[a and
 b]
 
 [a and
@@ -107,7 +107,7 @@ b]: url</p>
 No case normalization is done on reference definitions:
 
 ```
-[Link][]
+_Link_[]
 
 [link]: /url
 .
@@ -121,7 +121,7 @@ the link:
 {title=foo}
 [ref]: /url
 
-[ref][]
+_ref_[]
 .
 <p><a href="/url" title="foo">ref</a></p>
 ```
@@ -132,13 +132,13 @@ Attributes on the link override those on references:
 {title=foo}
 [ref]: /url
 
-[ref][]{title=bar}
+_ref_[]{title=bar}
 .
 <p><a href="/url" title="bar">ref</a></p>
 ```
 
 ```
-[link _and_ link][]
+_link _and_ link_[]
 
 [link and link]: url
 .
@@ -146,29 +146,29 @@ Attributes on the link override those on references:
 ```
 
 ```
-![basic _image_](url)
+!_basic _image__(url)
 .
 <p><img alt="basic image" src="url"></p>
 ```
 
 ```
-[![image](img.jpg)](url)
+_!_image_(img.jpg)_(url)
 .
 <p><a href="url"><img alt="image" src="img.jpg"></a></p>
 ```
 
 ```
-[unclosed](hello *a
+_unclosed_(hello *a
 b*
 .
-<p>[unclosed](hello <strong>a
+<p>_unclosed_(hello <strong>a
 b</strong></p>
 ```
 
 Note that soft breaks are ignored, so long URLs
 can be split over multiple lines:
 ```
-[closed](hello *a
+_closed_(hello *a
 b*)
 .
 <p><a href="hello *ab*">closed</a></p>
@@ -177,35 +177,35 @@ b*)
 Here the strong takes precedence over the link because it
 starts first:
 ```
-*[closed](hello*)
+*_closed_(hello*)
 .
-<p><strong>[closed](hello</strong>)</p>
+<p><strong>_closed_(hello</strong>)</p>
 ```
 
 Avoid this with a backslash escape:
 ```
-*[closed](hello\*)
+*_closed_(hello\*)
 .
 <p>*<a href="hello*">closed</a></p>
 ```
 
 Link in link?
 ```
-[[foo](bar)](baz)
+__foo_(bar)_(baz)
 .
 <p><a href="baz"><a href="bar">foo</a></a></p>
 ```
 
 Link in image?
 ```
-![[link](url)](img)
+!__link_(url)_(img)
 .
 <p><img alt="link" src="img"></p>
 ```
 
 Image in link?
 ```
-[![image](img)](url)
+_!_image_(img)_(url)
 .
 <p><a href="url"><img alt="image" src="img"></a></p>
 ```
@@ -224,15 +224,15 @@ outside them, even if the construction doesn't turn out to be
 a link or span or image.
 
 ```
-[x_y](x_y)
+_x\_y_(x_y)
 .
 <p><a href="x_y">x_y</a></p>
 ```
 
 ```
-[x_y](x_
+_x\_y_(x_
 .
-<p>[x_y](x_</p>
+<p>_x_y_(x_</p>
 ```
 
 ```

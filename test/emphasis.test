@@ -146,7 +146,7 @@ bar</em></p>
 Inline content allowed:
 
 ```
-*foo [link](url) `*`*
+*foo _link_(url) `*`*
 .
 <p><strong>foo <a href="url">link</a> <code>*</code></strong></p>
 ```
@@ -206,7 +206,7 @@ _[bar_](url)
 ```
 
 ```
-\_[bar_](url)
+__bar\__(url)
 .
 <p>_<a href="url">bar_</a></p>
 ```

@@ -96,7 +96,7 @@ Paragraph
 Implicit header references:
 
 ```
-See [Introduction][].
+See _Introduction_[].
 
 # Introduction
 .
@@ -105,7 +105,7 @@ See [Introduction][].
 ```
 
 ```
-See [Introduction][].
+See _Introduction_[].
 
 {#foo}
 # Introduction
@@ -115,7 +115,7 @@ See [Introduction][].
 ```
 
 ```
-See [Introduction][].
+See _Introduction_[].
 
 # Introduction
 

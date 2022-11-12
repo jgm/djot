@@ -41,7 +41,7 @@ Were you alive in the '70s?
 ```
 
 ```
-Here is some quoted '`code`' and a "[quoted link](url)".
+Here is some quoted '`code`' and a "_quoted link_(url)".
 .
 <p>Here is some quoted &lsquo;<code>code</code>&rsquo; and a &ldquo;<a href="url">quoted link</a>&rdquo;.</p>
 ```
