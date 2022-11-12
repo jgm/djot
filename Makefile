@@ -20,12 +20,7 @@ testall: test pathological fuzz
 .PHONY: testall
 
 fuzz:
-	@LUA_PATH='./?.lua' printf "Fuzz testing on 10 MB random input: " ; \
-	for i in 0 1 2 3 4 5 6 7 8 9 ; do \
-	  head -c 1000000 /dev/random | lua bin/main.lua >/dev/null \
-	    && printf "."; \
-	done; \
-	printf "\n"
+	@LUA_PATH='./?.lua' lua fuzz.lua
 .PHONY: fuzz
 
 pathological:
