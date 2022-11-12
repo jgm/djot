@@ -13,13 +13,23 @@ jobs:
           - '5.2'
           - '5.3'
           - '5.4'
+          - 'luajit'
+        luaPath: '.?/.lua'
+        include:
+          - luaVersion: luajit
+            compat53: true
+            luaPath: '.?/.lua;$LUA_PATH'
     steps:
     - uses: actions/checkout@v1
     - uses: leafo/gh-actions-lua@v9
       with:
         luaVersion: ${{ matrix.luaVersion }}
     - uses: leafo/gh-actions-luarocks@v4
+    - name: Install compat53 rock for luajit
+      if: ${{ matrix.compat53 }}
+      run: |
+          luarocks install compat53
     - name: Build and test
       run: |
-          make testall install
+          LUAPATH=${{ matrix.luaPath }} make testall install
 
