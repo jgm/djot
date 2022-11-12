@@ -154,10 +154,12 @@ function Parser.between_matched(c, annotation, defaultmatch, opentest)
           self:clear_openers(opener[1] + 1, pos - 1)
           return endcloser + 2
         else
-          self:clear_openers(openpos, pos)
-          self:add_match(openpos, openposend, "+" .. annotation)
-          self:add_match(pos, endcloser, "-" .. annotation)
-          return endcloser + 1
+          if opener[3] == nil then
+            self:clear_openers(openpos, pos)
+            self:add_match(openpos, openposend, "+" .. annotation)
+            self:add_match(pos, endcloser, "-" .. annotation)
+            return endcloser + 1
+          end
         end
       end
     end
