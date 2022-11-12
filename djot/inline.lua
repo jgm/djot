@@ -281,6 +281,8 @@ Parser.matchers = {
     -- 93 = ]
     [93] = function(self, pos, endpos)
       local subject = self.subject
+      -- a bracketed span would give nothing in a reference label, would it?
+      -- check for a reference link first
       local openers = self.openers["_"]
       if openers and #openers > 0 then
         local opener = openers[#openers]
@@ -304,7 +306,12 @@ Parser.matchers = {
           -- remove from openers
           self:clear_openers(opener[1], pos)
           return pos + 1
-        elseif bounded_find(subject, "^%{", pos + 1, endpos) then
+        end
+      end
+      openers = self.openers["["]
+      if openers and #openers > 0 then
+        local opener = openers[#openers]
+        if bounded_find(subject, "^%{", pos + 1, endpos) then
           -- assume this is attributes, bracketed span
           self:add_match(opener[1], opener[2], "+span")
           self:add_match(pos, pos, "-span")
