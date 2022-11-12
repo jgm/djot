@@ -16,12 +16,13 @@ end
 
 local failures = 0
 
+io.stderr:write("Running fuzz tests: ")
 for i=1,NUMTESTS do
   local s = randomstring()
   local ok, err = pcall(function () return to_html(s) end)
   if ok then
     if i % 1000 == 0 then
-      io.stderr:write("Completed " .. i .. " tests.\n")
+      io.stderr:write(".");
     end
   else
     failures = failures + 1
