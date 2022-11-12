@@ -306,7 +306,7 @@ Parser.matchers = {
           self:add_match(opener[1], opener[2], "+span")
           self:add_match(pos, pos, "-span")
           -- remove any openers between [ and ]
-          self:clear_openers(opener[1] + 1, pos - 1)
+          self:clear_openers(opener[1], pos)
           return pos + 1
         end
       end
