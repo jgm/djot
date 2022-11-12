@@ -22,7 +22,7 @@ dependencies = {
 }
 test_dependencies = {
    "lua >= 5.1",
-   "compat53 >= 0.4",
+   "compat53 >= 0.8",
    "utf8 >= 1.2",
    "luafilesystem >= 1.8",
 }

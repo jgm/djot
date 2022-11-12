@@ -25,10 +25,9 @@ end
 
 local Parser = {}
 
-function Parser:new(subject, opts, warn)
+function Parser:new(subject, warn)
   local state =
-    { opts = opts or {}, -- options
-      warn = warn or function() end, -- function to issue warnings
+    { warn = warn or function() end, -- function to issue warnings
       subject = subject, -- text to parse
       matches = {}, -- table pos : (endpos, annotation)
       openers = {}, -- map from closer_type to array of (pos, data) in reverse order

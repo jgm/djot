@@ -34,15 +34,13 @@
           </select>
           &nbsp;
           <label>
-            <input type="checkbox" id="sourcepos" value=""/>
+            <input type="checkbox" id="sourcepos" checked="checked"/>
             Source positions
           </label>
         </div>
         <div class="w-full h-full rounded border border-slate-400 inset-0">
-          <div>
-            <iframe id="preview" class="w-full h-full p-4" sandbox="allow-same-origin allow-scripts" src="preview.html" frameborder="0"></iframe>
-          </div>
-          <pre id="result" class="whitespace-pre-wrap"></pre>
+          <iframe id="preview" class="w-full h-full p-4" sandbox="allow-same-origin allow-scripts" src="preview.html" frameborder="0"></iframe>
+          <pre id="result" class="whitespace-pre-wrap overflow-scroll w-full h-full p-4"></pre>
         </div>
       </div>
     </main>

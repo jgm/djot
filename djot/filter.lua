@@ -45,6 +45,11 @@ local function traverse(node, filter)
   return node
 end
 
+local function load_filter(s)
+  return dostring(s)
+end
+
 return {
-  traverse = traverse
+  traverse = traverse,
+  load_filter = load_filter
 }

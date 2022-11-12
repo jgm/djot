@@ -49,7 +49,7 @@ end
 
 local Parser = {}
 
-function Parser:new(subject, opts, warn)
+function Parser:new(subject, warn)
   -- ensure the subject ends with a newline character
   if not subject:find("[\r\n]$") then
     subject = subject .. "\n"
@@ -66,7 +66,6 @@ function Parser:new(subject, opts, warn)
     pos = 1,
     last_matched_container = 0,
     timer = {},
-    opts = opts or {},
     finished_line = false }
   setmetatable(state, self)
   self.__index = self
@@ -115,7 +114,7 @@ function Parser:parse_table_row(sp, ep)
     self.finished_line = true
     return true
   end
-  local inline_parser = inline.Parser:new(self.subject, self.opts, self.warn)
+  local inline_parser = inline.Parser:new(self.subject, self.warn)
   self:add_match(sp, sp, "+cell")
   while self.pos <= ep do
     -- parse a chunk as inline content
@@ -142,7 +141,7 @@ function Parser:parse_table_row(sp, ep)
       self:add_match(nextbar, nextbar, "-cell")
       if nextbar < ep then
         -- reset inline parser state
-        inline_parser = inline.Parser:new(self.subject, self.opts, self.warn)
+        inline_parser = inline.Parser:new(self.subject, self.warn)
         self:add_match(nextbar, nextbar, "+cell")
         self.pos = find(self.subject, "%S", self.pos)
       end
@@ -174,7 +173,7 @@ function Parser:specs()
       open = function(spec)
         self:add_container(Container:new(spec,
             { inline_parser =
-                inline.Parser:new(self.subject, self.opts, self.warn) }))
+                inline.Parser:new(self.subject, self.warn) }))
         self:add_match(self.pos, self.pos, "+para")
         return true
       end,
@@ -197,7 +196,7 @@ function Parser:specs()
           self.pos = ep + 1
           self:add_container(Container:new(spec,
             { inline_parser =
-                inline.Parser:new(self.subject, self.opts, self.warn) }))
+                inline.Parser:new(self.subject, self.warn) }))
           self:add_match(self.pos, self.pos, "+caption")
           return true
         end
@@ -397,8 +396,7 @@ function Parser:specs()
         if ep and find(self.subject, "^%s", ep + 1) then
           local level = ep - sp + 1
           self:add_container(Container:new(spec, {level = level,
-               inline_parser = inline.Parser:new(self.subject, self.opts,
-                 self.warn) }))
+               inline_parser = inline.Parser:new(self.subject, self.warn) }))
           self:add_match(sp, ep, "+heading")
           self.pos = ep + 1
           return true
@@ -595,7 +593,7 @@ function Parser:specs()
           end
           self:add_match(slices[#slices][2], slices[#slices][2], "-block_attributes")
         else -- If not, parse it as inlines and add paragraph match
-          container.inline_parser = inline.Parser:new(self.subject, self.opts)
+          container.inline_parser = inline.Parser:new(self.subject, self.warn)
           self:add_match(slices[1][1], slices[1][1], "+para")
           for i=1,#slices do
             container.inline_parser:feed(unpack(slices[i]))

@@ -22,17 +22,32 @@ function StringHandle:write(s)
 end
 
 function StringHandle:flush()
-  local result = table.concat(self)
-  return result
+  return table.concat(self)
 end
 
 local Parser = block.Parser
 
-function Parser:render_matches(handle, use_json)
+-- Doc
+local Doc = {}
+
+function Doc:new(parser, sourcepos)
+  local ast, sourcepos_map =
+    ast.to_ast(parser.subject, parser.matches, sourcepos, parser.warn)
+  local state = {
+    ast = ast,
+    sourcepos_map = sourcepos_map,
+    matches = parser.matches,
+  }
+  setmetatable(state, self)
+  self.__index = self
+  return state
+end
+
+function Doc:render_matches(handle, use_json)
   if not handle then
     handle = StringHandle:new()
   end
-  local matches = self:get_matches()
+  local matches = self.matches
   if use_json then
     local formatted_matches = {}
     for i=1,#matches do
@@ -40,84 +55,83 @@ function Parser:render_matches(handle, use_json)
       formatted_matches[#formatted_matches + 1] =
         { annotation, {startpos, endpos} }
     end
-    handle:write(json.encode(formatted_matches) .. "\n")
+    handle:write(json.encode(formatted_matches))
   else
     for i=1,#matches do
       handle:write(format_match(matches[i]))
     end
   end
+  if use_json then
+    handle:write("\n")
+  end
   return handle:flush()
 end
 
-function Parser:build_ast()
-  self.ast = ast.to_ast(self.subject, self.matches, self.opts, self.warn)
+function Doc:format_source_pos(bytepos)
+  local pos = self.sourcepos_map[bytepos]
+  if pos then
+    return string.format("line %d, column %d", pos[1], pos[2])
+  else
+    return string.format("byte position %d", bytepos)
+  end
 end
 
-function Parser:render_ast(handle, use_json)
+function Doc:render_ast(handle, use_json)
   if not handle then
     handle = StringHandle:new()
   end
-  if not self.ast then
-    self:build_ast()
-  end
   if use_json then
-    handle:write(json.encode(self.ast) .. "\n")
+    handle:write(json.encode(self.ast))
   else
     ast.render(self.ast, handle)
   end
+  if use_json then
+    handle:write("\n")
+  end
   return handle:flush()
 end
 
-function Parser:render_html(handle)
+function Doc:render_html(handle)
   if not handle then
     handle = StringHandle:new()
-  end
-  if not self.ast then
-    self:build_ast()
   end
   local renderer = html.Renderer:new()
   renderer:render(self.ast, handle)
   return handle:flush()
 end
 
--- Simple functions
-
-local function djot_to_html(input, sourcepos)
-  local parser = Parser:new(input, {sourcepos = sourcepos})
-  parser:parse()
-  return parser:render_html()
+function Doc:apply_filter(filter)
+  filter.traverse(filter)
 end
 
-local function djot_to_ast_pretty(input, sourcepos)
-  local parser = Parser:new(input, {sourcepos = sourcepos})
-  parser:parse()
-  return parser:render_ast()
+function Doc:render_warnings(handler, as_json)
+  if #warnings == 0 then
+    return
+  end
+  if as_json then
+    handler:write(json.encode(warnings))
+  else
+    for _,warning in ipairs(warnings) do
+      handler:write(string.format("%s at %s\n",
+        warning.message, parser:format_source_pos(warning.pos)))
+    end
+  end
+  if as_json then
+    handler:write("\n")
+  end
+  return handler:flush()
 end
 
-local function djot_to_ast_json(input, sourcepos)
-  local parser = Parser:new(input, {sourcepos = sourcepos})
+local function parse(input, sourcepos)
+  local warnings = {}
+  local function warn(warning)
+    warnings[#warnings + 1] = warning
+  end
+  local parser = Parser:new(input, warn)
   parser:parse()
-  return parser:render_ast(nil, true)
-end
-
-local function djot_to_matches_pretty(input)
-  local parser = Parser:new(input)
-  parser:parse()
-  return parser:render_matches()
-end
-
-local function djot_to_matches_json(input)
-  local parser = Parser:new(input)
-  parser:parse()
-  return parser:render_matches(nil, true)
+  return Doc:new(parser, sourcepos)
 end
 
 return {
-  Parser = Parser,
-  traverse = filter.traverse,
-  djot_to_html = djot_to_html,
-  djot_to_ast_pretty = djot_to_ast_pretty,
-  djot_to_ast_json = djot_to_ast_json,
-  djot_to_matches_pretty = djot_to_matches_pretty,
-  djot_to_matches_json = djot_to_matches_json
+  parse = parse,
 }

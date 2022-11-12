@@ -73,16 +73,6 @@ else
   inp = table.concat(buff, "\n")
 end
 
-local warn
-if opts.verbose then
-  warn = function(warning)
-    io.stderr:write(string.format("%s at byte position %d\n",
-      warning.message, warning.pos))
-    end
-end
-
-local parser = djot.Parser:new(inp, opts, warn)
-
 local function memusage(location)
   collectgarbage("collect")
   io.stderr:write(string.format("Memory usage %-12s %6d KB\n",
@@ -93,8 +83,7 @@ if opts.memory then
   memusage("before parse")
 end
 
-parser:parse()
-parser:build_ast()
+local doc = djot.parse(inp, opts.sourcepos)
 
 if opts.memory then
   memusage("after parse")
@@ -103,16 +92,20 @@ end
 if opts.filters then
   for _,fp in ipairs(opts.filters) do
     local filter = dofile(fp)
-    djot.traverse(parser.ast, filter)
+    doc:apply_filter(filter)
   end
 end
 
 if opts.matches then
-  parser:render_matches(io.stdout, opts.json)
+  doc:render_matches(io.stdout, opts.json)
 elseif opts.ast then
-  parser:render_ast(io.stdout, opts.json)
+  doc:render_ast(io.stdout, opts.json)
 else
-  parser:render_html(io.stdout)
+  doc:render_html(io.stdout, opts.json)
+end
+
+if opts.verbose then
+  doc:render_warnings(io.stderr, opts.json)
 end
 
 if opts.memory then

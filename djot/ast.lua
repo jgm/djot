@@ -289,17 +289,14 @@ local function make_definition_list_item(result)
 end
 
 -- create an abstract syntax tree based on an event
--- stream and references
-local function to_ast(subject, matches, options, warn)
-  if not options then
-    options = {}
-  end
+-- stream and references. returns the ast and the
+-- source position map.
+local function to_ast(subject, matches, sourcepos, warn)
   if not warn then
     warn = function() end
   end
   local idx = 1
   local matcheslen = #matches
-  local sourcepos = options.sourcepos
   local sourceposmap
   if sourcepos then
     sourceposmap = make_sourcepos_map(subject)
@@ -715,7 +712,7 @@ local function to_ast(subject, matches, options, warn)
   doc.references = references
   doc.footnotes = footnotes
 
-  return doc
+  return doc, sourceposmap
 end
 
 local function render_node(node, handle, indent)

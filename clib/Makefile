@@ -48,7 +48,7 @@ $(WEB)/styles.css: $(WEB)/index.html $(WEB)/input.css
 	tailwindcss --content $< --input $(WEB)/input.css --minify > $@
 
 $(WEB)/djot.js: djot.c djot.h djot_combined.inc $(LUADIR) $(WASMDIST)
-	emcc -g0 -sALLOW_MEMORY_GROWTH -Oz -sFILESYSTEM=0 -s 'EXPORTED_RUNTIME_METHODS=["cwrap"]' -s 'EXPORTED_FUNCTIONS=["_djot_open", "_djot_report_error", "_djot_close", "_djot_to_ast_json", "_djot_to_ast_pretty", "_djot_to_matches_json", "_djot_to_matches_pretty", "_djot_to_html"]'  -I $(LUADIR)/src $(LUADIR)/src/*.c -o $@ $<
+	emcc -g0 -sALLOW_MEMORY_GROWTH -Oz -sFILESYSTEM=0 -s 'EXPORTED_RUNTIME_METHODS=["cwrap"]' -s 'EXPORTED_FUNCTIONS=["_djot_open", "_djot_report_error", "_djot_close", "_djot_parse", "_djot_render_ast", "_djot_render_matches", "_djot_render_html"]'  -I $(LUADIR)/src $(LUADIR)/src/*.c -o $@ $<
 
 clean:
 	rm -rf djot_combined.lua djot_combined.inc *.o test $(WEB)/djot.wasm $(WEB)/djot.js $(WEB)/styles.css
