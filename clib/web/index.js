@@ -30,7 +30,7 @@ Module['onRuntimeInitialized'] = () => {
   djot.to_html = (s, sourcepos) => {
     return djot_to_html(djot.state, s, sourcepos);
   }
-  const input = document.getElementById("input")
+  const input = document.getElementById("input");
   input.onkeyup = debounce(convert, 400);
   input.onscroll = syncScroll;
   document.getElementById("mode").onchange = convert;
@@ -39,27 +39,25 @@ Module['onRuntimeInitialized'] = () => {
 }
 
 const syncScroll = () => {
-  const textarea = document.getElementById("input{");
-  const iframe = document.getElementById("preview");
-  const previewdoc = iframe.contentDocument;
-  const preview = previewdoc.querySelector("#htmlbody");
-  const lineHeight = parseFloat(textarea.style.lineHeight;
-  // NOTE this assumes we don't have wrapped lines,
-  // so we have set white-space:nowrap on the textarea:
-  const lineNumber = Math.floor(textarea.scrollTop() / lineHeight) + 1;
-  const elt = document.querySelector('[data-sourcepos^=" + lineNumber + ":"]';
-  console.log(elt)
-  // if (elt.length > 0) {
-  //     if (elt.offset()) {
-  //         preview.animate(
-  //             {
-  //                 scrollTop: elt.offset().top - 100
-  //             },
-  //             50
-  //         );
-  //     }
-  // }
-};
+  const mode = document.getElementById("mode").value;
+  if (mode == "preview") {
+    const textarea = document.getElementById("input");
+    const iframe = document.getElementById("preview");
+    const previewdoc = iframe.contentDocument;
+    const preview = previewdoc.querySelector("#htmlbody");
+    const lineHeight = parseFloat(window.getComputedStyle(textarea).lineHeight);
+    // NOTE this assumes we don't have wrapped lines,
+    // so we have set white-space:nowrap on the textarea:
+    const lineNumber = Math.floor(textarea.scrollTop / lineHeight) + 1;
+    const selector = '[data-startpos^="' + lineNumber + ':"]';
+    const elt = preview.querySelector(selector);
+    if (elt) {
+      const eltTop = elt.offsetTop;
+      // console.log(eltTop);
+      iframe.scrollTop = eltTop - 100;
+    }
+  }
+}
 
 
 
@@ -105,7 +103,7 @@ function convert() {
   } else if (mode == "html") {
     document.getElementById("result").innerText = djot.to_html(text, sourcepos);
   } else if (mode == "preview") {
-    inject(iframe, djot.to_html(text, sourcepos));
+    inject(iframe, djot.to_html(text, true));  // use sourcepos for scrollSync
   }
   iframe.style.display = mode == "preview" ? "block" : "none";
 }
