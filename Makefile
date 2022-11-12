@@ -24,7 +24,7 @@ fuzz:
 .PHONY: fuzz
 
 pathological:
-	LUA_PATH=$(LUAPATH) perl -e 'alarm shift; exec @ARGV' 10 lua pathological_tests.lua
+	@LUA_PATH=$(LUAPATH) perl -e 'alarm shift; exec @ARGV' 10 lua pathological_tests.lua
 .PHONY: pathological
 
 bench: m.dj
