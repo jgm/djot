@@ -38,6 +38,7 @@ Module['onRuntimeInitialized'] = () => {
   convert();
 }
 
+// scroll the preview window to match the input window.
 const syncScroll = () => {
   const mode = document.getElementById("mode").value;
   if (mode == "preview") {
@@ -52,9 +53,7 @@ const syncScroll = () => {
     const selector = '[data-startpos^="' + lineNumber + ':"]';
     const elt = preview.querySelector(selector);
     if (elt) {
-      const eltTop = elt.offsetTop;
-      // console.log(eltTop);
-      iframe.scrollTop = eltTop - 100;
+      elt.scrollIntoView(true);
     }
   }
 }
