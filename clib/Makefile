@@ -6,7 +6,6 @@ LUAOBJFILES=$(shell ar -t $(LIBLUA) | tail +2)
 LUAVERSION=5.4.4
 LUAURL=https://www.lua.org/ftp/lua-$(LUAVERSION).tar.gz
 LUADIR=lua-$(LUAVERSION)
-WASMDIST=web/dist
 WEB=web
 
 test: tests
@@ -42,26 +41,17 @@ $(LUADIR):
 	curl $(LUAURL) | tar xv
 	rm $(LUADIR)/src/lua.c # avoid duplicate main
 
-wasm: $(WASMDIST)/djot.js $(WASMDIST)/index.js $(WASMDIST)/index.html $(WASMDIST)/preview.html $(WASMDIST)/styles.css
+wasm: $(WEB)/djot.js $(WEB)/styles.css
 .PHONY: wasm
 
-$(WASMDIST)/%.html: $(WEB)/%.html
-	cp $< $@
-
-$(WASMDIST)/%.js: $(WEB)/%.js
-	cp $< $@
-
-$(WASMDIST)/styles.css: $(WEB)/index.html $(WEB)/input.css
+$(WEB)/styles.css: $(WEB)/index.html $(WEB)/input.css
 	tailwindcss --content $< --input $(WEB)/input.css --minify > $@
 
-$(WASMDIST):
-	mkdir -p $@
-
-$(WASMDIST)/djot.js: djot.c djot.h djot_combined.inc $(LUADIR) $(WASMDIST)
+$(WEB)/djot.js: djot.c djot.h djot_combined.inc $(LUADIR) $(WASMDIST)
 	emcc -g0 -sALLOW_MEMORY_GROWTH -Oz -sFILESYSTEM=0 -s 'EXPORTED_RUNTIME_METHODS=["cwrap"]' -s 'EXPORTED_FUNCTIONS=["_djot_open", "_djot_report_error", "_djot_close", "_djot_to_ast_json", "_djot_to_ast_pretty", "_djot_to_matches_json", "_djot_to_matches_pretty", "_djot_to_html"]'  -I $(LUADIR)/src $(LUADIR)/src/*.c -o $@ $<
 
 clean:
-	rm -rf djot_combined.lua djot_combined.inc *.o test $(WASMDIST)
+	rm -rf djot_combined.lua djot_combined.inc *.o test $(WEB)/djot.wasm $(WEB)/djot.js $(WEB)/styles.css
 distclean: clean
 	-rm -rf libdjot.a lua.h $(LUADIR)
 .PHONY: clean
