@@ -9,7 +9,6 @@ LUAHEADERS=/usr/local/include/luajit-2.0
 LUAOPTIONS=-O2
 BUNDLE=djot
 VIMDIR?=~/.vim
-LUAPATH?='./?.lua'
 all: test doc/syntax.html
 
 test: $(ROCKSPEC)
@@ -20,16 +19,16 @@ testall: test pathological fuzz
 .PHONY: testall
 
 fuzz:
-	@LUA_PATH=$(LUAPATH) lua fuzz.lua
+	lua fuzz.lua
 .PHONY: fuzz
 
 pathological:
-	@LUA_PATH=$(LUAPATH) perl -e 'alarm shift; exec @ARGV' 10 lua pathological_tests.lua
+	@perl -e 'alarm shift; exec @ARGV' 10 lua pathological_tests.lua
 .PHONY: pathological
 
 bench: m.dj
 	du -h m.dj
-	-bench "LUA_PATH=$(LUAPATH) lua bin/main.lua m.dj"
+	-bench "lua bin/main.lua m.dj"
 .PHONY: bench
 
 m.dj:
