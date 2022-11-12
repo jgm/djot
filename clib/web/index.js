@@ -65,7 +65,6 @@ const inject = (iframe, html) => {
   if (doc) {
     const body = doc.querySelector("#htmlbody");
     if (body) body.innerHTML = html;
-    iframe.contentWindow.MathJax.typeset();
   }
 }
 
