@@ -33,8 +33,6 @@ jobs:
       run: |
           luarocks install compat53
     - name: Build and test
-      env:
-        LUAPATH: './?.lua;$LUA_PATH'
       run: |
-          make testall install
+          LUAPATH="./?.lua;$LUA_PATH" make testall install
 
