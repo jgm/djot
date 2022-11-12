@@ -218,3 +218,26 @@ Autolinks:
 <p><a href="http://example.com/foo">http://example.com/foo</a>
 <a href="mailto:me@example.com">me@example.com</a></p>
 ```
+
+Openers inside `[..](` or `[..][` or `[..]{` can't match
+outside them, even if the construction doesn't turn out to be
+a link or span or image.
+
+```
+[x_y](x_y)
+.
+<p><a href="x_y">x_y</a></p>
+```
+
+```
+[x_y](x_
+.
+<p>[x_y](x_</p>
+```
+
+```
+[x_y]{.bar_}
+.
+<p><span class="bar_">x_y</span></p>
+```
+

@@ -288,6 +288,8 @@ Parser.matchers = {
           opener[4] = pos  -- intermediate ]
           opener[5] = pos + 1  -- intermediate [
           self:add_match(pos, pos + 1, "str")
+          -- remove any openers between [ and ]
+          self:clear_openers(opener[1] + 1, pos - 1)
           return pos + 2
         elseif bounded_find(subject, "^%(", pos + 1, endpos) then
           self.openers["("] = {} -- clear ( openers
@@ -296,12 +298,15 @@ Parser.matchers = {
           opener[5] = pos + 1  -- intermediate (
           self.destination = true
           self:add_match(pos, pos + 1, "str")
+          -- remove any openers between [ and ]
+          self:clear_openers(opener[1] + 1, pos - 1)
           return pos + 2
         elseif bounded_find(subject, "^%{", pos + 1, endpos) then
           -- assume this is attributes, bracketed span
           self:add_match(opener[1], opener[2], "+span")
           self:add_match(pos, pos, "-span")
-          self:clear_openers(opener[1], pos)
+          -- remove any openers between [ and ]
+          self:clear_openers(opener[1] + 1, pos - 1)
           return pos + 1
         end
       end
