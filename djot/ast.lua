@@ -394,11 +394,11 @@ local function to_ast(subject, matches, options, warn)
             end
           elseif tag == "caption" then
             local prevnode = has_children(node) and node.c[#node.c]
-            if prevnode.t == "table" then
+            if prevnode and prevnode.t == "table" then
               -- move caption in table node
               table.insert(prevnode.c, 1, result)
-              result = nil
             end
+            result = nil
           elseif tag == "reference_definition" then
             local dest = ""
             local key
