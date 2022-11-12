@@ -559,7 +559,7 @@ local function to_ast(subject, matches, options, warn)
                   prevnode = newnode
                 end
               end
-              if not endswithspace then
+              if has_children(result) and not endswithspace then
                 insert_attributes_from_nodes(prevnode, result.c)
               else
                 warn({message = "Ignoring unattached attribute", pos = startpos})

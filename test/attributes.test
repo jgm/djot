@@ -207,3 +207,20 @@ Paragraph.
 .
 <p>Paragraph.</p>
 ```
+
+Inline attributes can be empty:
+
+```
+hi{}
+.
+<p>hi</p>
+```
+
+Block attributes can be empty:
+
+```
+{}
+hi
+.
+<p>hi</p>
+```
