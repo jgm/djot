@@ -704,7 +704,7 @@ function Parser:parse()
               else
                 self:skip_space()
                 new_starts = true
-                check_starts = spec.content ~= "text"
+                check_starts = spec.content == "block"
               end
               break
             end

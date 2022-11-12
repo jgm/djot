@@ -68,6 +68,12 @@ lazy</h1>
 <h2 id="heading">heading ##</h2>
 ```
 
+```
+# # heading
+.
+<h1 id="heading"># heading</h1>
+```
+
 Auto-identifiers:
 
 ```
