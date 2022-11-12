@@ -52,11 +52,29 @@ function Parser:add_match(startpos, endpos, annotation)
 end
 
 function Parser:add_opener(name, ...)
-  -- 1 = startpos, 2 = endpos, 3 = annotation, 4 = substartpos, 5 = endpos
+  -- 1 = start position,
+  -- 2 = end position,
+  -- 3 = annotation,
+  -- 4 = link text opener start position,
+  -- 5 = link text opener end position,
+  -- 6 = link text closer start position,
+  -- 7 = link text closer end position
   --
-  -- [link text](url)
-  -- ^         ^^
-  -- 1,2      4 5  3 = "explicit_link"
+  -- _text with emphasis_
+  -- ^
+  -- 1,2
+  --
+  -- {_text with emphasis_}
+  -- ^^
+  -- 1 2
+  --
+  --  _link text_(url)
+  --  ^         ^^
+  --  4,5    6,7  1,2  3 = "explicit_link"
+  --
+  -- {_link text_}(url)
+  -- ^^         ^^^
+  -- 4 5       6 7 1,2  3 = "explicit_link"
 
   if not self.openers[name] then
     self.openers[name] = {}
@@ -135,31 +153,30 @@ function Parser.between_matched(c, annotation, defaultmatch, opentest)
       local opener = openers[#openers]
       local openpos, openposend = unpack(opener)
       if openposend ~= pos - 1 then -- exclude empty emph
-        if bounded_find(subject, "^%[", endcloser + 1, endpos) then
-          opener[3] = "reference_link"
-          opener[4] = pos  -- intermediate _
-          opener[5] = endcloser + 1  -- intermediate [
-          self:add_match(pos, endcloser + 1, "str")
-          -- remove any openers between [ and ]
-          self:clear_openers(opener[1] + 1, pos - 1)
+        -- remove any opener
+        -- including the link text opener
+        self:clear_openers(openpos, pos)
+        if c == "_"
+          and bounded_find(subject, "^%[", endcloser + 1, endpos) then
+          self:add_opener("[", endcloser + 1, endcloser + 1, "reference_link",
+            openpos, openposend,  -- link text opener
+            pos, endcloser)  -- link text closer
+          self:add_match(pos, endcloser, "str")
+          self:add_match(endcloser + 1, endcloser + 1, "str")
           return endcloser + 2
-        elseif bounded_find(subject, "^%(", endcloser + 1, endpos) then
-          self.openers["("] = {} -- clear ( openers
-          opener[3] = "explicit_link"
-          opener[4] = pos  -- intermediate _
-          opener[5] = endcloser + 1  -- intermediate (
+        elseif c == "_"
+          and bounded_find(subject, "^%(", endcloser + 1, endpos) then
+          self:add_opener("(", endcloser + 1, endcloser + 1, "explicit_link",
+            openpos, openposend,  -- link text opener
+            pos, endcloser)  -- link text closer
           self.destination = true
-          self:add_match(pos, endcloser + 1, "str")
-          -- remove any openers between [ and ]
-          self:clear_openers(opener[1] + 1, pos - 1)
+          self:add_match(pos, endcloser, "str")
+          self:add_match(endcloser + 1, endcloser + 1, "str")
           return endcloser + 2
         else
-          if opener[3] == nil then
-            self:clear_openers(openpos, pos)
-            self:add_match(openpos, openposend, "+" .. annotation)
-            self:add_match(pos, endcloser, "-" .. annotation)
-            return endcloser + 1
-          end
+          self:add_match(openpos, openposend, "+" .. annotation)
+          self:add_match(pos, endcloser, "-" .. annotation)
+          return endcloser + 1
         end
       end
     end
@@ -285,35 +302,30 @@ Parser.matchers = {
       local subject = self.subject
       -- a bracketed span would give nothing in a reference label, would it?
       -- check for a reference link first
-      local openers = self.openers["_"]
+      local openers = self.openers["["]
       if openers and #openers > 0 then
         local opener = openers[#openers]
         if opener[3] == "reference_link" then
           -- found a reference link
           -- add the matches
-          local is_image = bounded_find(subject, "^!", opener[1] - 1, endpos)
-                  and not bounded_find(subject, "^[\\]", opener[1] - 2, endpos)
+          local is_image = bounded_find(subject, "^!", opener[4] - 1, endpos)
+                  and not bounded_find(subject, "^[\\]", opener[4] - 2, endpos)
           if is_image then
-            self:add_match(opener[1] - 1, opener[1] - 1, "image_marker")
-            self:add_match(opener[1], opener[2], "+imagetext")
-            self:add_match(opener[4], opener[4], "-imagetext")
+            self:add_match(opener[4] - 1, opener[4] - 1, "image_marker")
+            self:add_match(opener[4], opener[5], "+imagetext")
+            self:add_match(opener[6], opener[7], "-imagetext")
           else
-            self:add_match(opener[1], opener[2], "+linktext")
-            self:add_match(opener[4], opener[4], "-linktext")
+            self:add_match(opener[4], opener[5], "+linktext")
+            self:add_match(opener[6], opener[7], "-linktext")
           end
-          self:add_match(opener[5], opener[5], "+reference")
+          self:add_match(opener[1], opener[2], "+reference")
           self:add_match(pos, pos, "-reference")
           -- convert all matches to str
-          self:str_matches(opener[5] + 1, pos - 1)
+          self:str_matches(opener[2] + 1, pos - 1)
           -- remove from openers
-          self:clear_openers(opener[1], pos)
+          self:clear_openers(opener[4], pos)
           return pos + 1
-        end
-      end
-      openers = self.openers["["]
-      if openers and #openers > 0 then
-        local opener = openers[#openers]
-        if bounded_find(subject, "^%{", pos + 1, endpos) then
+        elseif bounded_find(subject, "^%{", pos + 1, endpos) then
           -- assume this is attributes, bracketed span
           self:add_match(opener[1], opener[2], "+span")
           self:add_match(pos, pos, "-span")
@@ -336,35 +348,34 @@ Parser.matchers = {
     -- 41 = )
     [41] = function(self, pos, endpos)
       if not self.destination then return nil end
-      local parens = self.openers["("]
-      if parens and #parens > 0 and parens[#parens][1] then
-        parens[#parens] = nil -- clear opener
-        self:add_match(pos, pos, "str")
-        return pos + 1
-      else
-        local subject = self.subject
-        local openers = self.openers["_"]
-        if openers and #openers > 0
-            and openers[#openers][3] == "explicit_link" then
-          local opener = openers[#openers]
+      local openers = self.openers["("]
+      if openers and #openers > 0 then
+        local opener = openers[#openers]
+        if openers[#openers][3] == "explicit_link" then
+          local subject = self.subject
           -- we have inline link
-          local is_image = bounded_find(subject, "^!", opener[1] - 1, endpos)
-                 and not bounded_find(subject, "^[\\]", opener[1] - 2, endpos)
+          local is_image = bounded_find(subject, "^!", opener[4] - 1, endpos)
+                 and not bounded_find(subject, "^[\\]", opener[4] - 2, endpos)
           if is_image then
-            self:add_match(opener[1] - 1, opener[1] - 1, "image_marker")
-            self:add_match(opener[1], opener[2], "+imagetext")
-            self:add_match(opener[4], opener[4], "-imagetext")
+            self:add_match(opener[4] - 1, opener[4] - 1, "image_marker")
+            self:add_match(opener[4], opener[5], "+imagetext")
+            self:add_match(opener[6], opener[7], "-imagetext")
           else
-            self:add_match(opener[1], opener[2], "+linktext")
-            self:add_match(opener[4], opener[4], "-linktext")
+            self:add_match(opener[4], opener[5], "+linktext")
+            self:add_match(opener[6], opener[7], "-linktext")
           end
-          self:add_match(opener[5], opener[5], "+destination")
+          self:add_match(opener[1], opener[2], "+destination")
           self:add_match(pos, pos, "-destination")
           self.destination = false
           -- convert all matches to str
-          self:str_matches(opener[5] + 1, pos - 1)
+          self:str_matches(opener[2] + 1, pos - 1)
           -- remove from openers
-          self:clear_openers(opener[1], pos)
+          self:clear_openers(opener[4], pos)
+          return pos + 1
+        else
+          -- ignore a well balanced pair of parenthesis inside a destination
+          openers[#openers] = nil -- clear opener
+          self:add_match(pos, pos, "str")
           return pos + 1
         end
       end
