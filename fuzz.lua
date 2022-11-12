@@ -9,7 +9,11 @@ local function randomstring()
   local res = ""
   local len = math.random(0,MAXLENGTH)
   for i=1,len do
-    res = res .. utf8.char(math.random(1, 200))
+    if utf8 then
+      res = res .. utf8.char(math.random(1, 200))
+    else
+      res = res .. string.char(math.random(1, 127))
+    end
   end
   return res
 end
