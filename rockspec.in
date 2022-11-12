@@ -18,10 +18,11 @@ description = {
 }
 dependencies = {
    "lua >= 5.1",
+   "compat53 >= 0.4"
 }
 test_dependencies = {
    "lua >= 5.1",
-   "luafilesystem >= 1.8"
+   "luafilesystem >= 1.8",
 }
 build = {
    type = "builtin",
