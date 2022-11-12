@@ -9,16 +9,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        - luaVersion: '5.1'
-          compat53: true
-        - luaVersion: '5.2'
-          compat53: true
-        - luaVersion: '5.3'
-          compat53: false
-        - luaVersion: '5.4'
-          compat53: false
-        - luaVersion: 'luajit'
-          compat53: true
+        luaVersion:
+          - '5.1'
+          - '5.2'
+          - '5.3'
+          - '5.4'
+          - 'luajit'
+        include:
+          - luaVersion: '5.1'
+            compat53: true
+          - luaVersion: '5.2'
+            compat53: true
+          - luaVersion: 'luajit'
+            compat53: true
     steps:
     - uses: actions/checkout@v1
     - uses: leafo/gh-actions-lua@v9
