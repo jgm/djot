@@ -1,5 +1,5 @@
-if jit then -- luajit compatibility, requires compat53 from luarocks
-  -- this is needed for the __pairs metamethod, used below.
+if not utf8 then -- require compat53 from luarocks
+  -- this is needed for the __pairs metamethod, used below, and for utf8.
   local _ENV = require("compat53.module")
   if setfenv then setfenv(1, _ENV) end
 end
