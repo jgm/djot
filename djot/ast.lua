@@ -27,9 +27,16 @@ local function make_sourcepos_map(input)
     else
       col = col + 1
     end
-    sourcepos_map[bytepos] = string.format("%d:%d:%d", line, col, charpos)
+    sourcepos_map[bytepos] = string.pack("=I4I4I4", line, col, charpos)
   end
   return sourcepos_map
+end
+
+local function format_sourcepos(s)
+  if s then
+    local line, col, charpos = string.unpack("=I4I4I4", s)
+    return string.format("%d:%d:%d", line, col, charpos)
+  end
 end
 
 local function get_string_content(node)
@@ -341,7 +348,7 @@ local function to_ast(subject, matches, options, warn)
       if stopper and find(annot, stopper) then
         idx = idx + 1
         if sourcepos then
-          node.pos = {nil, sourceposmap[endpos]}
+          node.pos = {nil, format_sourcepos(sourceposmap[endpos])}
           -- startpos filled in below under "+"
         end
         return node
@@ -357,7 +364,7 @@ local function to_ast(subject, matches, options, warn)
             set_checkbox(result, startidx)
           end
           if sourcepos then
-             result.pos[1] = sourceposmap[startpos]
+             result.pos[1] = format_sourcepos(sourceposmap[startpos])
              -- endpos is given at the top
           end
           if block_attributes and tag ~= "block_attributes" then
@@ -620,11 +627,11 @@ local function to_ast(subject, matches, options, warn)
               end
               item.t = "list_item"
               if sourcepos then
-                item.pos = {sourceposmap[sp]}
+                item.pos = {format_sourcepos(sourceposmap[sp])}
                 if has_children(item) then
                   item.pos[2] = item.c[#item.c].pos[2]
                 else
-                  item.pos[2] = sourceposmap[ep]
+                  item.pos[2] = format_sourcepos(sourceposmap[ep])
                 end
                 list.pos[2] = item.pos[2]
               end
@@ -684,7 +691,8 @@ local function to_ast(subject, matches, options, warn)
             result.s = sub(subject, startpos, endpos)
           end
           if sourcepos then
-            result.pos = {sourceposmap[startpos], sourceposmap[endpos]}
+            result.pos = {format_sourcepos(sourceposmap[startpos]),
+                          format_sourcepos(sourceposmap[endpos])}
           end
           if block_attributes then
             for i=1,#block_attributes do
