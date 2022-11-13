@@ -21,7 +21,10 @@ in Lua, and a
 [Syntax Description](https://htmlpreview.github.io/?https://github.com/jgm/djot/blob/master/doc/syntax.html).
 There is also a [Cheatsheet](doc/cheatsheet.md) and a
 [Quick Start for Markdown Users](doc/quickstart-for-markdown-users.md)
-that outlines the main differences between djot and Markdown.
+that outlines the main differences between djot and Markdown,
+as well as a [Playground](https://djot.net/playground/),
+originally designed by @dtinth,
+that allows experimenting with the current implementation.
 
 Despite being
 written in an interpreted language, the reference implementation
@@ -330,12 +333,6 @@ For a full syntax reference, see the
 
 A vim syntax highlighting definition for djot is provided in
 `editors/vim/`.
-
-## Playground
-
-You can play with djot on the live [djot
-playground](https://djot.net/playground/), designed
-by @dtinth.
 
 ## Installing
 
