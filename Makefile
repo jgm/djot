@@ -29,6 +29,7 @@ pathological:
 bench: m.dj
 	du -h m.dj
 	LUA_PATH="./?.lua;$$LUA_PATH" bench "lua bin/main.lua m.dj"
+	LUA_PATH="./?.lua;$$LUA_PATH" bench "lua bin/main.lua -p m.dj"
 .PHONY: bench
 
 m.dj:
