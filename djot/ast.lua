@@ -1,6 +1,7 @@
-if not utf8 then -- require compat53 from luarocks
-  -- this is needed for the __pairs metamethod, used below, and for utf8.
-  require("compat53")
+if not utf8 then
+  -- this is needed for the __pairs metamethod, used below
+  require("compat53") -- luarocks install compat53
+  utf8 = require("utf8") -- luarocks install utf8
 end
 local match = require("djot.match")
 local emoji -- require this later, only if emoji encountered
