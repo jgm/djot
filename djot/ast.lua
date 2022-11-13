@@ -437,9 +437,15 @@ local function to_ast(subject, matches, options, warn)
             result.t = "email"
             result.destination = "mailto:" .. get_string_content(result)
           elseif tag == "imagetext" or tag == "linktext" then
-            -- gobble destination or reference
+            -- gobble image marker, link destination or link reference
             local nextmatch = matches[idx]
             local _, _, nextannot = unpack_match(nextmatch)
+            if tag == "imagetext" and nextannot == "image_marker" then
+              idx = idx + 1
+              -- gobble again for image destination or image reference
+              nextmatch = matches[idx]
+              _, _, nextannot = unpack_match(nextmatch)
+            end
             if nextannot == "+destination" then
               idx = idx + 1
               local dest = get_node("destination")

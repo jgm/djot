@@ -7,7 +7,7 @@ _basic _link__[a_b_]
 ```
 
 ```
-!_basic _image__[a_b_]
+_basic _image__![a_b_]
 
 [a_b_]: url
 .
@@ -146,13 +146,13 @@ _link _and_ link_[]
 ```
 
 ```
-!_basic _image__(url)
+_basic _image__!(url)
 .
 <p><img alt="basic image" src="url"></p>
 ```
 
 ```
-_!_image_(img.jpg)_(url)
+__image_!(img.jpg)_(url)
 .
 <p><a href="url"><img alt="image" src="img.jpg"></a></p>
 ```
@@ -198,14 +198,14 @@ __foo_(bar)_(baz)
 
 Link in image?
 ```
-!__link_(url)_(img)
+__link_(url)_!(img)
 .
 <p><img alt="link" src="img"></p>
 ```
 
 Image in link?
 ```
-_!_image_(img)_(url)
+__image_!(img)_(url)
 .
 <p><a href="url"><img alt="image" src="img"></a></p>
 ```
