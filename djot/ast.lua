@@ -521,6 +521,7 @@ local function to_ast(subject, matches, options, warn)
             end
             result.level = get_length(matched)
           elseif tag == "div" then
+            result.c = result.c or {}
             if result.c[1] and result.c[1].t == "class" then
               result.attr = mkattributes(result.attr)
               insert_attribute(result.attr, "class", get_string_content(result.c[1]))
