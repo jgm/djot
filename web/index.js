@@ -51,7 +51,9 @@ const syncScroll = () => {
     const selector = '[data-startpos^="' + lineNumber + ':"]';
     const elt = preview.querySelector(selector);
     if (elt) {
-      elt.scrollIntoView(true);
+      elt.scrollIntoView({ behavior: "smooth",
+                           block: "start",
+                           inline: "nearest" });
     }
   }
 }
