@@ -372,7 +372,6 @@ local function to_ast(subject, matches, sourcepos, warn)
               identifiers[result.attr.id] = true
             end
             block_attributes = nil
-            -- TODO where do we ever set this to true??
           end
           if tag == "verbatim" then
             local s = get_string_content(result)
