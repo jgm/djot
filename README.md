@@ -353,12 +353,15 @@ If you just want to parse some input and produce HTML:
 ``` lua
 local djot = require("djot")
 local input = "This is *djot*"
-local parser = djot.Parser:new(input)
-parser:parse()
-local html = parser:render_html()
+local doc = djot.parse(input)
+local html = doc:render_html()
 ```
 
 ### In more depth
+
+TBD
+
+<!-- TODO rewrite for new API
 
 ``` lua
 local djot = require("djot")
@@ -423,6 +426,8 @@ parser:render_html(io.stdout)
 -- This function will call 'build_ast' automatically if the
 -- AST is not built.
 ```
+
+-->
 
 ## The code
 
