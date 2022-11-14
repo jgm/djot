@@ -1,5 +1,9 @@
 local djot = require("djot")
-local to_html = djot.djot_to_html
+local to_html = function(s)
+  local doc = djot.parse(s)
+  return doc:render_html()
+end
+
 math.randomseed(os.time())
 
 local MAXLENGTH = 256
