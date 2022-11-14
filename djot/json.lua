@@ -100,7 +100,7 @@ end
 
 
 local function encode_string(val)
-  return '"' .. val:gsub('[\0-\31\\"]', escape_char) .. '"'
+  return '"' .. val:gsub('[%z\1-\31\\"]', escape_char) .. '"'
 end
 
 
