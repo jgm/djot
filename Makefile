@@ -19,11 +19,12 @@ testall: test pathological fuzz
 .PHONY: testall
 
 fuzz:
-	lua fuzz.lua
+	LUA_PATH="./?.lua;$$LUA_PATH" lua fuzz.lua
 .PHONY: fuzz
 
 pathological:
-	@perl -e 'alarm shift; exec @ARGV' 10 lua pathological_tests.lua
+	LUA_PATH="./?.lua;$$LUA_PATH" \
+	perl -e 'alarm shift; exec @ARGV' 10 lua pathological_tests.lua
 .PHONY: pathological
 
 bench: m.dj
