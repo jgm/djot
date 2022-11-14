@@ -108,4 +108,5 @@ function render() {
     inject(iframe, djot.render_html());  // use sourcepos for scrollSync
   }
   iframe.style.display = mode == "preview" ? "block" : "none";
+  result.style.display = mode == "preview" ? "none" : "block";
 }
