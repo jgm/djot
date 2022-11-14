@@ -1,3 +1,6 @@
+if not utf8 then
+  require("compat53")
+end
 local djot = require("djot")
 
 local n = 500
