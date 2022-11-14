@@ -25,18 +25,18 @@ function StringHandle:flush()
   return table.concat(self)
 end
 
-local Parser = block.Parser
+local Tokenizer = block.Tokenizer
 
 -- Doc
 local Doc = {}
 
-function Doc:new(parser, sourcepos)
+function Doc:new(tokenizer, sourcepos)
   local ast, sourcepos_map =
-    ast.to_ast(parser.subject, parser.matches, sourcepos, parser.warn)
+    ast.to_ast(tokenizer.subject, tokenizer.matches, sourcepos, tokenizer.warn)
   local state = {
     ast = ast,
     sourcepos_map = sourcepos_map,
-    matches = parser.matches,
+    matches = tokenizer.matches,
   }
   setmetatable(state, self)
   self.__index = self
@@ -113,7 +113,7 @@ function Doc:render_warnings(handler, as_json)
   else
     for _,warning in ipairs(warnings) do
       handler:write(string.format("%s at %s\n",
-        warning.message, parser:format_source_pos(warning.pos)))
+        warning.message, self:format_source_pos(warning.pos)))
     end
   end
   if as_json then
@@ -127,9 +127,9 @@ local function parse(input, sourcepos)
   local function warn(warning)
     warnings[#warnings + 1] = warning
   end
-  local parser = Parser:new(input, warn)
-  parser:parse()
-  return Doc:new(parser, sourcepos)
+  local tokenizer = Tokenizer:new(input, warn)
+  tokenizer:tokenize()
+  return Doc:new(tokenizer, sourcepos)
 end
 
 return {
