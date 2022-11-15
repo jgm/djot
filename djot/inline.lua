@@ -428,8 +428,12 @@ Tokenizer.matchers = {
       else
         hyphens = 1 + ep - pos
       end
-      if byte(subject, ep + 1) == 125 then -- }
-        hyphens = hyphens - 1 -- last hyphen is a close del
+      if byte(subject, ep + 1) == 125 and hyphens > 1 then -- }
+        hyphens = hyphens - 1 -- last hyphen is close del
+      end
+      if ep > pos + 1 and
+          (byte(subject, pos - 1) == 123 or byte(subject, pos + 1) == 125) then
+        return Tokenizer.between_matched("-", "delete")(self, pos, endpos)
       end
       -- Try to construct a homogeneous sequence of dashes
       local all_em = hyphens % 3 == 0
