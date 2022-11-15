@@ -9,7 +9,7 @@ let
   ]);
 in
 pkgs.mkShell {
-  packages = [ pkgs.perl pkgs.luarocks myLuaWithPackages
+  packages = [ pkgs.hyperfine pkgs.perl pkgs.luarocks myLuaWithPackages
   ];
   shellHook = ''
     luarocks config lua_version 5.1
