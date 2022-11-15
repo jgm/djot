@@ -418,22 +418,28 @@ Tokenizer.matchers = {
     -- 45 = -
     [45] = function(self, pos, endpos)
       local subject = self.subject
-      if byte(subject, pos - 1) == 123 or byte(subject, pos + 1) == 125 then
-        return Tokenizer.between_matched("-", "delete")(self, pos, endpos)
+      local nextpos
+      if byte(subject, pos - 1) == 123 or
+         byte(subject, pos + 1) == 125 then -- (123 = { 125 = })
+        nextpos = Tokenizer.between_matched("-", "delete", "str",
+                           function(self, p)
+                             return find(self.subject, "^%{", p - 1) or
+                                    find(self.subject, "^%}", p + 1)
+                           end)(self, pos, endpos)
+        return nextpos
       end
+      -- didn't match a del, try for smart hyphens:
       local _, ep = find(subject, "^%-*", pos)
-      local hyphens
       if endpos < ep then
-        hyphens = 1 + endpos - pos
-      else
-        hyphens = 1 + ep - pos
+        ep = endpos
       end
-      if byte(subject, ep + 1) == 125 and hyphens > 1 then -- }
+      local hyphens = 1 + ep - pos
+      if byte(subject, ep + 1) == 125 then -- 125 = }
         hyphens = hyphens - 1 -- last hyphen is close del
       end
-      if ep > pos + 1 and
-          (byte(subject, pos - 1) == 123 or byte(subject, pos + 1) == 125) then
-        return Tokenizer.between_matched("-", "delete")(self, pos, endpos)
+      if hyphens == 0 then  -- this means we have '-}'
+        self:add_match(pos, pos + 1, "str")
+        return pos + 2
       end
       -- Try to construct a homogeneous sequence of dashes
       local all_em = hyphens % 3 == 0
@@ -524,7 +530,12 @@ function Tokenizer:feed(spos, endpos)
         self.slices = nil
         pos = sp
       elseif status == "continue" then
-        self.attribute_slices[#self.attribute_slices + 1] = {sp,ep}
+        if #self.attribute_slices > 0 and
+           sp == self.attribute_slices[#self.attribute_slices][2] + 1 then
+          self.attribute_slices[#self.attribute_slices][2] = ep
+        else
+          self.attribute_slices[#self.attribute_slices + 1] = {sp,ep}
+        end
         pos = ep + 1
       end
     else
@@ -576,8 +587,8 @@ function Tokenizer:feed(spos, endpos)
           pos = pos + 1
         end
       else
-        pos = (matchers[c] and matchers[c](self, pos, endpos))
-               or self:single_char(pos)
+        local matcher = matchers[c]
+        pos = (matcher and matcher(self, pos, endpos)) or self:single_char(pos)
       end
     end
   end
