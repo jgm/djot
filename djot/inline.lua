@@ -418,6 +418,9 @@ Tokenizer.matchers = {
     -- 45 = -
     [45] = function(self, pos, endpos)
       local subject = self.subject
+      if byte(subject, pos - 1) == 123 or byte(subject, pos + 1) == 125 then
+        return Tokenizer.between_matched("-", "delete")(self, pos, endpos)
+      end
       local _, ep = find(subject, "^%-*", pos)
       local hyphens
       if endpos < ep then
@@ -426,10 +429,7 @@ Tokenizer.matchers = {
         hyphens = 1 + ep - pos
       end
       if byte(subject, ep + 1) == 125 then -- }
-        hyphens = hyphens - 1 -- last hyphen is close del
-      end
-      if byte(subject, pos - 1) == 123 or byte(subject, pos + 1) == 125 then
-        return Tokenizer.between_matched("-", "delete")(self, pos, endpos)
+        hyphens = hyphens - 1 -- last hyphen is a close del
       end
       -- Try to construct a homogeneous sequence of dashes
       local all_em = hyphens % 3 == 0
