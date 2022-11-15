@@ -9,6 +9,9 @@ LUAHEADERS=/usr/local/include/luajit-2.0
 LUAOPTIONS=-O2
 BUNDLE=djot
 VIMDIR?=~/.vim
+TIMEOUT=perl -e 'alarm shift; exec @ARGV'
+TEMPFILE := $(shell mktemp)
+
 all: test doc/syntax.html
 
 test: $(ROCKSPEC)
@@ -19,12 +22,14 @@ testall: test pathological fuzz
 .PHONY: testall
 
 fuzz:
-	LUA_PATH="./?.lua;$$LUA_PATH" lua fuzz.lua
+	LUA_PATH="./?.lua;$$LUA_PATH" \
+	 $(TIMEOUT) 20 lua fuzz.lua > $(TEMPFILE) && rm $(TEMPFILE) || \
+	   tail -20 $(TEMPFILE)
 .PHONY: fuzz
 
 pathological:
 	LUA_PATH="./?.lua;$$LUA_PATH" \
-	perl -e 'alarm shift; exec @ARGV' 10 lua pathological_tests.lua
+	$(TIMEOUT) 10 lua pathological_tests.lua
 .PHONY: pathological
 
 bench: m.dj
@@ -69,6 +74,18 @@ vim:
 	cp editors/vim/syntax/djot.vim $(VIMDIR)/syntax/
 	cp editors/vim/ftdetect/djot.vim $(VIMDIR)/ftdetect/
 .PHONY: vim
+
+## start up nix env with lua 5.1
+lua51:
+	nix-shell --pure lua51.nix
+	rm ~/.luarocks/default-lua-version.lua
+.PHONY: lua51
+
+## start up nix env with luajiit
+luajit:
+	nix-shell --pure luajit.nix
+	rm ~/.luarocks/default-lua-version.lua
+.PHONY: luajit
 
 $(ROCKSPEC): rockspec.in
 	sed -e "s/_VERSION/$(VERSION)/g; s/_REVISION/$(REVISION)/g" $< > $@
