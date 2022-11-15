@@ -777,7 +777,15 @@ function Tokenizer:finish()
 end
 
 function Tokenizer:get_matches()
-  return self.matches
+  local idx = 0
+  local matches = self.matches
+  local matchlen = #matches
+  return function() -- return iterator
+    idx = idx + 1
+    if idx <= matchlen then
+      return matches[idx]
+    end
+  end
 end
 
 return { Tokenizer = Tokenizer,

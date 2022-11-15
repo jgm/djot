@@ -283,12 +283,13 @@ end
 -- create an abstract syntax tree based on an event
 -- stream and references. returns the ast and the
 -- source position map.
-local function to_ast(subject, matches, sourcepos, warn)
+local function to_ast(tokenizer, sourcepos)
+  local subject = tokenizer.subject
+  local warn = tokenizer.warn
   if not warn then
     warn = function() end
   end
   local idx = 1
-  local matcheslen = #matches
   local sourceposmap
   if sourcepos then
     sourceposmap = make_sourcepos_map(subject)
@@ -802,9 +803,8 @@ local function to_ast(subject, matches, sourcepos, warn)
   local doc = mknode("doc")
   set_startpos(doc, 1)
   local containers = {doc}
-  while matches[idx] do
-    handle_match(matches[idx], containers)
-    idx = idx + 1
+  for match in tokenizer:get_matches() do
+    handle_match(match, containers)
   end
   -- close any open containers
   while #containers > 1 do

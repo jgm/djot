@@ -32,7 +32,7 @@ local Doc = {}
 
 function Doc:new(tokenizer, sourcepos)
   local ast, sourcepos_map =
-    ast.to_ast(tokenizer.subject, tokenizer.matches, sourcepos, tokenizer.warn)
+    ast.to_ast(tokenizer, sourcepos)
   local state = {
     ast = ast,
     sourcepos_map = sourcepos_map,
