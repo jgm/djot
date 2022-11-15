@@ -91,18 +91,24 @@ end
 
 
 function Renderer:render_children(node)
-  if node.c and #node.c > 0 then
-    local oldtight
-    if node.tight ~= nil then
-      oldtight = self.tight
-      self.tight = node.tight
+  -- trap stack overflow
+  local ok, err = pcall(function ()
+    if node.c and #node.c > 0 then
+      local oldtight
+      if node.tight ~= nil then
+        oldtight = self.tight
+        self.tight = node.tight
+      end
+      for i=1,#node.c do
+        self[node.c[i].t](self, node.c[i])
+      end
+      if node.tight ~= nil then
+        self.tight = oldtight
+      end
     end
-    for i=1,#node.c do
-      self[node.c[i].t](self, node.c[i])
-    end
-    if node.tight ~= nil then
-      self.tight = oldtight
-    end
+  end)
+  if not ok and err:find("stack overflow") then
+    self.out("(((DEEPLY NESTED CONTENT OMITTED)))\n")
   end
 end
 
