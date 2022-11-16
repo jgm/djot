@@ -622,8 +622,8 @@ function Tokenizer:get_matches()
       sorted[#sorted] = make_match(startpos, endpos, annot)
     end
     if self.verbatim > 0 then -- unclosed verbatim
-      self.warn({ message = "Unclosed verbatim", pos = startpos })
-      sorted[#sorted + 1] = make_match(startpos, endpos,
+      self.warn({ message = "Unclosed verbatim", pos = endpos })
+      sorted[#sorted + 1] = make_match(endpos, endpos,
                                        "-" .. self.verbatim_type)
     end
   end
