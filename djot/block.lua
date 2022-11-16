@@ -657,7 +657,16 @@ function Tokenizer:tokenize()
   local subjectlen = #self.subject
 
   return function()  -- iterator
+
     while self.pos <= subjectlen do
+
+      -- return any accumulated matches
+      while self.returned < #self.matches do
+        self.returned = self.returned + 1
+        return self.matches[self.returned]
+      end
+      -- if we get here, we've returned all accumulated matches
+      -- and our job is to find new matches.
 
       self.indent = 0
       self.startline = self.pos
@@ -768,16 +777,13 @@ function Tokenizer:tokenize()
 
       self.pos = self.endeol + 1
 
-      while self.returned < #self.matches do
-        self.returned = self.returned + 1
-        return self.matches[self.returned]
-      end
     end
+
     -- close unmatched containers
     while #self.containers > 0 do
       self.containers[#self.containers]:close()
     end
-
+    -- return any accumulated matches
     while self.returned < #self.matches do
       self.returned = self.returned + 1
       return self.matches[self.returned]
