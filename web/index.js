@@ -18,9 +18,9 @@ Module['onRuntimeInitialized'] = () => {
   }
 
   const djot_render_matches =
-      Module.cwrap("djot_render_matches", "string" ,["number", "boolean"]);
-  djot.render_matches = (as_json) => {
-    return djot_render_matches(djot.state, as_json);
+      Module.cwrap("djot_render_matches", "string" ,["number", "string", "boolean"]);
+  djot.render_matches = (s, as_json) => {
+    return djot_render_matches(djot.state, s, as_json);
   }
 
   const djot_render_html =
@@ -87,6 +87,7 @@ function parse_and_render() {
 }
 
 function render() {
+  const text = document.getElementById("input").value;
   const mode = document.getElementById("mode").value;
   const iframe = document.getElementById("preview");
   document.getElementById("result").innerHTML = "";
@@ -100,10 +101,10 @@ function render() {
       djot.render_ast(false);
   } else if (mode == "matchesjson") {
     result.innerText =
-      JSON.stringify(JSON.parse(djot.render_matches(true)), null, 2);
+      djot.render_matches(text, true);
   } else if (mode == "matches") {
     result.innerText =
-      djot.render_matches(false);
+      djot.render_matches(text, false);
   } else if (mode == "html") {
     result.innerText = djot.render_html();
   } else if (mode == "preview") {

@@ -357,77 +357,42 @@ local doc = djot.parse(input)
 local html = doc:render_html()
 ```
 
-### In more depth
+The AST is available as a Lua table, `doc.ast`.
 
-TBD
-
-<!-- TODO rewrite for new API
+To render the AST to stdout:
 
 ``` lua
-local djot = require("djot")
-
--- Create a parser with input string and options:
-local parser = djot.Parser:new(input, options)
--- Parse the document:
-parser:parse()
-
--- 'options' may be omitted, but if present it should be
--- a table with the following boolean fields (both defaulting
--- to false):
---
--- verbose: if true, warnings are emitted to stderr.
--- sourcepos: if true, source positions are tracked.
-
--- At this point we have a list of "matches"
--- (including start/end -- position and an annotation like '+blockquote').
-local matches = parser:get_matches()
-
--- 'matches' is an array of match objects; to deal with them, you'll need
-local match = require("djot.match")
-local startpos, endpos, annotation = match.unpack_match(matches[1])
-
--- Here 'startpos' and 'endpos' are integer byte positions in the
--- input string, and 'annotation' is a string starting with '+'
--- or '-', e.g. '+blockquote'.
-
--- You can use 'matches_pattern' to check the match's annotation
--- against a Lua pattern without unpacking it:
-if match.matches_pattern(matches[1], 'blockquote') then
-  -- second argument is a Lua pattern
-  print ("It's either +blockquote or -blockquote!")
-end
-
--- To render the stream of matches in a human-readable form:
-parser:render_matches(io.stdout)
--- or as a string
-local matches_string = parser:render_matches()
-
--- After parsing, warnings can also be obtained as a Lua table:
-local warnings = parser.warnings
-
--- To build an AST from the list of matches:
-parser:build_ast()
-
--- The AST is now available as a Lua table, parser.ast
--- It can be modified programatically and any changes
--- you make will be reflected in rendered HTML.
-
--- To render the AST in human-readable form:
-parser:render_ast(io.stdout)
--- or as a string:
-local ast_string = parser:render_ast()
--- This function will call 'build_ast' automatically if the
--- AST is not built.
-
--- To render the AST as an HTML string:
-local html = parser:render_html()
--- Or, to send the HTML output to a handle:
-parser:render_html(io.stdout)
--- This function will call 'build_ast' automatically if the
--- AST is not built.
+doc:render_ast(io.stdout)
 ```
 
--->
+Or put the rendered AST in a string:
+
+``` lua
+local rendered = doc:render_ast()
+```
+
+Or make it JSON:
+
+``` lua
+local rendered = doc:rendered_ast(nil, true)
+```
+
+To see the tokenizer's output:
+
+``` lua
+djot.render_matches("This is *djot*", io.stdout, true)
+```
+
+Or to use the tokenizer directly:
+
+``` lua
+for x in d.tokenize("*hello there*") do
+  print(table.unpack(x))
+end
+```
+
+(This will print start and end byte offsets into the input
+for annotated tokens.)
 
 ## The code
 

@@ -32,6 +32,17 @@ int main (void) {
     return -1;
   }
 
+  out = djot_render_matches(L, "hi *there*\n", true);
+  if (!out) error(L);
+  asserteq(out,
+"[[\"+para\",[1,1]]\n\
+,[\"str\",[1,3]]\n\
+,[\"+strong\",[4,4]]\n\
+,[\"str\",[5,9]]\n\
+,[\"-strong\",[10,10]]\n\
+,[\"-para\",[11,11]]\n\
+]\n");
+
   ok = djot_parse(L, "hi *there*\n", true);
   if (!ok) error(L);
   out = djot_render_html(L);

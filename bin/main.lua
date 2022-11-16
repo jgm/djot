@@ -8,7 +8,6 @@ Options:
 -a        Show AST.
 -j        Use JSON for -m or -a.
 -p        Include source positions in AST.
--M        Show memory usage.
 -v        Verbose (show warnings).
 -h        Help.
 ]]
@@ -36,8 +35,6 @@ while arg[argi] do
         opts.sourcepos = true
       elseif x == "v" then
         opts.verbose = true
-      elseif x == "M" then
-        opts.memory = true
       elseif x == "f" then
         if arg[argi + 1] then
           opts.filters = opts.filters or {}
@@ -73,43 +70,30 @@ else
   inp = table.concat(buff, "\n")
 end
 
-local function memusage(location)
-  collectgarbage("collect")
-  io.stderr:write(string.format("Memory usage %-12s %6d KB\n",
-    location, math.floor(collectgarbage("count"))))
-end
-
-if opts.memory then
-  memusage("before parse")
-end
-
-local doc = djot.parse(inp, opts.sourcepos)
-
-if opts.memory then
-  memusage("after parse")
-end
-
-if opts.filters then
-  for _,fp in ipairs(opts.filters) do
-    local filter = dofile(fp)
-    doc:apply_filter(filter)
-  end
-end
-
 if opts.matches then
-  doc:render_matches(io.stdout, opts.json)
-elseif opts.ast then
-  doc:render_ast(io.stdout, opts.json)
+
+  djot.render_matches(inp, io.stdout, opts.json)
+
 else
-  doc:render_html(io.stdout, opts.json)
+
+  local doc = djot.parse(inp, opts.sourcepos)
+
+  if opts.filters then
+    for _,fp in ipairs(opts.filters) do
+      local filter = dofile(fp)
+      doc:apply_filter(filter)
+    end
+  end
+
+  if opts.ast then
+    doc:render_ast(io.stdout, opts.json)
+  else
+    doc:render_html(io.stdout, opts.json)
+  end
 end
 
 if opts.verbose then
   doc:render_warnings(io.stderr, opts.json)
-end
-
-if opts.memory then
-  memusage("after render")
 end
 
 os.exit(0)

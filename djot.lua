@@ -43,30 +43,6 @@ function Doc:new(tokenizer, sourcepos)
   return state
 end
 
-function Doc:render_matches(handle, use_json)
-  if not handle then
-    handle = StringHandle:new()
-  end
-  local matches = self.matches
-  if use_json then
-    local formatted_matches = {}
-    for i=1,#matches do
-      local startpos, endpos, annotation = unpack_match(matches[i])
-      formatted_matches[#formatted_matches + 1] =
-        { annotation, {startpos, endpos} }
-    end
-    handle:write(json.encode(formatted_matches))
-  else
-    for i=1,#matches do
-      handle:write(format_match(matches[i]))
-    end
-  end
-  if use_json then
-    handle:write("\n")
-  end
-  return handle:flush()
-end
-
 function Doc:format_source_pos(bytepos)
   local pos = self.sourcepos_map[bytepos]
   if pos then
@@ -104,22 +80,22 @@ function Doc:apply_filter(filter)
   filter.traverse(filter)
 end
 
-function Doc:render_warnings(handler, as_json)
+function Doc:render_warnings(handle, as_json)
   if #warnings == 0 then
     return
   end
   if as_json then
-    handler:write(json.encode(warnings))
+    handle:write(json.encode(warnings))
   else
     for _,warning in ipairs(warnings) do
-      handler:write(string.format("%s at %s\n",
+      handle:write(string.format("%s at %s\n",
         warning.message, self:format_source_pos(warning.pos)))
     end
   end
   if as_json then
-    handler:write("\n")
+    handle:write("\n")
   end
-  return handler:flush()
+  return handle:flush()
 end
 
 local function parse(input, sourcepos)
@@ -128,10 +104,44 @@ local function parse(input, sourcepos)
     warnings[#warnings + 1] = warning
   end
   local tokenizer = Tokenizer:new(input, warn)
-  tokenizer:tokenize()
   return Doc:new(tokenizer, sourcepos)
+end
+
+local function tokenize(input)
+  return Tokenizer:new(input):tokenize()
+end
+
+local function render_matches(input, handle, use_json)
+  if not handle then
+    handle = StringHandle:new()
+  end
+  local tokenizer = Tokenizer:new(input)
+  local idx = 0
+  if use_json then
+    handle:write("[")
+  end
+  for match in tokenizer:tokenize() do
+    idx = idx + 1
+    if use_json then
+      local startpos, endpos, annotation = unpack_match(match)
+      if idx > 1 then
+        handle:write(",")
+      end
+      handle:write(json.encode({ annotation, {startpos, endpos} }))
+      handle:write("\n")
+    else
+      handle:write(format_match(match))
+    end
+  end
+  if use_json then
+    handle:write("]\n")
+  end
+
+  return handle:flush()
 end
 
 return {
   parse = parse,
+  tokenize = tokenize,
+  render_matches = render_matches
 }

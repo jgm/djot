@@ -82,13 +82,13 @@ char *djot_render_ast(lua_State *L, bool as_json) {
   return (char *)lua_tostring(L, -1);
 }
 
-/* Render the matches of the document in the global 'doc'.
+/* Tokenize input and render the matches.
  * If 'as_json' is true, use JSON, otherwise, produce a compact
  * human-readable tree. NULL is returned on error. */
-char *djot_render_matches(lua_State *L, bool as_json) {
-  lua_getglobal(L, "doc");
+char *djot_render_matches(lua_State *L, char *input, bool as_json) {
+  lua_getglobal(L, "djot");
   lua_getfield(L, -1, "render_matches");
-  lua_getglobal(L, "doc");
+  lua_pushstring(L, input);
   lua_pushnil(L);
   lua_pushboolean(L, as_json);
   if (lua_pcall(L, 3, 1, 0) != LUA_OK) {

@@ -35,10 +35,10 @@ char *djot_render_html(lua_State *L);
  * human-readable tree. NULL is returned on error. */
 char *djot_render_ast(lua_State *L, bool as_json);
 
-/* Render the matches of the document in the global 'doc'.
+/* Tokenize input and render the matches.
  * If 'as_json' is true, use JSON, otherwise, produce a compact
  * human-readable tree. NULL is returned on error. */
-char *djot_render_matches(lua_State *L, bool as_json);
+char *djot_render_matches(lua_State *L, char *input, bool as_json);
 
 
 #endif

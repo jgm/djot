@@ -66,7 +66,8 @@ function Tokenizer:new(subject, warn)
     pos = 1,
     last_matched_container = 0,
     timer = {},
-    finished_line = false }
+    finished_line = false,
+    returned = 0 }
   setmetatable(state, self)
   self.__index = self
   return state
@@ -654,138 +655,136 @@ function Tokenizer:tokenize()
   local specs = self:specs()
   local para_spec = specs[1]
   local subjectlen = #self.subject
-  while self.pos <= subjectlen do
 
-    self.indent = 0
-    self.startline = self.pos
-    self.finished_line = false
-    self:get_eol()
+  return function()  -- iterator
+    while self.pos <= subjectlen do
 
-    -- check open containers for continuation
-    self.last_matched_container = 0
-    local idx = 0
-    while idx < #self.containers do
-      idx = idx + 1
-      local container = self.containers[idx]
-      -- skip any indentation
-      self:skip_space()
-      if container:continue() then
-        self.last_matched_container = idx
-      else
-        break
+      self.indent = 0
+      self.startline = self.pos
+      self.finished_line = false
+      self:get_eol()
+
+      -- check open containers for continuation
+      self.last_matched_container = 0
+      local idx = 0
+      while idx < #self.containers do
+        idx = idx + 1
+        local container = self.containers[idx]
+        -- skip any indentation
+        self:skip_space()
+        if container:continue() then
+          self.last_matched_container = idx
+        else
+          break
+        end
       end
-    end
 
-    -- if we hit a close fence, we can move to next line
-    if self.finished_line then
-      while #self.containers > self.last_matched_container do
-        self.containers[#self.containers]:close()
-      end
-    end
-
-    if not self.finished_line then
-      -- check for new containers
-      self:skip_space()
-      local is_blank = (self.pos == self.starteol)
-
-      local new_starts = false
-      local last_match = self.containers[self.last_matched_container]
-      local check_starts = not is_blank and
-                          (not last_match or last_match.content == "block") and
-                            not self:find("^%a+%s") -- optimization
-      while check_starts do
-        check_starts = false
-        for i=1,#specs do
-          local spec = specs[i]
-          if not spec.is_para then
-            if spec:open() then
-              self.last_matched_container = #self.containers
-              if self.finished_line then
-                check_starts = false
-              else
-                self:skip_space()
-                new_starts = true
-                check_starts = spec.content == "block"
-              end
-              break
-            end
-          end
+      -- if we hit a close fence, we can move to next line
+      if self.finished_line then
+        while #self.containers > self.last_matched_container do
+          self.containers[#self.containers]:close()
         end
       end
 
       if not self.finished_line then
-        -- handle remaining content
+        -- check for new containers
         self:skip_space()
+        local is_blank = (self.pos == self.starteol)
 
-        is_blank = (self.pos == self.starteol)
-
-        local is_lazy = not is_blank and
-                        not new_starts and
-                        self.last_matched_container < #self.containers and
-                        self.containers[#self.containers].content == 'inline'
-
-        if not is_lazy and
-          self.last_matched_container < #self.containers then
-          while #self.containers > self.last_matched_container do
-            self.containers[#self.containers]:close()
+        local new_starts = false
+        local last_match = self.containers[self.last_matched_container]
+        local check_starts = not is_blank and
+                            (not last_match or last_match.content == "block") and
+                              not self:find("^%a+%s") -- optimization
+        while check_starts do
+          check_starts = false
+          for i=1,#specs do
+            local spec = specs[i]
+            if not spec.is_para then
+              if spec:open() then
+                self.last_matched_container = #self.containers
+                if self.finished_line then
+                  check_starts = false
+                else
+                  self:skip_space()
+                  new_starts = true
+                  check_starts = spec.content == "block"
+                end
+                break
+              end
+            end
           end
         end
 
-        local tip = self.containers[#self.containers]
+        if not self.finished_line then
+          -- handle remaining content
+          self:skip_space()
 
-        -- add para by default if there's text
-        if not tip or tip.content == 'block' then
-          if is_blank then
-            if not new_starts then
-              -- need to track these for tight/loose lists
-              self:add_match(self.pos, self.endeol, "blankline")
+          is_blank = (self.pos == self.starteol)
+
+          local is_lazy = not is_blank and
+                          not new_starts and
+                          self.last_matched_container < #self.containers and
+                          self.containers[#self.containers].content == 'inline'
+
+          if not is_lazy and
+            self.last_matched_container < #self.containers then
+            while #self.containers > self.last_matched_container do
+              self.containers[#self.containers]:close()
             end
-          else
-            para_spec:open()
           end
-          tip = self.containers[#self.containers]
-        end
 
-        if tip then
-          if tip.content == "text" then
-            local startpos = self.pos
-            if tip.indent and self.indent > tip.indent then
-              -- get back the leading spaces we gobbled
-              startpos = startpos - (self.indent - tip.indent)
+          local tip = self.containers[#self.containers]
+
+          -- add para by default if there's text
+          if not tip or tip.content == 'block' then
+            if is_blank then
+              if not new_starts then
+                -- need to track these for tight/loose lists
+                self:add_match(self.pos, self.endeol, "blankline")
+              end
+            else
+              para_spec:open()
             end
-            self:add_match(startpos, self.endeol, "str")
-          elseif tip.content == "inline" then
-            if not is_blank then
-              tip.inline_tokenizer:feed(self.pos, self.endeol)
+            tip = self.containers[#self.containers]
+          end
+
+          if tip then
+            if tip.content == "text" then
+              local startpos = self.pos
+              if tip.indent and self.indent > tip.indent then
+                -- get back the leading spaces we gobbled
+                startpos = startpos - (self.indent - tip.indent)
+              end
+              self:add_match(startpos, self.endeol, "str")
+            elseif tip.content == "inline" then
+              if not is_blank then
+                tip.inline_tokenizer:feed(self.pos, self.endeol)
+              end
             end
           end
         end
       end
+
+      self.pos = self.endeol + 1
+
+      while self.returned < #self.matches do
+        self.returned = self.returned + 1
+        return self.matches[self.returned]
+      end
+    end
+    -- close unmatched containers
+    while #self.containers > 0 do
+      self.containers[#self.containers]:close()
     end
 
-    self.pos = self.endeol + 1
-  end
-  self:finish()
-
-end
-
-function Tokenizer:finish()
-  -- close unmatched containers
-  while #self.containers > 0 do
-    self.containers[#self.containers]:close()
-  end
-end
-
-function Tokenizer:get_matches()
-  local idx = 0
-  local matches = self.matches
-  local matchlen = #matches
-  return function() -- return iterator
-    idx = idx + 1
-    if idx <= matchlen then
-      return matches[idx]
+    while self.returned < #self.matches do
+      self.returned = self.returned + 1
+      return self.matches[self.returned]
     end
+
   end
+
 end
 
 return { Tokenizer = Tokenizer,
