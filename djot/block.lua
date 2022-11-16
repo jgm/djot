@@ -543,7 +543,6 @@ function Tokenizer:specs()
             return true
           else
             self.containers[#self.containers] = nil
-            self.matches[#self.matches] = nil  -- remove +table match
             return false
           end
         end
@@ -658,6 +657,11 @@ function Tokenizer:tokenize()
 
   return function()  -- iterator
 
+    -- return any accumulated matches
+    while self.returned < #self.matches do
+      self.returned = self.returned + 1
+      return self.matches[self.returned]
+    end
     while self.pos <= subjectlen do
 
       -- return any accumulated matches
@@ -665,8 +669,6 @@ function Tokenizer:tokenize()
         self.returned = self.returned + 1
         return self.matches[self.returned]
       end
-      -- if we get here, we've returned all accumulated matches
-      -- and our job is to find new matches.
 
       self.indent = 0
       self.startline = self.pos
