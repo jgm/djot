@@ -64,7 +64,7 @@ for i=1,NUMTESTS do
       end
     end
     failures = failures + 1
-    io.stderr:write(string.format("\nFAILURE on\n%s\n", s))
+    io.stderr:write(string.format("\nFAILURE on\n%q\n", s))
     io.stderr:write(err .. "\n")
   end
 end
