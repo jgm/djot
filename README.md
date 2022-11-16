@@ -409,8 +409,8 @@ be run using `djot`. `djot -h` will give help output.
 
 If you can't assume that lua or luajit will be installed on
 the target machine, you can use `make djotbin` to create a
-portable binary that includes luajit and the necessary scripts.
-(This assumes you have `luastatic` installed, and `libluajit`
+portable binary that includes lua and the necessary scripts.
+(This assumes you have `luastatic` installed, and `liblua`
 in the `/usr/local` tree.)
 
 `make test` will run the tests, and `make testall` will also

@@ -4,8 +4,8 @@ ROCKSPEC=djot-$(VERSION)-$(REVISION).rockspec
 MODULES=djot/match.lua djot/attributes.lua djot/inline.lua djot/block.lua djot/ast.lua djot/emoji.lua djot/html.lua djot/filter.lua djot.lua
 SOURCES=$(MODULES) bin/main.lua
 TESTSOURCES=test.lua pathological_tests.lua
-LIBLUA=/usr/local/lib/libluajit.a
-LUAHEADERS=/usr/local/include/luajit-2.0
+LIBLUA=/usr/local/lib/liblua.a
+LUAHEADERS=/usr/local/include/lua
 LUAOPTIONS=-O2
 BUNDLE=djot
 VIMDIR?=~/.vim
@@ -49,7 +49,7 @@ check:
 .PHONY: check
 
 djotbin:
-	luastatic bin/main.lua $(MODULES) $(LIBLUA) -I$(LUAHEADERS) $(LUAOPTIONS) -pagezero_size 10000 -o djotbin
+	luastatic bin/main.lua $(MODULES) $(LIBLUA) -I$(LUAHEADERS) $(LUAOPTIONS) -pagezero_size 10000 -o djotbin -O2
 
 # Single-file version of library
 djot-complete.lua: djot.lua
