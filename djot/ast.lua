@@ -801,9 +801,8 @@ local function to_ast(tokenizer, sourcepos)
 
   local idx = 1
   local doc = mknode("doc")
-  set_startpos(doc, 1)
   local containers = {doc}
-  for match in tokenizer:get_matches() do
+  for match in tokenizer:tokenize() do
     handle_match(match, containers)
   end
   -- close any open containers
@@ -814,7 +813,6 @@ local function to_ast(tokenizer, sourcepos)
       containers[#containers].pos[2] = node.pos[2]
     end
   end
-  set_endpos(doc, idx)
 
   doc.references = references
   doc.footnotes = footnotes
