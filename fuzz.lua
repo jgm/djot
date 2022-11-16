@@ -6,8 +6,8 @@ end
 
 math.randomseed(os.time())
 
-local MAXLENGTH = 256
-local NUMTESTS = 50000
+local MAXLENGTH = 128
+local NUMTESTS = 100000
 
 local activechars = {
   '\n', '\t', ' ', '[', ']', '1', '2', 'a', 'b',
@@ -37,14 +37,32 @@ local failures = 0
 io.stderr:write("Running fuzz tests: ")
 for i=1,NUMTESTS do
   local s = randomstring()
-  io.stdout:write(string.format("%q\n", s))
-  io.stdout:flush()
+  if i % 1000 == 0 then
+    io.stderr:write(".");
+  end
   local ok, err = pcall(function () return to_html(s) end)
-  if ok then
-    if i % 1000 == 0 then
-      io.stderr:write(".");
+  if not ok then
+    -- try to minimize case
+    local minimal = false
+    local trim_from_front = true
+    while not minimal do
+      local s2
+      if trim_from_front then
+        s2 = string.sub(s, 2, -1)
+      else
+        s2 = string.sub(s, 1, -2)
+      end
+      local ok2, _ = pcall(function () return to_html(s2) end)
+      if ok2 then
+        if trim_from_front then
+          trim_from_front = false
+        else
+          minimal = true
+        end
+      else
+        s = s2
+      end
     end
-  else
     failures = failures + 1
     io.stderr:write(string.format("\nFAILURE on\n%s\n", s))
     io.stderr:write(err .. "\n")
