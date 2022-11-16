@@ -22,7 +22,7 @@ testall: test pathological fuzz
 .PHONY: testall
 
 fuzz:
-	LUA_PATH="./?.lua;$$LUA_PATH" $(TIMEOUT) 60 lua fuzz.lua
+	LUA_PATH="./?.lua;$$LUA_PATH" $(TIMEOUT) 90 lua fuzz.lua 500000
 .PHONY: fuzz
 
 pathological:

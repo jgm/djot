@@ -6,29 +6,38 @@ end
 
 math.randomseed(os.time())
 
-local MAXLENGTH = 128
-local NUMTESTS = 100000
+local MAXLINES = 5
+local MAXLENGTH = 5
+local NUMTESTS = arg[1] or 200000
 
 local activechars = {
-  '\n', '\t', ' ', '[', ']', '1', '2', 'a', 'b',
+  '\t', ' ', '[', ']', '1', '2', 'a', 'b',
   'A', 'B', 'I', 'V', 'i', 'v', '.', ')', '(',
   '{', '}', '=', '+', '_', '-', '*', '!', '>',
   '<', '`', '~'
 }
 
 local function randomstring()
-  local res = ""
-  local len = math.random(0,MAXLENGTH)
-  for i=1,len do
-    local charclass = math.random(1, 2)
-    if charclass == 1 then
-      res = res .. activechars[math.random(1, #activechars)]
-    elseif utf8 then
-      res = res .. utf8.char(math.random(1, 200))
-    else
-      res = res .. string.char(math.random(1, 127))
+  local numlines = math.random(1,MAXLINES)
+  local buffer = {}
+  for j=1,numlines do
+    -- -1 to privilege blank lines
+    local res = ""
+    local len = math.random(-1,MAXLENGTH)
+    if len < 0 then len = 0 end
+    for i=1,len do
+      local charclass = math.random(1, 4)
+      if charclass < 4 then
+        res = res .. activechars[math.random(1, #activechars)]
+      elseif utf8 then
+        res = res .. utf8.char(math.random(1, 200))
+      else
+        res = res .. string.char(math.random(1, 127))
+      end
     end
+    buffer[#buffer + 1] = res
   end
+  local res = table.concat(buffer, "\n")
   return res
 end
 
