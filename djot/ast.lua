@@ -546,6 +546,8 @@ local function to_ast(tokenizer, sourcepos)
             end
             if has_children(node) and not endswithspace then
               insert_attributes_from_nodes(prevnode, node.c)
+            else
+              warn({message = "Ignoring unattached attribute", pos = startpos})
             end
           else
             warn({message = "Ignoring unattached attribute", pos = startpos})

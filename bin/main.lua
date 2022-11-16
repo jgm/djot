@@ -70,13 +70,20 @@ else
   inp = table.concat(buff, "\n")
 end
 
+local warn = function(warning)
+  if opts.verbose then
+    io.stderr:write(string.format("%s at byte position %d\n",
+      warning.message, warning.pos))
+  end
+end
+
 if opts.matches then
 
-  djot.render_matches(inp, io.stdout, opts.json)
+  djot.render_matches(inp, io.stdout, opts.json, warn)
 
 else
 
-  local doc = djot.parse(inp, opts.sourcepos)
+  local doc = djot.parse(inp, opts.sourcepos, warn)
 
   if opts.filters then
     for _,fp in ipairs(opts.filters) do
@@ -90,10 +97,7 @@ else
   else
     doc:render_html(io.stdout, opts.json)
   end
-end
 
-if opts.verbose then
-  doc:render_warnings(io.stderr, opts.json)
 end
 
 os.exit(0)

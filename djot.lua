@@ -36,20 +36,11 @@ function Doc:new(tokenizer, sourcepos)
   local state = {
     ast = ast,
     sourcepos_map = sourcepos_map,
-    matches = tokenizer.matches,
+    matches = tokenizer.matches
   }
   setmetatable(state, self)
   self.__index = self
   return state
-end
-
-function Doc:format_source_pos(bytepos)
-  local pos = self.sourcepos_map[bytepos]
-  if pos then
-    return string.format("line %d, column %d", pos[1], pos[2])
-  else
-    return string.format("byte position %d", bytepos)
-  end
 end
 
 function Doc:render_ast(handle, use_json)
@@ -80,29 +71,34 @@ function Doc:apply_filter(filter)
   filter.traverse(filter)
 end
 
-function Doc:render_warnings(handle, as_json)
-  if #warnings == 0 then
-    return
-  end
-  if as_json then
-    handle:write(json.encode(warnings))
-  else
-    for _,warning in ipairs(warnings) do
-      handle:write(string.format("%s at %s\n",
-        warning.message, self:format_source_pos(warning.pos)))
-    end
-  end
-  if as_json then
-    handle:write("\n")
-  end
-  return handle:flush()
-end
+-- function Doc:format_source_pos(bytepos)
+--   local pos = self.sourcepos_map[bytepos]
+--   if pos then
+--     return string.format("line %d, column %d", pos[1], pos[2])
+--   else
+--     return string.format("byte position %d", bytepos)
+--   end
+-- end
 
-local function parse(input, sourcepos)
-  local warnings = {}
-  local function warn(warning)
-    warnings[#warnings + 1] = warning
-  end
+-- function Doc:render_warnings(handle, as_json)
+--   if #self.warnings == 0 then
+--     return
+--   end
+--   if as_json then
+--     handle:write(json.encode(warnings))
+--   else
+--     for _,warning in ipairs(self.warnings) do
+--       handle:write(string.format("%s at %s\n",
+--         warning.message, self:format_source_pos(warning.pos)))
+--     end
+--   end
+--   if as_json then
+--     handle:write("\n")
+--   end
+--   return handle:flush()
+-- end
+
+local function parse(input, sourcepos, warn)
   local tokenizer = Tokenizer:new(input, warn)
   return Doc:new(tokenizer, sourcepos)
 end
@@ -111,11 +107,11 @@ local function tokenize(input)
   return Tokenizer:new(input):tokenize()
 end
 
-local function render_matches(input, handle, use_json)
+local function render_matches(input, handle, use_json, warn)
   if not handle then
     handle = StringHandle:new()
   end
-  local tokenizer = Tokenizer:new(input)
+  local tokenizer = Tokenizer:new(input, warn)
   local idx = 0
   if use_json then
     handle:write("[")
