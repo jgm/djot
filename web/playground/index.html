@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Demo of djot in the browser</title>
+    <script type="text/javascript" id="MathJax-script" async
+       src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+     </script>
+    <script src="djot.js"></script>
+    <script src="index.js"></script>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="absolute inset-4 flex gap-4">
+      <div class="w-1/2 flex flex-col gap-2">
+        <h1>
+          <a class="font-bold hover:text-sky-700" href="https://github.com/jgm/djot">Djot</a>
+          Playground
+          (<a href="https://htmlpreview.github.io/?https://github.com/jgm/djot/blob/master/doc/syntax.html">syntax reference</a>)
+        </h1>
+
+        <textarea id="input" class="whitespace-pre overflow-scroll font-mono inset-0 w-full h-full rounded border border-slate-400 p-4" placeholder="Type some djot here..."></textarea>
+      </div>
+      <div class="w-1/2 flex flex-col gap-2">
+        <div class="flex flex-row flex-wrap gap-5">
+          <select id="mode">
+            <option value="preview">Preview</option>
+            <option value="html">HTML</option>
+            <option value="ast">AST</option>
+            <option value="astjson">AST (JSON)</option>
+            <option value="matches">Matches</option>
+            <option value="matchesjson">Matches (JSON)</option>
+          </select>
+          &nbsp;
+          <label>
+            <input type="checkbox" id="sourcepos" checked="checked"/>
+            Source positions
+          </label>
+        </div>
+        <div class="w-full h-full rounded border border-slate-400 inset-0">
+          <iframe id="preview" class="w-full h-full p-4" sandbox="allow-same-origin allow-scripts" src="preview.html" frameborder="0"></iframe>
+          <pre id="result" class="whitespace-pre-wrap overflow-scroll w-full h-full p-4"></pre>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>
+
