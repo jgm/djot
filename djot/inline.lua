@@ -612,6 +612,9 @@ function Tokenizer:get_matches()
     if annot == "softbreak" then
       sorted[#sorted] = nil
       last = sorted[#sorted]
+      if not last then
+        return sorted
+      end
       startpos, endpos, annot = unpack_match(last)
     end
     -- remove trailing spaces
