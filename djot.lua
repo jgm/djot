@@ -71,6 +71,32 @@ function Doc:apply_filter(filter)
   filter.traverse(filter)
 end
 
+function Doc:render_matches(handle, use_json, warn)
+  if not handle then
+    handle = StringHandle:new()
+  end
+  if use_json then
+    handle:write("[")
+  end
+  for idx,match in ipairs(self.matches) do
+    if use_json then
+      local startpos, endpos, annotation = unpack_match(match)
+      if idx > 1 then
+        handle:write(",")
+      end
+      handle:write(json.encode({ annotation, {startpos, endpos} }))
+      handle:write("\n")
+    else
+      handle:write(format_match(match))
+    end
+  end
+  if use_json then
+    handle:write("]\n")
+  end
+
+  return handle:flush()
+end
+
 -- function Doc:format_source_pos(bytepos)
 --   local pos = self.sourcepos_map[bytepos]
 --   if pos then
