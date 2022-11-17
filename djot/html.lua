@@ -200,6 +200,13 @@ function Renderer:div(node)
   self.out("</div>\n")
 end
 
+function Renderer:section(node)
+  self:render_tag("section", node)
+  self.out("\n")
+  self:render_children(node)
+  self.out("</section>\n")
+end
+
 function Renderer:heading(node)
   self:render_tag("h" .. node.level , node)
   self:render_children(node)
