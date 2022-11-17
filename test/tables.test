@@ -112,3 +112,14 @@ determines the alignment for following cells, until the next header.
 </tr>
 </table>
 ```
+
+```
+| just two \| `|` | cells in this table |
+.
+<table>
+<tr>
+<td>just two | <code>|</code></td>
+<td>cells in this table</td>
+</tr>
+</table>
+```
