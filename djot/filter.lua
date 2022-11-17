@@ -32,6 +32,11 @@ local function handle_node(node, filter, topdown)
       handle_node(child, filter, topdown)
     end
   end
+  if node.footnotes then
+    for _, note in pairs(node.footnotes) do
+      handle_node(note, filter, topdown)
+    end
+  end
   local action = filter[node.t]
   -- bottom up: nodes are processed when exiting
   if action ~= nil and not topdown then
