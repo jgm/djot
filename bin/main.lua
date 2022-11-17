@@ -88,7 +88,13 @@ else
   if opts.filters then
     for _,fp in ipairs(opts.filters) do
       local filter = dofile(fp)
-      doc:apply_filter(filter)
+      if #filter > 0 then -- multiple filters as in pandoc
+        for _,f in ipairs(filter) do
+          doc:apply_filter(f)
+        end
+      else
+        doc:apply_filter(filter)
+      end
     end
   end
 
