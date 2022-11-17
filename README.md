@@ -374,7 +374,16 @@ local rendered = doc:render_ast()
 Or make it JSON:
 
 ``` lua
-local rendered = doc:rendered_ast(nil, true)
+local rendered = doc:render_ast(nil, true)
+```
+
+To alter the AST with a filter:
+
+``` lua
+local src = "return { str = function(e) e.text = e.text:upper() end }"
+local filter = dostring(src)
+doc:apply_filter(filter)
+doc:render_ast()
 ```
 
 To see the tokenizer's output:
