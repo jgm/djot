@@ -27,7 +27,7 @@ local function make_sourcepos_map(input)
       line = line + 1
       col = 0
     else
-      col = 1
+      col = col + 1
     end
     charpos = charpos + 1
     local chardata = {line, col, charpos}
@@ -37,13 +37,16 @@ local function make_sourcepos_map(input)
       bytepos = bytepos + 1
     elseif byte < 0xE0 then
       bytepos = bytepos + 2
-      sourcepos_map[bytepos - 1] = chardata -- last byte of char
+      sourcepos_map[bytepos - 1] = chardata
     elseif byte < 0xF0 then
       bytepos = bytepos + 3
-      sourcepos_map[bytepos - 1] = chardata -- last byte of char
+      sourcepos_map[bytepos - 2] = chardata
+      sourcepos_map[bytepos - 1] = chardata
     else
       bytepos = bytepos + 4
-      sourcepos_map[bytepos - 1] = chardata -- last byte of char
+      sourcepos_map[bytepos - 3] = chardata
+      sourcepos_map[bytepos - 2] = chardata
+      sourcepos_map[bytepos - 1] = chardata
     end
     byte = string.byte(input, bytepos)
   end
