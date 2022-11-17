@@ -37,6 +37,8 @@ build = {
          ["djot.ast"]             = "djot/ast.lua",
          ["djot.emoji"]           = "djot/emoji.lua",
          ["djot.html"]            = "djot/html.lua",
+         ["djot.filter"]          = "djot/filter.lua",
+         ["djot.json"]            = "djot/json.lua",
    },
    install = {
        bin = {
