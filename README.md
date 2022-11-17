@@ -408,10 +408,9 @@ the library can be used by Lua programs, and the executable can
 be run using `djot`. `djot -h` will give help output.
 
 If you can't assume that lua or luajit will be installed on
-the target machine, you can use `make djotbin` to create a
-portable binary that includes lua and the necessary scripts.
-(This assumes you have `luastatic` installed, and `liblua`
-in the `/usr/local` tree.)
+the target machine, you can use `make djot` in the `clib`
+directory to create a portable binary that bakes in a lua
+interpreter and the necessary scripts.
 
 `make test` will run the tests, and `make testall` will also
 run some tests of pathological cases.

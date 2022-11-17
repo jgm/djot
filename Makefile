@@ -49,14 +49,6 @@ check:
 	luacheck $(SOURCES) $(TESTSOURCES)
 .PHONY: check
 
-djotbin:
-	luastatic bin/main.lua $(MODULES) $(LIBLUA) -I$(LUAHEADERS) $(LUAOPTIONS) -pagezero_size 10000 -o djotbin -O2
-
-# Single-file version of library
-djot-complete.lua: djot.lua
-	lua -lamalg $<
-	amalg.lua -o $@ -s $< -c
-
 doc/syntax.html: doc/syntax.md
 	pandoc --lua-filter doc/code-examples.lua $< -t html -o $@ -s --css doc/syntax.css --self-contained --wrap=preserve --toc --section-divs -Vpagetitle="Djot syntax reference"
 
