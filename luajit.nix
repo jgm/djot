@@ -5,7 +5,6 @@ let
       busted
       luafilesystem
       compat53
-      luautf8
   ]);
 in
 pkgs.mkShell {

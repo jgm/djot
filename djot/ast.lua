@@ -1,8 +1,8 @@
 if not utf8 then
   -- this is needed for the __pairs metamethod, used below
   require("compat53") -- luarocks install compat53
-  utf8 = require("utf8") -- luarocks install utf8
 end
+
 local match = require("djot.match")
 local emoji -- require this later, only if emoji encountered
 
@@ -19,16 +19,35 @@ local function make_sourcepos_map(input)
   local line = 1
   local col = 0
   local charpos = 0
-  for bytepos, codepoint in utf8.codes(input) do
-    charpos = charpos + 1
-    if codepoint == 10 then -- newline
+  local bytepos = 1
+
+  local byte = string.byte(input, bytepos)
+  while byte do
+    if byte == 10 then -- newline
       line = line + 1
       col = 0
     else
-      col = col + 1
+      col = 1
     end
-    sourcepos_map[bytepos] = string.pack("=I4I4I4", line, col, charpos)
+    charpos = charpos + 1
+    local chardata = string.pack("=I4I4I4", line, col, charpos)
+    sourcepos_map[bytepos] = chardata
+    -- get next code point:
+    if byte < 0xC0 then
+      bytepos = bytepos + 1
+    elseif byte < 0xE0 then
+      bytepos = bytepos + 2
+      sourcepos_map[bytepos - 1] = chardata -- last byte of char
+    elseif byte < 0xF0 then
+      bytepos = bytepos + 3
+      sourcepos_map[bytepos - 1] = chardata -- last byte of char
+    else
+      bytepos = bytepos + 4
+      sourcepos_map[bytepos - 1] = chardata -- last byte of char
+    end
+    byte = string.byte(input, bytepos)
   end
+
   return sourcepos_map
 end
 

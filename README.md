@@ -408,7 +408,8 @@ for annotated tokens.)
 The code for djot (excluding the test suite) is standard Lua,
 compatible with lua 5.1--5.4 and luajit. Djot has no external
 dependencies when used with lua 5.3+.  (With lua < 5.3 or
-luajit, it requires the `compat53` and `utf8` rocks.)
+luajit, it requires the `compat53` rock; alternatively,
+luajit can be compiled with `-DLUAJIT_ENABLE_LUA52COMPAT`).
 You can run it without installing it using `./run.sh`.
 
 `make install` will build the rockspec and install the
