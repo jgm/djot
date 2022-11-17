@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
-#include <lua.h>
+#include "lua.h"
 
 /* Open a Lua virtual machine and load the djot code.
  * This should only be done once, before all use of djot functions.

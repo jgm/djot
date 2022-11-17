@@ -4,13 +4,17 @@ LUASRC=lua-$(LUAVERSION)/src
 MODULES=$(patsubst %, ../%, djot/match.lua djot/attributes.lua djot/inline.lua djot/block.lua djot/ast.lua djot/emoji.lua djot/html.lua djot/filter.lua djot/json.lua djot.lua)
 LUAOBJS=$(patsubst %,$(LUASRC)/%.o,lapi lgc lstate lauxlib linit lstring lbaselib liolib lstrlib lcode llex ltable lcorolib lmathlib ltablib lctype lmem ltm ldblib loadlib luac ldebug lobject lundump ldo lopcodes lutf8lib ldump loslib lvm lfunc lparser lzio)
 LUASRCS=$(patsubst %.o,%.c,$(LUAOBJS))
+CFLAGS= -O2 -Wall -Wextra -DLUA_COMPAT_5_3
 
-test: tests
+test: djot tests
 	./tests
 .PHONY: test
 
 tests: tests.c libdjot.a lua.h luaconf.h
-	$(CC) $(CC_FLAGS) -I . -o $@  tests.c libdjot.a
+	$(CC) $(CFLAGS) -I . -o $@  tests.c libdjot.a
+
+djot: main.c libdjot.a djot_main.inc
+	$(CC) $(CFLAGS) -I . -I $(LUASRC) -o $@ $< libdjot.a
 
 $(LUASRC):
 	curl $(LUAURL) | tar xv lua-$(LUAVERSION)/src
@@ -23,13 +27,13 @@ $(LUASRCS): $(LUASRC)
 	cp $< $@
 
 $(LUASRC)/%.o: $(LUASRC)/%.c
-	$(CC) $(CC_FLAGS) -c -I $(LUASRC) -o $@ $<
+	$(CC) $(CFLAGS) -c -I $(LUASRC) -o $@ $<
 
 libdjot.a: djot.o $(LUAOBJS)
 	ar -rc $@ $^
 
 djot.o: djot.c djot_combined.inc $(LUASRC)
-	$(CC) $(CC_FLAGS) -c -I . -I $(LUASRC) $<
+	$(CC) $(CFLAGS) -c -I . -I $(LUASRC) $<
 
 djot_combined.lua: $(MODULES)
 	lua combine.lua $^ > $@
@@ -37,6 +41,8 @@ djot_combined.lua: $(MODULES)
 djot_combined.inc: djot_combined.lua
 	(cat $< && printf "\0") | xxd -i -n djot_combined_lua > $@
 
+djot_main.inc: ../bin/main.lua
+	(cat $< && printf "\0") | xxd -i -n djot_main_lua > $@
 
 wasm: djot.js
 .PHONY: wasm
