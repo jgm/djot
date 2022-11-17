@@ -301,6 +301,40 @@ local function resolve_style(list)
   list.startmarker = nil
 end
 
+local function add_sections(ast)
+  if not has_children(ast) then
+    return ast
+  end
+  local newast = mknode("doc")
+  local secs = { {sec = newast, level = 0 } }
+  for _,node in ipairs(ast.c) do
+    if node.t == "heading" then
+      local level = node.level
+      local curlevel = (#secs > 0 and secs[#secs].level) or 0
+      if curlevel >= level then
+        while secs[#secs].level >= level do
+          local sec = table.remove(secs).sec
+          add_child(secs[#secs].sec, sec)
+        end
+      end
+      -- now we know: curlevel < level
+      local newsec = mknode("section")
+      newsec.attr = mkattributes{id = node.attr.id}
+      node.attr.id = nil
+      add_child(newsec, node)
+      secs[#secs + 1] = {sec = newsec, level = level}
+    else
+      add_child(secs[#secs].sec, node)
+    end
+  end
+  while #secs > 1 do
+    local sec = table.remove(secs).sec
+    add_child(secs[#secs].sec, sec)
+  end
+  assert(secs[1].sec == newast)
+  return newast
+end
+
 
 -- create an abstract syntax tree based on an event
 -- stream and references. returns the ast and the
@@ -837,6 +871,7 @@ local function to_ast(tokenizer, sourcepos)
       containers[#containers].pos[2] = node.pos[2]
     end
   end
+  doc = add_sections(doc)
 
   doc.references = references
   doc.footnotes = footnotes

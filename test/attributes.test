@@ -139,7 +139,9 @@ Attributes on different kinds of blocks:
 {#id}
 # Heading
 .
-<h1 id="id">Heading</h1>
+<section id="id">
+<h1>Heading</h1>
+</section>
 ```
 
 ```
