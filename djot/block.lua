@@ -117,38 +117,56 @@ function Tokenizer:tokenize_table_row(sp, ep)
   end
   local inline_tokenizer = inline.Tokenizer:new(self.subject, self.warn)
   self:add_match(sp, sp, "+cell")
+  local complete_cell = false
   while self.pos <= ep do
     -- parse a chunk as inline content
-    local _,nextbar = self:find("^[^|\r\n]*|")
-    inline_tokenizer:feed(self.pos, nextbar - 1)
-    if inline_tokenizer:in_verbatim() then
-      -- read the next | as part of verbatim
-      inline_tokenizer:feed(nextbar, nextbar)
-      self.pos = nextbar + 1
-    else
-      self.pos = nextbar + 1  -- skip past the next |
-      -- add a table cell
-      local cell_matches = inline_tokenizer:get_matches()
-      for i=1,#cell_matches do
-        local s,e,ann = unpack_match(cell_matches[i])
-        if i == #cell_matches and ann == "str" then
-          -- strip trailing space
-          while byte(self.subject, e) == 32 and e >= s do
-            e = e - 1
-          end
-        end
-        self:add_match(s,e,ann)
+    local spos = self.pos
+    local nextbar
+    while not nextbar do
+      _,nextbar = self:find("^[^|\r\n]*|")
+      if not nextbar then
+        break
       end
-      self:add_match(nextbar, nextbar, "-cell")
-      if nextbar < ep then
-        -- reset inline tokenizer state
-        inline_tokenizer = inline.Tokenizer:new(self.subject, self.warn)
-        self:add_match(nextbar, nextbar, "+cell")
-        self.pos = find(self.subject, "%S", self.pos)
+      if string.find(self.subject, "^\\", nextbar - 1) then -- \|
+        inline_tokenizer:feed(self.pos, nextbar)
+        self.pos = nextbar + 1
+        nextbar = nil
+      else
+        inline_tokenizer:feed(self.pos, nextbar - 1)
+        if inline_tokenizer:in_verbatim() then
+          inline_tokenizer:feed(nextbar, nextbar)
+          self.pos = nextbar + 1
+          nextbar = nil
+        else
+          self.pos = nextbar + 1
+        end
       end
     end
+    complete_cell = nextbar
+    if not complete_cell then
+      break
+    end
+    -- add a table cell
+    local cell_matches = inline_tokenizer:get_matches()
+    for i=1,#cell_matches do
+      local s,e,ann = unpack_match(cell_matches[i])
+      if i == #cell_matches and ann == "str" then
+        -- strip trailing space
+        while byte(self.subject, e) == 32 and e >= s do
+          e = e - 1
+        end
+      end
+      self:add_match(s,e,ann)
+    end
+    self:add_match(nextbar, nextbar, "-cell")
+    if nextbar < ep then
+      -- reset inline tokenizer state
+      inline_tokenizer = inline.Tokenizer:new(self.subject, self.warn)
+      self:add_match(nextbar, nextbar, "+cell")
+      self.pos = find(self.subject, "%S", self.pos)
+    end
   end
-  if inline_tokenizer:in_verbatim() then
+  if not complete_cell then
     -- rewind, this is not a valid table row
     self.pos = startpos
     for i = orig_matches,#self.matches do
