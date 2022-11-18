@@ -623,6 +623,7 @@ local function to_ast(tokenizer, sourcepos)
           if node.attr then
             references[key].attributes = node.attr
           end
+          return -- don't include in tree
 
         elseif tag == "footnote" then
           local label
