@@ -4,17 +4,23 @@ LUASRC=lua-$(LUAVERSION)/src
 MODULES=$(patsubst %, ../%, djot/match.lua djot/attributes.lua djot/inline.lua djot/block.lua djot/ast.lua djot/emoji.lua djot/html.lua djot/filter.lua djot/json.lua djot.lua)
 LUAOBJS=$(patsubst %,$(LUASRC)/%.o,lapi lgc lstate lauxlib linit lstring lbaselib liolib lstrlib lcode llex ltable lcorolib lmathlib ltablib lctype lmem ltm ldblib loadlib luac ldebug lobject lundump ldo lopcodes lutf8lib ldump loslib lvm lfunc lparser lzio)
 LUASRCS=$(patsubst %.o,%.c,$(LUAOBJS))
-CFLAGS= -O2 -Wall -Wextra -DLUA_COMPAT_5_3
+CFLAGS= -O2 -Wall -Wextra -DLUA_COMPAT_5_3 $(SYSCFLAGS) $(MYCFLAGS)
+UNAME=$(shell uname)
+ifeq ($(UNAME), Linux)
+LDFLAGS=-static -lm $(SYSLDFLAGS) $(MYLDFLAGS)
+else
+LDFLAGS=$(SYSLDFLAGS) $(MYLDFLAGS)
+endif
 
 test: djot tests
 	./tests
 .PHONY: test
 
 tests: tests.c libdjot.a lua.h luaconf.h
-	$(CC) $(CFLAGS) -I . -o $@  tests.c libdjot.a
+	$(CC) $(CFLAGS) $(LDFLAGS) -I . -o $@  tests.c libdjot.a
 
 djot: main.c libdjot.a djot_main.inc
-	$(CC) $(CFLAGS) -I . -I $(LUASRC) -o $@ $< libdjot.a
+	$(CC) $(CFLAGS) $(LDFLAGS) -I . -I $(LUASRC) -o $@ $< libdjot.a
 
 $(LUASRC):
 	curl $(LUAURL) | tar xzv lua-$(LUAVERSION)/src
