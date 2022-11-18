@@ -9,8 +9,7 @@ local emoji -- require this later, only if emoji encountered
 local find, lower, sub, rep, format =
   string.find, string.lower, string.sub, string.rep, string.format
 
-local unpack_match, get_length, matches_pattern =
-  match.unpack_match, match.get_length, match.matches_pattern
+local unpack_match, get_length = match.unpack_match, match.get_length
 
 -- Creates a sparse array whose indices are byte positions.
 -- sourcepos_map[bytepos] = "line:column:charpos"
@@ -131,7 +130,7 @@ local ignorable = {
 local function sortedpairs(compare_function, to_displaykey)
   return function(tbl)
     local keys = {}
-    local k
+    local k = nil
     k = next(tbl, k)
     while k do
       keys[#keys + 1] = k
@@ -139,13 +138,13 @@ local function sortedpairs(compare_function, to_displaykey)
     end
     table.sort(keys, compare_function)
     local keyindex = 0
-    local function ordered_next(tbl,_)
+    local function ordered_next(tabl,_)
       keyindex = keyindex + 1
       local key = keys[keyindex]
       -- use canonical names
       local displaykey = to_displaykey(key)
       if key then
-        return displaykey, tbl[key]
+        return displaykey, tabl[key]
       else
         return nil
       end
@@ -345,7 +344,6 @@ local function to_ast(tokenizer, sourcepos)
   if not warn then
     warn = function() end
   end
-  local idx = 1
   local sourceposmap
   if sourcepos then
     sourceposmap = make_sourcepos_map(subject)
@@ -857,7 +855,6 @@ local function to_ast(tokenizer, sourcepos)
     end
   end
 
-  local idx = 1
   local doc = mknode("doc")
   local containers = {doc}
   for match in tokenizer:tokenize() do

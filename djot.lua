@@ -31,10 +31,10 @@ local Tokenizer = block.Tokenizer
 local Doc = {}
 
 function Doc:new(tokenizer, sourcepos)
-  local ast, sourcepos_map =
+  local the_ast, sourcepos_map =
     ast.to_ast(tokenizer, sourcepos)
   local state = {
-    ast = ast,
+    ast = the_ast,
     sourcepos_map = sourcepos_map,
     matches = tokenizer.matches
   }

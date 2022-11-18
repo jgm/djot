@@ -422,9 +422,9 @@ Tokenizer.matchers = {
       if byte(subject, pos - 1) == 123 or
          byte(subject, pos + 1) == 125 then -- (123 = { 125 = })
         nextpos = Tokenizer.between_matched("-", "delete", "str",
-                           function(self, p)
-                             return find(self.subject, "^%{", p - 1) or
-                                    find(self.subject, "^%}", p + 1)
+                           function(slf, p)
+                             return find(slf.subject, "^%{", p - 1) or
+                                    find(slf.subject, "^%}", p + 1)
                            end)(self, pos, endpos)
         return nextpos
       end

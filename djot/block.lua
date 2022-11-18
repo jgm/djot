@@ -120,7 +120,6 @@ function Tokenizer:tokenize_table_row(sp, ep)
   local complete_cell = false
   while self.pos <= ep do
     -- parse a chunk as inline content
-    local spos = self.pos
     local nextbar
     while not nextbar do
       _,nextbar = self:find("^[^|\r\n]*|")
