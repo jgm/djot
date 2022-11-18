@@ -5,6 +5,7 @@ let
       busted
       luafilesystem
       compat53
+      luaposix
   ]);
 in
 pkgs.mkShell {

@@ -3,7 +3,10 @@ local to_html = function(s)
   local doc = djot.parse(s)
   return doc:render_html()
 end
-local signal = require("posix.signal")  -- luarocks install luaposix
+local signal = require("posix.signal")
+local resource = require("posix.sys.resource")
+local times = require 'posix.sys.times'.times
+
 -- if you want to be able to interrupt stuck fuzz tests.
 
 math.randomseed(os.time())
@@ -52,16 +55,12 @@ for i=1,NUMTESTS do
     io.stderr:write(".");
   end
   local ok, err = pcall(function ()
-    if signal then
-      signal.signal(signal.SIGINT, function(signum)
-       io.stderr:write(string.format("\nInterrupted processing: input is %q\n", s))
-       io.stderr:flush()
-       os.exit(128 + signum)
-      end)
-      return to_html(s)
-    else
-      return to_html(s)
-    end
+    signal.signal(signal.SIGINT, function(signum)
+     io.stderr:write(string.format("\nInterrupted processing on input %q\n", s))
+     io.stderr:flush()
+     os.exit(128 + signum)
+    end)
+    return to_html(s)
   end)
   if not ok then
     -- try to minimize case
