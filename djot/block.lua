@@ -516,7 +516,7 @@ function Tokenizer:specs()
         if not ep1 then
           return false
         end
-        local clsp, ep = find(self.subject, "^%w*", ep1 + 1)
+        local clsp, ep = find(self.subject, "^[%w_-]*", ep1 + 1)
         local _, eol = find(self.subject, "^[ \t]*[\r\n]", ep + 1)
         if eol then
           self:add_container(Container:new(spec, {equals = #equals}))
