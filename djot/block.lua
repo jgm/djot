@@ -377,7 +377,6 @@ function Tokenizer:specs()
         local _, ep, rest = self:find("^(%S+)")
         if ep then
           self:add_match(ep - #rest + 1, ep, "reference_value")
-          container.value = rest
           self.pos = ep + 1
         end
         return true
@@ -387,7 +386,6 @@ function Tokenizer:specs()
         if sp then
           self:add_container(Container:new(spec,
              { key = label,
-               value = rest,
                indent = self.indent }))
           self:add_match(sp, sp, "+reference_definition")
           self:add_match(sp, sp + #label + 1, "reference_key")
