@@ -887,6 +887,11 @@ end
 local function render_node(node, handle, indent)
   indent = indent or 0
   handle:write(rep(" ", indent))
+  if indent > 128 then
+    handle:write("(((DEEPLY NESTED CONTENT OMITTED)))\n")
+    return
+  end
+
   if node.t then
     handle:write(node.t)
     if node.pos then
