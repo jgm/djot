@@ -39,10 +39,14 @@ djot_combined.lua: $(MODULES)
 	lua combine.lua $^ > $@
 
 djot_combined.inc: djot_combined.lua
-	(cat $< && printf "\0") | xxd -i -n djot_combined_lua > $@
+	echo "unsigned char djot_combined_lua[] = {" > $@
+	(cat $< && printf "\0") | xxd -i >> $@
+	echo "};" >> $@
 
 djot_main.inc: ../bin/main.lua
-	(cat $< && printf "\0") | xxd -i -n djot_main_lua > $@
+	echo "unsigned char djot_main_lua[] = {" > $@
+	(cat $< && printf "\0") | xxd -i >> $@
+	echo "};" >> $@
 
 wasm: djot.js
 .PHONY: wasm

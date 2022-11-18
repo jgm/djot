@@ -6,7 +6,7 @@
 #include "djot.h"
 
 #include "djot_combined.inc"
-/* unsigned char djot_combined_lua[], unsigned int djot_combined_lua_len */
+/* unsigned char djot_combined_lua[] */
 
 void djot_report_error(lua_State *L) {
   if(!L) {
