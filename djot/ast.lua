@@ -210,9 +210,10 @@ end
 
 local function add_child(node, child)
   if (not node.c) then
-    node.c = {}
+    node.c = {child}
+  else
+    node.c[#node.c + 1] = child
   end
-  node.c[#node.c + 1] = child
 end
 
 local function has_children(node)
@@ -370,19 +371,23 @@ local function to_ast(tokenizer, sourcepos)
 
   local function set_startpos(node, pos)
     if sourceposmap then
-      if not node.pos then
-        node.pos = {}
+      local sp = format_sourcepos(sourceposmap[pos])
+      if node.pos then
+        node.pos[1] = sp
+      else
+        node.pos = {sp, nil}
       end
-      node.pos[1] = format_sourcepos(sourceposmap[pos])
     end
   end
 
   local function set_endpos(node, pos)
     if sourceposmap and node.pos then
-      if not node.pos then
-        node.pos = {}
+      local ep = format_sourcepos(sourceposmap[pos])
+      if node.pos then
+        node.pos[2] = ep
+      else
+        node.pos = {nil, ep}
       end
-      node.pos[2] = format_sourcepos(sourceposmap[pos])
     end
   end
 
