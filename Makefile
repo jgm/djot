@@ -1,4 +1,4 @@
-VERSION=0.1.0
+VERSION=$(shell grep "version =" djot.lua | sed -e 's/.*"\([^"]*\).*"/\1/')
 REVISION=1
 ROCKSPEC=djot-$(VERSION)-$(REVISION).rockspec
 MODULES=djot/match.lua djot/attributes.lua djot/inline.lua djot/block.lua djot/ast.lua djot/emoji.lua djot/html.lua djot/filter.lua djot.lua
@@ -81,5 +81,4 @@ luajit:
 
 $(ROCKSPEC): rockspec.in
 	sed -e "s/_VERSION/$(VERSION)/g; s/_REVISION/$(REVISION)/g" $< > $@
-
 

@@ -165,5 +165,6 @@ end
 return {
   parse = parse,
   tokenize = tokenize,
-  render_matches = render_matches
+  render_matches = render_matches,
+  version = "0.2.0"
 }
