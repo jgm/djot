@@ -1,0 +1,26 @@
+name: Full coverage tests
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '53 7 * * *'
+
+jobs:
+  linux:
+
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        luaVersion:
+          - '5.4'
+    steps:
+    - uses: actions/checkout@v1
+    - uses: leafo/gh-actions-lua@v9
+      with:
+        luaVersion: ${{ matrix.luaVersion }}
+    - uses: leafo/gh-actions-luarocks@v4
+    - name: Build and test
+      run: |
+          lua full-coverage.lua
+
