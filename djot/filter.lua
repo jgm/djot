@@ -37,7 +37,6 @@ local function handle_node(node, filter, topdown)
       handle_node(note, filter, topdown)
     end
   end
-  local action = filter[node.t]
   -- bottom up: nodes are processed when exiting
   if action ~= nil and not topdown then
     action(node)
@@ -50,11 +49,6 @@ local function traverse(node, filter)
   return node
 end
 
-local function load_filter(s)
-  return dostring(s)
-end
-
 return {
   traverse = traverse,
-  load_filter = load_filter
 }
