@@ -17,13 +17,16 @@ djot: main.c libdjot.a djot_main.inc
 	$(CC) $(CFLAGS) -I . -I $(LUASRC) -o $@ $< libdjot.a
 
 $(LUASRC):
-	curl $(LUAURL) | tar xv lua-$(LUAVERSION)/src
+	curl $(LUAURL) | tar xzv lua-$(LUAVERSION)/src
 
 $(LUASRC)/%: $(LUASRC)
 
 $(LUASRCS): $(LUASRC)
 
-%.h: $(LUASRC)/%.h
+lua.h: $(LUASRC)/lua.h
+	cp $< $@
+
+luaconf.h: $(LUASRC)/luaconf.h
 	cp $< $@
 
 $(LUASRC)/%.o: $(LUASRC)/%.c
