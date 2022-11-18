@@ -4,7 +4,7 @@ LUASRC=lua-$(LUAVERSION)/src
 MODULES=$(patsubst %, ../%, djot/match.lua djot/attributes.lua djot/inline.lua djot/block.lua djot/ast.lua djot/emoji.lua djot/html.lua djot/filter.lua djot/json.lua djot.lua)
 LUAOBJS=$(patsubst %,$(LUASRC)/%.o,lapi lgc lstate lauxlib linit lstring lbaselib liolib lstrlib lcode llex ltable lcorolib lmathlib ltablib lctype lmem ltm ldblib loadlib luac ldebug lobject lundump ldo lopcodes lutf8lib ldump loslib lvm lfunc lparser lzio)
 LUASRCS=$(patsubst %.o,%.c,$(LUAOBJS))
-CFLAGS= -std=c99 -pedantic -O2 -Wall -Wextra -DLUA_COMPAT_5_3 $(SYSCFLAGS) $(MYCFLAGS)
+CFLAGS= -std=c99 -O2 -Wall -DLUA_COMPAT_5_3 $(SYSCFLAGS) $(MYCFLAGS)
 UNAME=$(shell uname)
 ifeq ($(UNAME), Linux)
 LDFLAGS=-static -lm $(SYSLDFLAGS) $(MYLDFLAGS)
