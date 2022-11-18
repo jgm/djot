@@ -6,19 +6,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
   <title>Djot syntax reference</title>
   <style>
-code{white-space: pre-wrap;}
-span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: 1;}
-div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-ul.task-list{list-style: none;}
-ul.task-list li input[type="checkbox"] {
-width: 0.8em;
-margin: 0 0.8em 0.2em -1.6em;
-vertical-align: middle;
-}
-.display.math{display: block; text-align: center; margin: 0.5rem auto;}
-</style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
   <style type="text/css">html {
 line-height: 1.4;
 font-family: Georgia, serif;
@@ -281,6 +276,7 @@ font-size: 78%;
 <li><a href="#block-attributes" id="toc-block-attributes">Block attributes</a></li>
 <li><a href="#links-to-headings" id="toc-links-to-headings">Links to headings</a></li>
 </ul></li>
+<li><a href="#nesting-limits" id="toc-nesting-limits">Nesting limits</a></li>
 </ul></li>
 </ul>
 </nav>
@@ -869,7 +865,7 @@ attribute (<code>}</code>).</li>
 .bar .baz key=&quot;my value&quot;}</code></pre>
 </div>
 <div class="html">
-<pre><code>&lt;p&gt;An attribute on &lt;em id=&quot;foo&quot; class=&quot;bar baz&quot; key=&quot;my value&quot;&gt;emphasized text&lt;/em&gt;&lt;/p&gt;
+<pre><code>&lt;p&gt;An attribute on &lt;em class=&quot;bar baz&quot; id=&quot;foo&quot; key=&quot;my value&quot;&gt;emphasized text&lt;/em&gt;&lt;/p&gt;
 </code></pre>
 </div>
 </div>
@@ -880,7 +876,7 @@ combined. Thus,</p>
 <pre><code>avant{lang=fr}{.blue}</code></pre>
 </div>
 <div class="html">
-<pre><code>&lt;p&gt;&lt;span lang=&quot;fr&quot; class=&quot;blue&quot;&gt;avant&lt;/span&gt;&lt;/p&gt;
+<pre><code>&lt;p&gt;&lt;span class=&quot;blue&quot; lang=&quot;fr&quot;&gt;avant&lt;/span&gt;&lt;/p&gt;
 </code></pre>
 </div>
 </div>
@@ -890,7 +886,7 @@ combined. Thus,</p>
 <pre><code>avant{lang=fr .blue}</code></pre>
 </div>
 <div class="html">
-<pre><code>&lt;p&gt;&lt;span lang=&quot;fr&quot; class=&quot;blue&quot;&gt;avant&lt;/span&gt;&lt;/p&gt;
+<pre><code>&lt;p&gt;&lt;span class=&quot;blue&quot; lang=&quot;fr&quot;&gt;avant&lt;/span&gt;&lt;/p&gt;
 </code></pre>
 </div>
 </div>
@@ -931,7 +927,9 @@ the heading level. The following text is parsed as inline content.</p>
 <pre><code>## A level _two_ heading!</code></pre>
 </div>
 <div class="html">
-<pre><code>&lt;h2 id=&quot;A-level-two-heading&quot;&gt;A level &lt;em&gt;two&lt;/em&gt; heading!&lt;/h2&gt;
+<pre><code>&lt;section id=&quot;A-level-two-heading&quot;&gt;
+&lt;h2&gt;A level &lt;em&gt;two&lt;/em&gt; heading!&lt;/h2&gt;
+&lt;/section&gt;
 </code></pre>
 </div>
 </div>
@@ -947,10 +945,12 @@ three lines
 A paragraph, finally.</code></pre>
 </div>
 <div class="html">
-<pre><code>&lt;h1 id=&quot;A-heading-that-takes-up-three-lines&quot;&gt;A heading that
+<pre><code>&lt;section id=&quot;A-heading-that-takes-up-three-lines&quot;&gt;
+&lt;h1&gt;A heading that
 takes up
 three lines&lt;/h1&gt;
 &lt;p&gt;A paragraph, finally.&lt;/p&gt;
+&lt;/section&gt;
 </code></pre>
 </div>
 </div>
@@ -962,7 +962,9 @@ content:</p>
 <pre><code>### Heading ###</code></pre>
 </div>
 <div class="html">
-<pre><code>&lt;h3 id=&quot;Heading&quot;&gt;Heading&lt;/h3&gt;
+<pre><code>&lt;section id=&quot;Heading&quot;&gt;
+&lt;h3&gt;Heading&lt;/h3&gt;
+&lt;/section&gt;
 </code></pre>
 </div>
 </div>
@@ -1516,8 +1518,7 @@ verbatim spans; these do not count as cell separators:</p>
 <div class="html">
 <pre><code>&lt;table&gt;
 &lt;tr&gt;
-&lt;td&gt;just two \&lt;/td&gt;
-&lt;td&gt;&lt;code&gt;|&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;just two | &lt;code&gt;|&lt;/code&gt;&lt;/td&gt;
 &lt;td&gt;cells in this table&lt;/td&gt;
 &lt;/tr&gt;
 &lt;/table&gt;
@@ -1553,7 +1554,7 @@ as <code>[link]</code> cannot be used as <code>[Link]</code>, as it can in Markd
 [ref][]</code></pre>
 </div>
 <div class="html">
-<pre><code>&lt;p&gt;&lt;a title=&quot;foo&quot; href=&quot;/url&quot;&gt;ref&lt;/a&gt;&lt;/p&gt;
+<pre><code>&lt;p&gt;&lt;a href=&quot;/url&quot; title=&quot;foo&quot;&gt;ref&lt;/a&gt;&lt;/p&gt;
 </code></pre>
 </div>
 </div>
@@ -1569,7 +1570,7 @@ definition.</p>
 [ref][]{title=bar}</code></pre>
 </div>
 <div class="html">
-<pre><code>&lt;p&gt;&lt;a title=&quot;bar&quot; href=&quot;/url&quot;&gt;ref&lt;/a&gt;&lt;/p&gt;
+<pre><code>&lt;p&gt;&lt;a href=&quot;/url&quot; title=&quot;bar&quot;&gt;ref&lt;/a&gt;&lt;/p&gt;
 </code></pre>
 </div>
 </div>
@@ -1656,7 +1657,7 @@ Don&#39;t forget to turn off the water!
 &gt; Sing, muse, of the wrath of Achilles</code></pre>
 </div>
 <div class="html">
-<pre><code>&lt;p id=&quot;water&quot; class=&quot;important large&quot;&gt;Don&amp;rsquo;t forget to turn off the water!&lt;/p&gt;
+<pre><code>&lt;p class=&quot;important large&quot; id=&quot;water&quot;&gt;Don&amp;rsquo;t forget to turn off the water!&lt;/p&gt;
 &lt;blockquote source=&quot;Iliad&quot;&gt;
 &lt;p&gt;Sing, muse, of the wrath of Achilles&lt;/p&gt;
 &lt;/blockquote&gt;
@@ -1677,7 +1678,9 @@ adding a numerical suffix.</p>
 <pre><code>## My heading + auto-identifier</code></pre>
 </div>
 <div class="html">
-<pre><code>&lt;h2 id=&quot;My-heading-auto-identifier&quot;&gt;My heading + auto-identifier&lt;/h2&gt;
+<pre><code>&lt;section id=&quot;My-heading-auto-identifier&quot;&gt;
+&lt;h2&gt;My heading + auto-identifier&lt;/h2&gt;
+&lt;/section&gt;
 </code></pre>
 </div>
 </div>
@@ -1697,11 +1700,20 @@ document, one can simply use a reference link:</p>
 <div class="html">
 <pre><code>&lt;p&gt;See the &lt;a href=&quot;#Epilogue&quot;&gt;Epilogue&lt;/a&gt;.&lt;/p&gt;
 &lt;hr&gt;
-&lt;h1 id=&quot;Epilogue&quot;&gt;Epilogue&lt;/h1&gt;
+&lt;section id=&quot;Epilogue&quot;&gt;
+&lt;h1&gt;Epilogue&lt;/h1&gt;
+&lt;/section&gt;
 </code></pre>
 </div>
 </div>
 </section>
+</section>
+<section id="nesting-limits" class="level2">
+<h2>Nesting limits</h2>
+<p>Conforming implementations can impose reasonable limits on
+nesting to avoid stack overflows or other issues.
+Few realistic documents will need more than, say, 12 levels
+of nesting, so a limit of 512 should be perfectly safe.</p>
 </section>
 </section>
 </body>
