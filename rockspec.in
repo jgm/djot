@@ -17,8 +17,7 @@ description = {
    maintainer = "John MacFarlane <jgm@berkeley.edu>"
 }
 dependencies = {
-   "lua >= 5.1",
-   "compat53 >= 0.4"
+   "lua >= 5.1"
 }
 test_dependencies = {
    "lua >= 5.1",

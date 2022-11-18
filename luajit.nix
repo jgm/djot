@@ -4,7 +4,6 @@ let
   myLuaWithPackages = myLua.withPackages(ps: with ps; [
       busted
       luafilesystem
-      compat53
       luaposix
   ]);
 in

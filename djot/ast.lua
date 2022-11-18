@@ -1,6 +1,16 @@
-if not utf8 then
+if not utf8 then -- if not lua 5.3 or higher...
   -- this is needed for the __pairs metamethod, used below
-  require("compat53") -- luarocks install compat53
+  -- The following code is derived from the compat53 rock:
+  -- override pairs
+  local oldpairs = pairs
+  pairs = function(t)
+    local mt = getmetatable(t)
+    if type(mt) == "table" and type(mt.__pairs) == "function" then
+      return mt.__pairs(t)
+    else
+      return oldpairs(t)
+    end
+  end
 end
 local unpack = unpack or table.unpack
 local match = require("djot.match")
