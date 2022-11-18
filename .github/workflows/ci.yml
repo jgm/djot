@@ -24,4 +24,6 @@ jobs:
     - name: Build and test
       run: |
           make testall install
+          cd clib
+          make test
 
