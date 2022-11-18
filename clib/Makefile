@@ -16,32 +16,22 @@ test: djot tests
 	./tests
 .PHONY: test
 
-tests: tests.c libdjot.a lua.h luaconf.h
-	$(CC) $(CFLAGS) -I . -o $@  tests.c libdjot.a $(LDFLAGS)
+tests: tests.c djot.o $(LUASRC)/liblua.a
+	$(CC) $(CFLAGS) $^ -I . -o $@ $(LDFLAGS)
 
-djot: main.c libdjot.a djot_main.inc
-	$(CC) $(CFLAGS) -I . -I $(LUASRC) -o $@ $< libdjot.a $(LDFLAGS)
+djot: main.c djot.o $(LUASRC)/liblua.a djot_main.inc
+	$(CC) $(CFLAGS) $< djot.o $(LUASRC)/liblua.a -I . -I $(LUASRC) -o $@ $(LDFLAGS)
+
+libdjot.a: djot.o
+	ar -rc $@ $<
+
+$(LUASRC)/liblua.a: $(LUASRC)
+	make -C $(LUASRC) liblua.a
 
 $(LUASRC):
 	curl $(LUAURL) | tar xzv lua-$(LUAVERSION)/src
 
-$(LUASRC)/%: $(LUASRC)
-
-$(LUASRCS): $(LUASRC)
-
-lua.h: $(LUASRC)/lua.h
-	cp $< $@
-
-luaconf.h: $(LUASRC)/luaconf.h
-	cp $< $@
-
-$(LUASRC)/%.o: $(LUASRC)/%.c
-	$(CC) $(CFLAGS) -c -I $(LUASRC) -o $@ $<
-
-libdjot.a: djot.o $(LUAOBJS)
-	ar -rc $@ $^
-
-djot.o: djot.c djot_combined.inc $(LUASRC)
+djot.o: djot.c djot_combined.inc
 	$(CC) $(CFLAGS) -c -I . -I $(LUASRC) $<
 
 djot_combined.lua: $(MODULES)
@@ -67,5 +57,5 @@ djot.js: djot.c djot.h djot_combined.inc $(LUAOBJS)
 clean:
 	rm -rf djot_combined.lua djot_combined.inc *.o test
 distclean: clean
-	-rm -rf libdjot.a lua.h luaconf.h $(LUASRC) djot.js djot.wasm
+	-rm -rf lua.h luaconf.h $(LUASRC) djot.js djot.wasm
 .PHONY: clean
