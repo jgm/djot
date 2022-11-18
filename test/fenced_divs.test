@@ -119,3 +119,16 @@ before a closing fence, the fenced div is implicitly closed.
 </div>
 </blockquote>
 ```
+
+````
+::: outer
+```
+:::
+```
+:::
+.
+<div class="outer">
+<pre><code>:::
+</code></pre>
+</div>
+````
