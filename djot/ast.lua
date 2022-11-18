@@ -30,22 +30,20 @@ local function make_sourcepos_map(input)
     end
     charpos = charpos + 1
     local chardata = {line, col, charpos}
-    sourcepos_map[bytepos] = chardata
     -- get next code point:
+    local newbytepos
     if byte < 0xC0 then
-      bytepos = bytepos + 1
+      newbytepos = bytepos + 1
     elseif byte < 0xE0 then
-      bytepos = bytepos + 2
-      sourcepos_map[bytepos - 1] = chardata
+      newbytepos = bytepos + 2
     elseif byte < 0xF0 then
-      bytepos = bytepos + 3
-      sourcepos_map[bytepos - 2] = chardata
-      sourcepos_map[bytepos - 1] = chardata
+      newbytepos = bytepos + 3
     else
-      bytepos = bytepos + 4
-      sourcepos_map[bytepos - 3] = chardata
-      sourcepos_map[bytepos - 2] = chardata
-      sourcepos_map[bytepos - 1] = chardata
+      newbytepos = bytepos + 4
+    end
+    while bytepos < newbytepos do
+      sourcepos_map[bytepos] = chardata
+      bytepos = bytepos + 1
     end
     byte = string.byte(input, bytepos)
   end
