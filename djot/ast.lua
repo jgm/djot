@@ -14,7 +14,7 @@ local unpack_match, get_length = match.unpack_match, match.get_length
 -- Creates a sparse array whose indices are byte positions.
 -- sourcepos_map[bytepos] = "line:column:charpos"
 local function make_sourcepos_map(input)
-  local sourcepos_map = {}
+  local sourcepos_map = {line = {}, col = {}, charpos = {}}
   local line = 1
   local col = 0
   local charpos = 0
@@ -22,14 +22,8 @@ local function make_sourcepos_map(input)
 
   local byte = string.byte(input, bytepos)
   while byte do
-    if byte == 10 then -- newline
-      line = line + 1
-      col = 0
-    else
-      col = col + 1
-    end
+    col = col + 1
     charpos = charpos + 1
-    local chardata = {line, col, charpos}
     -- get next code point:
     local newbytepos
     if byte < 0xC0 then
@@ -42,20 +36,23 @@ local function make_sourcepos_map(input)
       newbytepos = bytepos + 4
     end
     while bytepos < newbytepos do
-      sourcepos_map[bytepos] = chardata
+      sourcepos_map.line[bytepos] = line
+      sourcepos_map.col[bytepos] = col
+      sourcepos_map.charpos[bytepos] = charpos
       bytepos = bytepos + 1
+    end
+    if byte == 10 then -- newline
+      line = line + 1
+      col = 0
     end
     byte = string.byte(input, bytepos)
   end
 
-  return sourcepos_map
-end
+  sourcepos_map.line[bytepos] = line + 1
+  sourcepos_map.col[bytepos] = 1
+  sourcepos_map.charpos[bytepos] = charpos + 1
 
-local function format_sourcepos(s)
-  if s then
-    local line, col, charpos = unpack(s)
-    return string.format("%d:%d:%d", line, col, charpos)
-  end
+  return sourcepos_map
 end
 
 local function get_string_content(node)
@@ -367,9 +364,16 @@ local function to_ast(tokenizer, sourcepos)
     return ident
   end
 
+  local function format_sourcepos(bytepos)
+    if bytepos then
+      return string.format("%d:%d:%d", sourceposmap.line[bytepos],
+              sourceposmap.col[bytepos], sourceposmap.charpos[bytepos])
+    end
+  end
+
   local function set_startpos(node, pos)
     if sourceposmap then
-      local sp = format_sourcepos(sourceposmap[pos])
+      local sp = format_sourcepos(pos)
       if node.pos then
         node.pos[1] = sp
       else
@@ -380,7 +384,7 @@ local function to_ast(tokenizer, sourcepos)
 
   local function set_endpos(node, pos)
     if sourceposmap and node.pos then
-      local ep = format_sourcepos(sourceposmap[pos])
+      local ep = format_sourcepos(pos)
       if node.pos then
         node.pos[2] = ep
       else
