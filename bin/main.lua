@@ -4,12 +4,14 @@ local help = [[
 djot [opts] [file*]
 
 Options:
--m        Show matches.
--a        Show AST.
--j        Use JSON for -m or -a.
--p        Include source positions in AST.
--v        Verbose (show warnings).
--h        Help.
+--matches        -m          Show matches.
+--ast            -a          Show AST.
+--json           -j          Use JSON for -m or -a.
+--sourcepos      -p          Include source positions in AST.
+--filter FILE    -f FILE     Filter AST using filter in FILE.
+--verbose        -v          Verbose (show warnings).
+--version                    Show version information.
+--help           -h          Help.
 ]]
 
 local function err(msg, code)
@@ -20,36 +22,55 @@ end
 local opts = {}
 local files = {}
 
+local shortcuts =
+  { m = "--matches",
+    a = "--ast",
+    j = "--json",
+    p = "--sourcepos",
+    v = "--verbose",
+    f = "--filter",
+    h = "--help" }
+
 local argi = 1
 while arg[argi] do
   local thisarg = arg[argi]
-  if string.find(thisarg, "^%-") then
-    string.gsub(thisarg, "(%a)", function(x)
-      if x == "m" then
-        opts.matches = true
-      elseif x == "a" then
-        opts.ast = true
-      elseif x == "j" then
-        opts.json = true
-      elseif x == "p" then
-        opts.sourcepos = true
-      elseif x == "v" then
-        opts.verbose = true
-      elseif x == "f" then
-        if arg[argi + 1] then
-          opts.filters = opts.filters or {}
-          table.insert(opts.filters, arg[argi + 1])
-          argi = argi + 1
-        end
-      elseif x == "h" then
-        io.stdout:write(help)
-        os.exit(0)
-      else
-        err("Unknown option " .. x, 1)
-      end
-    end)
+  local longopts = {}
+  if string.find(thisarg, "^%-%-%a") then
+    longopts[#longopts + 1] = thisarg
+  elseif string.find(thisarg, "^%-%a") then
+    string.gsub(thisarg, "(%a)",
+      function(x)
+        longopts[#longopts + 1] = shortcuts[x] or ("-"..x)
+      end)
   else
-    table.insert(files, thisarg)
+    files[#files + 1] = thisarg
+  end
+  for _,x in ipairs(longopts) do
+    if x == "--matches" then
+      opts.matches = true
+    elseif x == "--ast" then
+      opts.ast = true
+    elseif x == "--json" then
+      opts.json = true
+    elseif x == "--sourcepos" then
+      opts.sourcepos = true
+    elseif x == "--verbose" then
+      opts.verbose = true
+    elseif x == "--filter" then
+      if arg[argi + 1] then
+        opts.filters = opts.filters or {}
+        table.insert(opts.filters, arg[argi + 1])
+        argi = argi + 1
+      end
+    elseif x == "--version" then
+      io.stdout:write("djot " .. djot.version .. "\n")
+      os.exit(0)
+    elseif x == "--help" then
+      io.stdout:write(help)
+      os.exit(0)
+    else
+      err("Unknown option " .. x, 1)
+    end
   end
   argi = argi + 1
 end
