@@ -31,12 +31,23 @@ pathological:
 	$(TIMEOUT) 10 lua pathological_tests.lua
 .PHONY: pathological
 
-bench: m.dj
-	du -h m.dj
-	LUA_PATH="./?.lua;$$LUA_PATH" hyperfine --warmup 2 "lua bin/main.lua m.dj"
-	LUA_PATH="./?.lua;$$LUA_PATH" hyperfine --warmup 2 "lua bin/main.lua -m m.dj"
-	LUA_PATH="./?.lua;$$LUA_PATH" hyperfine --warmup 2 "lua bin/main.lua -p m.dj"
+bench: bench-lua bench-luajit
 .PHONY: bench
+
+bench-lua: m.dj
+	du -h m.dj
+	LUA_PATH="./?.lua" hyperfine --warmup 2 "lua bin/main.lua m.dj"
+	LUA_PATH="./?.lua" hyperfine --warmup 2 "lua bin/main.lua -m m.dj"
+	LUA_PATH="./?.lua" hyperfine --warmup 2 "lua bin/main.lua -p m.dj"
+.PHONY: bench-lua
+
+bench-luajit: m.dj
+	du -h m.dj
+	LUA_PATH="./?.lua" hyperfine --warmup 2 "luajit bin/main.lua m.dj"
+	LUA_PATH="./?.lua" hyperfine --warmup 2 "luajit bin/main.lua -m m.dj"
+	LUA_PATH="./?.lua" hyperfine --warmup 2 "luajit bin/main.lua -p m.dj"
+.PHONY: bench-luajit
+
 
 m.dj:
 	pandoc -t djot-writer.lua https://raw.githubusercontent.com/jgm/pandoc/2.18/MANUAL.txt -o m.dj
