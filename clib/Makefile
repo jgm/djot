@@ -1,57 +1,66 @@
-LUAPREFIX=$(shell brew --prefix)
-LIBLUA=$(LUAPREFIX)/lib/liblua.a
-LUAHEADERS=$(LUAPREFIX)/include/lua
-MODULES=$(patsubst %, ../%, djot/match.lua djot/attributes.lua djot/inline.lua djot/block.lua djot/ast.lua djot/emoji.lua djot/html.lua djot/filter.lua djot/json.lua djot.lua)
-LUAOBJFILES=$(shell ar -t $(LIBLUA) | tail +2)
 LUAVERSION=5.4.4
 LUAURL=https://www.lua.org/ftp/lua-$(LUAVERSION).tar.gz
-LUADIR=lua-$(LUAVERSION)
-WEB=web
+LUASRC=lua-src
+LIBLUA=$(LUASRC)/liblua.a
+LUAHEADERS=$(LUASRC)
+# Or, for example, to use homebrew-installed luajit on macos:
+# LIBLUA=$(shell brew --prefix)/lib/libluajit.a
+# LUAHEADERS=$(shell brew --prefix)/include/luajit-2.1
+MODULES=$(patsubst %, ../%, djot/match.lua djot/attributes.lua djot/inline.lua djot/block.lua djot/ast.lua djot/emoji.lua djot/html.lua djot/filter.lua djot/json.lua djot.lua)
+LUASRCS=$(patsubst %,$(LUASRC)/%.c,lapi lgc lstate lauxlib linit lstring lbaselib liolib lstrlib lcode llex ltable lcorolib lmathlib ltablib lctype lmem ltm ldblib loadlib luac ldebug lobject lundump ldo lopcodes lutf8lib ldump loslib lvm lfunc lparser lzio)
+CFLAGS= -std=c99 -O2 -Wall -DLUA_COMPAT_5_3 $(SYSCFLAGS) $(MYCFLAGS)
+UNAME=$(shell uname)
+ifeq ($(UNAME), Linux)
+LDFLAGS=-static -lm $(SYSLDFLAGS) $(MYLDFLAGS)
+else
+LDFLAGS=$(SYSLDFLAGS) $(MYLDFLAGS)
+endif
 
-test: tests
+test: djot tests
 	./tests
 .PHONY: test
 
-tests: tests.c libdjot.a
-	$(CC) -I $(LUAHEADERS) -o $@ $^
+tests: tests.c djot.o $(LIBLUA)
+	$(CC) $(CFLAGS) $^ -I . -I $(LUAHEADERS) -o $@ $(LDFLAGS)
 
-lua.h:
-	cp $(LUAHEADERS)/$@ .
+djot: main.c djot.o $(LIBLUA) djot_main.inc
+	$(CC) $(CFLAGS) $< djot.o $(LIBLUA) -I . -I $(LUAHEADERS) -o $@ $(LDFLAGS)
 
-libdjot.a: djot.o $(LIBLUA)
-	UNPACKDIR=`mktemp -d djot-archive.XXXX` || exit 1 && \
-	trap 'rm -rf -- "$$UNPACKDIR"' EXIT && \
-	cd $$UNPACKDIR && \
-	cp ../$< . && \
-	ar -x $(LIBLUA)  && \
-	ar -rc $@ $< $(LUAOBJFILES) && \
-	cd .. && \
-	cp $$UNPACKDIR/$@ .
+libdjot.a: djot.o
+	ar -rc $@ $<
 
-djot.o: djot.c djot_combined.inc
-	$(CC) -c -I $(LUAHEADERS) $<
+$(LUASRC)/liblua.a: $(LUASRC)
+	make -C $(LUASRC) liblua.a
+
+$(LUASRC):
+	mkdir -p $(LUASRC)
+	curl $(LUAURL) | tar xzv -C $(LUASRC) --strip-components=2 lua-$(LUAVERSION)/src
+
+djot.o: djot.c djot_combined.inc $(LUASRC)
+	$(CC) $(CFLAGS) -c -I . -I $(LUAHEADERS) $<
 
 djot_combined.lua: $(MODULES)
 	lua combine.lua $^ > $@
 
 djot_combined.inc: djot_combined.lua
-	(cat $< && printf "\0") | xxd -i -n djot_combined_lua > $@
+	echo "unsigned char djot_combined_lua[] = {" > $@
+	(cat $< && printf "\0") | xxd -i >> $@
+	echo "};" >> $@
 
-$(LUADIR):
-	curl $(LUAURL) | tar xv
-	rm $(LUADIR)/src/lua.c # avoid duplicate main
+djot_main.inc: ../bin/main.lua
+	echo "unsigned char djot_main_lua[] = {" > $@
+	(cat $< && printf "\0") | xxd -i >> $@
+	echo "};" >> $@
 
-wasm: $(WEB)/djot.js $(WEB)/styles.css
+wasm: djot.js
 .PHONY: wasm
 
-$(WEB)/styles.css: $(WEB)/index.html $(WEB)/input.css
-	tailwindcss --content $< --input $(WEB)/input.css --minify > $@
-
-$(WEB)/djot.js: djot.c djot.h djot_combined.inc $(LUADIR) $(WASMDIST)
-	emcc -g0 -sALLOW_MEMORY_GROWTH -Oz -sFILESYSTEM=0 -s 'EXPORTED_RUNTIME_METHODS=["cwrap"]' -s 'EXPORTED_FUNCTIONS=["_djot_open", "_djot_report_error", "_djot_close", "_djot_to_ast_json", "_djot_to_ast_pretty", "_djot_to_matches_json", "_djot_to_matches_pretty", "_djot_to_html"]'  -I $(LUADIR)/src $(LUADIR)/src/*.c -o $@ $<
+# This also creates djot.wasm
+djot.js: djot.c djot_combined.inc $(LUAOBJS)
+	emcc -g0 -sALLOW_MEMORY_GROWTH -Oz -sFILESYSTEM=0 -s 'EXPORTED_RUNTIME_METHODS=["cwrap"]' -s 'EXPORTED_FUNCTIONS=["_djot_open", "_djot_report_error", "_djot_close", "_djot_parse", "_djot_render_ast", "_djot_render_matches", "_djot_render_html"]'  -I $(LUASRC) -I . $(LUASRCS) -o $@ $<
 
 clean:
-	rm -rf djot_combined.lua djot_combined.inc *.o test $(WEB)/djot.wasm $(WEB)/djot.js $(WEB)/styles.css
+	rm -rf djot_combined.lua djot_combined.inc *.o test
 distclean: clean
-	-rm -rf libdjot.a lua.h $(LUADIR)
+	-rm -rf $(LUASRC) djot.js djot.wasm
 .PHONY: clean

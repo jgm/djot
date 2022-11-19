@@ -4,13 +4,14 @@ local help = [[
 djot [opts] [file*]
 
 Options:
--m        Show matches.
--a        Show AST.
--j        Use JSON for -m or -a.
--p        Include source positions in AST.
--M        Show memory usage.
--v        Verbose (show warnings).
--h        Help.
+--matches        -m          Show matches.
+--ast            -a          Show AST.
+--json           -j          Use JSON for -m or -a.
+--sourcepos      -p          Include source positions in AST.
+--filter FILE    -f FILE     Filter AST using filter in FILE.
+--verbose        -v          Verbose (show warnings).
+--version                    Show version information.
+--help           -h          Help.
 ]]
 
 local function err(msg, code)
@@ -21,38 +22,55 @@ end
 local opts = {}
 local files = {}
 
+local shortcuts =
+  { m = "--matches",
+    a = "--ast",
+    j = "--json",
+    p = "--sourcepos",
+    v = "--verbose",
+    f = "--filter",
+    h = "--help" }
+
 local argi = 1
 while arg[argi] do
   local thisarg = arg[argi]
-  if string.find(thisarg, "^%-") then
-    string.gsub(thisarg, "(%a)", function(x)
-      if x == "m" then
-        opts.matches = true
-      elseif x == "a" then
-        opts.ast = true
-      elseif x == "j" then
-        opts.json = true
-      elseif x == "p" then
-        opts.sourcepos = true
-      elseif x == "v" then
-        opts.verbose = true
-      elseif x == "M" then
-        opts.memory = true
-      elseif x == "f" then
-        if arg[argi + 1] then
-          opts.filters = opts.filters or {}
-          table.insert(opts.filters, arg[argi + 1])
-          argi = argi + 1
-        end
-      elseif x == "h" then
-        io.stdout:write(help)
-        os.exit(0)
-      else
-        err("Unknown option " .. x, 1)
-      end
-    end)
+  local longopts = {}
+  if string.find(thisarg, "^%-%-%a") then
+    longopts[#longopts + 1] = thisarg
+  elseif string.find(thisarg, "^%-%a") then
+    string.gsub(thisarg, "(%a)",
+      function(x)
+        longopts[#longopts + 1] = shortcuts[x] or ("-"..x)
+      end)
   else
-    table.insert(files, thisarg)
+    files[#files + 1] = thisarg
+  end
+  for _,x in ipairs(longopts) do
+    if x == "--matches" then
+      opts.matches = true
+    elseif x == "--ast" then
+      opts.ast = true
+    elseif x == "--json" then
+      opts.json = true
+    elseif x == "--sourcepos" then
+      opts.sourcepos = true
+    elseif x == "--verbose" then
+      opts.verbose = true
+    elseif x == "--filter" then
+      if arg[argi + 1] then
+        opts.filters = opts.filters or {}
+        table.insert(opts.filters, arg[argi + 1])
+        argi = argi + 1
+      end
+    elseif x == "--version" then
+      io.stdout:write("djot " .. djot.version .. "\n")
+      os.exit(0)
+    elseif x == "--help" then
+      io.stdout:write(help)
+      os.exit(0)
+    else
+      err("Unknown option " .. x, 1)
+    end
   end
   argi = argi + 1
 end
@@ -73,50 +91,43 @@ else
   inp = table.concat(buff, "\n")
 end
 
-local warn
-if opts.verbose then
-  warn = function(warning)
+local warn = function(warning)
+  if opts.verbose then
     io.stderr:write(string.format("%s at byte position %d\n",
       warning.message, warning.pos))
-    end
-end
-
-local parser = djot.Parser:new(inp, opts, warn)
-
-local function memusage(location)
-  collectgarbage("collect")
-  io.stderr:write(string.format("Memory usage %-12s %6d KB\n",
-    location, math.floor(collectgarbage("count"))))
-end
-
-if opts.memory then
-  memusage("before parse")
-end
-
-parser:parse()
-parser:build_ast()
-
-if opts.memory then
-  memusage("after parse")
-end
-
-if opts.filters then
-  for _,fp in ipairs(opts.filters) do
-    local filter = dofile(fp)
-    djot.traverse(parser.ast, filter)
   end
 end
 
 if opts.matches then
-  parser:render_matches(io.stdout, opts.json)
-elseif opts.ast then
-  parser:render_ast(io.stdout, opts.json)
-else
-  parser:render_html(io.stdout)
-end
 
-if opts.memory then
-  memusage("after render")
+  djot.render_matches(inp, io.stdout, opts.json, warn)
+
+else
+
+  local doc = djot.parse(inp, opts.sourcepos, warn)
+
+  if opts.filters then
+    for _,fp in ipairs(opts.filters) do
+      local oldpackagepath = package.path
+      package.path = "?.lua;" .. package.path
+      local filter = require(fp)
+      package.path = oldpackagepath
+      if #filter > 0 then -- multiple filters as in pandoc
+        for _,f in ipairs(filter) do
+          doc:apply_filter(f)
+        end
+      else
+        doc:apply_filter(filter)
+      end
+    end
+  end
+
+  if opts.ast then
+    doc:render_ast(io.stdout, opts.json)
+  else
+    doc:render_html(io.stdout, opts.json)
+  end
+
 end
 
 os.exit(0)

@@ -1,34 +1,67 @@
-if not utf8 then
+if not utf8 then -- if not lua 5.3 or higher...
   -- this is needed for the __pairs metamethod, used below
-  require("compat53") -- luarocks install compat53
-  utf8 = require("utf8") -- luarocks install utf8
+  -- The following code is derived from the compat53 rock:
+  -- override pairs
+  local oldpairs = pairs
+  pairs = function(t)
+    local mt = getmetatable(t)
+    if type(mt) == "table" and type(mt.__pairs) == "function" then
+      return mt.__pairs(t)
+    else
+      return oldpairs(t)
+    end
+  end
 end
+local unpack = unpack or table.unpack
 local match = require("djot.match")
 local emoji -- require this later, only if emoji encountered
 
-local find, lower, sub, gsub, rep, format =
-  string.find, string.lower, string.sub, string.gsub, string.rep, string.format
+local find, lower, sub, rep, format =
+  string.find, string.lower, string.sub, string.rep, string.format
 
-local unpack_match, get_length, matches_pattern =
-  match.unpack_match, match.get_length, match.matches_pattern
+local unpack_match, get_length = match.unpack_match, match.get_length
 
 -- Creates a sparse array whose indices are byte positions.
 -- sourcepos_map[bytepos] = "line:column:charpos"
 local function make_sourcepos_map(input)
-  local sourcepos_map = {}
+  local sourcepos_map = {line = {}, col = {}, charpos = {}}
   local line = 1
   local col = 0
   local charpos = 0
-  for bytepos, codepoint in utf8.codes(input) do
+  local bytepos = 1
+
+  local byte = string.byte(input, bytepos)
+  while byte do
+    col = col + 1
     charpos = charpos + 1
-    if codepoint == 10 then -- newline
+    -- get next code point:
+    local newbytepos
+    if byte < 0xC0 then
+      newbytepos = bytepos + 1
+    elseif byte < 0xE0 then
+      newbytepos = bytepos + 2
+    elseif byte < 0xF0 then
+      newbytepos = bytepos + 3
+    else
+      newbytepos = bytepos + 4
+    end
+    while bytepos < newbytepos do
+      sourcepos_map.line[bytepos] = line
+      sourcepos_map.col[bytepos] = col
+      sourcepos_map.charpos[bytepos] = charpos
+      bytepos = bytepos + 1
+    end
+    if byte == 10 then -- newline
       line = line + 1
       col = 0
-    else
-      col = col + 1
     end
-    sourcepos_map[bytepos] = string.format("%d:%d:%d", line, col, charpos)
+    byte = string.byte(input, bytepos)
   end
+
+  sourcepos_map.line[bytepos] = line + 1
+  sourcepos_map.col[bytepos] = 1
+  sourcepos_map.charpos[bytepos] = charpos + 1
+
   return sourcepos_map
 end
 
@@ -96,35 +129,13 @@ end
 local ignorable = {
   image_marker = true,
   escape = true,
-  blankline = true,
-  checkbox_checked = true,
-  checkbox_unchecked = true
+  blankline = true
 }
-
-local function is_tight(matches, startidx, endidx, is_last_item)
-  -- see if there are any blank lines between blocks in a list item.
-  local blanklines = 0
-  -- we don't care about blank lines at very end of list
-  for i=startidx, endidx do
-    local _, _, x = unpack_match(matches[i])
-    if x == "blankline" then
-      if not ((matches_pattern(matches[i+1], "%+list_item") or
-              (matches_pattern(matches[i+1], "%-list_item") and
-               (is_last_item or
-                 matches_pattern(matches[i+2], "%-list_item"))))) then
-        -- don't count blank lines before list starts
-        -- don't count blank lines at end of nested lists or end of last item
-        blanklines = blanklines + 1
-      end
-    end
-  end
-  return (blanklines == 0)
-end
 
 local function sortedpairs(compare_function, to_displaykey)
   return function(tbl)
     local keys = {}
-    local k
+    local k = nil
     k = next(tbl, k)
     while k do
       keys[#keys + 1] = k
@@ -132,13 +143,13 @@ local function sortedpairs(compare_function, to_displaykey)
     end
     table.sort(keys, compare_function)
     local keyindex = 0
-    local function ordered_next(tbl,_)
+    local function ordered_next(tabl,_)
       keyindex = keyindex + 1
       local key = keys[keyindex]
       -- use canonical names
       local displaykey = to_displaykey(key)
       if key then
-        return displaykey, tbl[key]
+        return displaykey, tabl[key]
       else
         return nil
       end
@@ -204,9 +215,10 @@ end
 
 local function add_child(node, child)
   if (not node.c) then
-    node.c = {}
+    node.c = {child}
+  else
+    node.c[#node.c + 1] = child
   end
-  node.c[#node.c + 1] = child
 end
 
 local function has_children(node)
@@ -260,39 +272,84 @@ local function insert_attributes_from_nodes(targetnode, cs)
   end
 end
 
-local function make_definition_list_item(result)
-  result.t = "definition_list_item"
-  if not has_children(result) then
-    result.c = {}
+local function make_definition_list_item(node)
+  node.t = "definition_list_item"
+  if not has_children(node) then
+    node.c = {}
   end
-  if result.c[1] and result.c[1].t == "para" then
-    result.c[1].t = "term"
+  if node.c[1] and node.c[1].t == "para" then
+    node.c[1].t = "term"
   else
-    table.insert(result.c, 1, mknode("term"))
+    table.insert(node.c, 1, mknode("term"))
   end
-  if result.c[2] then
+  if node.c[2] then
     local defn = mknode("definition")
     defn.c = {}
-    for i=2,#result.c do
-      defn.c[#defn.c + 1] = result.c[i]
-      result.c[i] = nil
+    for i=2,#node.c do
+      defn.c[#defn.c + 1] = node.c[i]
+      node.c[i] = nil
     end
-    result.c[2] = defn
+    node.c[2] = defn
   end
 end
 
--- create an abstract syntax tree based on an event
--- stream and references
-local function to_ast(subject, matches, options, warn)
-  if not options then
-    options = {}
+local function resolve_style(list)
+  local style = nil
+  for k,i in pairs(list.styles) do
+    if not style or i < style.priority then
+      style = {name = k, priority = i}
+    end
   end
+  list.list_style = style.name
+  list.styles = nil
+  list.start = get_list_start(list.startmarker, list.list_style)
+  list.startmarker = nil
+end
+
+local function add_sections(ast)
+  if not has_children(ast) then
+    return ast
+  end
+  local newast = mknode("doc")
+  local secs = { {sec = newast, level = 0 } }
+  for _,node in ipairs(ast.c) do
+    if node.t == "heading" then
+      local level = node.level
+      local curlevel = (#secs > 0 and secs[#secs].level) or 0
+      if curlevel >= level then
+        while secs[#secs].level >= level do
+          local sec = table.remove(secs).sec
+          add_child(secs[#secs].sec, sec)
+        end
+      end
+      -- now we know: curlevel < level
+      local newsec = mknode("section")
+      newsec.attr = mkattributes{id = node.attr.id}
+      node.attr.id = nil
+      add_child(newsec, node)
+      secs[#secs + 1] = {sec = newsec, level = level}
+    else
+      add_child(secs[#secs].sec, node)
+    end
+  end
+  while #secs > 1 do
+    local sec = table.remove(secs).sec
+    add_child(secs[#secs].sec, sec)
+  end
+  assert(secs[1].sec == newast)
+  return newast
+end
+
+
+-- create an abstract syntax tree based on an event
+-- stream and references. returns the ast and the
+-- source position map.
+local function to_ast(tokenizer, sourcepos)
+  local subject = tokenizer.subject
+  local warn = tokenizer.warn
   if not warn then
     warn = function() end
   end
-  local idx = 1
-  local matcheslen = #matches
-  local sourcepos = options.sourcepos
   local sourceposmap
   if sourcepos then
     sourceposmap = make_sourcepos_map(subject)
@@ -317,407 +374,536 @@ local function to_ast(subject, matches, options, warn)
     return ident
   end
 
-  local function set_checkbox(node, startidx)
-    -- determine if checked or unchecked
-    local _,_,ann = unpack_match(matches[startidx + 1])
-    if ann == "checkbox_checked" then
-      node.checkbox = "checked"
-    elseif ann == "checkbox_unchecked" then
-      node.checkbox = "unchecked"
+  local function format_sourcepos(bytepos)
+    if bytepos then
+      return string.format("%d:%d:%d", sourceposmap.line[bytepos],
+              sourceposmap.col[bytepos], sourceposmap.charpos[bytepos])
     end
   end
 
-  local function get_node(maintag)
-    local node = mknode(maintag)
-    local stopper
-    local block_attributes = nil
-    if maintag then
-      -- strip off data (e.g. for list_items)
-      stopper = "^%-" .. gsub(maintag, "%[.*$", "")
-    end
-    while idx <= matcheslen do
-      local matched = matches[idx]
-      local startpos, endpos, annot = unpack_match(matched)
-      if stopper and find(annot, stopper) then
-        idx = idx + 1
-        if sourcepos then
-          node.pos = {nil, sourceposmap[endpos]}
-          -- startpos filled in below under "+"
-        end
-        return node
+  local function set_startpos(node, pos)
+    if sourceposmap then
+      local sp = format_sourcepos(pos)
+      if node.pos then
+        node.pos[1] = sp
       else
-        local mod, tag = string.match(annot, "^([-+]?)(.*)")
-        if ignorable[tag] then
-          idx = idx + 1 -- skip
-        elseif mod == "+" then -- open
-          local startidx = idx
-          idx = idx + 1
-          local result = get_node(tag)
-          if tag == "list_item[X]" then
-            set_checkbox(result, startidx)
-          end
-          if sourcepos then
-             result.pos[1] = sourceposmap[startpos]
-             -- endpos is given at the top
-          end
-          if block_attributes and tag ~= "block_attributes" then
-            for i=1,#block_attributes do
-              insert_attributes_from_nodes(result, block_attributes[i])
-            end
-            if result.attr and result.attr.id then
-              identifiers[result.attr.id] = true
-            end
-            block_attributes = nil
-            -- TODO where do we ever set this to true??
-          end
-          if tag == "verbatim" then
-            local s = get_string_content(result)
-            -- trim space next to ` at beginning or end
-            if find(s, "^ +`") then
-              s = s:sub(2)
-            end
-            if find(s, "` +$") then
-              s = s:sub(1, #s - 1)
-            end
-            result.t = "verbatim"
-            result.s = s
-            result.c = nil
-            -- check for raw_format, which makes this a raw node
-            local sp,ep,ann = unpack_match(matches[idx])
-            if ann == "raw_format" then
-              local s = get_string_content(result)
-              result.t = "raw_inline"
-              result.s = s
-              result.c = nil
-              result.format = sub(subject, sp + 2, ep - 1)
-              idx = idx + 1 -- skip the raw_format
-            end
-          elseif tag == "caption" then
-            local prevnode = has_children(node) and node.c[#node.c]
-            if prevnode and prevnode.t == "table" then
-              -- move caption in table node
-              table.insert(prevnode.c, 1, result)
-            end
-            result = nil
-          elseif tag == "reference_definition" then
-            local dest = ""
-            local key
-            for i=1,#result.c do
-              if result.c[i].t == "reference_key" then
-                key = result.c[i].s
-              end
-              if result.c[i].t == "reference_value" then
-                dest = dest .. result.c[i].s
-              end
-            end
-            references[key] = { destination = dest }
-             if result.attr then
-               references[key].attributes = result.attr
-             end
-          elseif tag == "footnote" then
-            local label
-            if result.c[1].t == "note_label" then
-              label = result.c[1].s
-              table.remove(result.c, 1)
-            end
-            if label then
-              footnotes[label] = result
-            end
-            result = nil
-          elseif tag == "inline_math" then
-            result.t = "math"
-            result.attr = mkattributes{class = "math inline"}
-          elseif tag == "display_math" then
-            result.t = "math"
-            result.attr = mkattributes{class = "math display"}
-          elseif tag == "url" then
-            result.t = "url"
-            result.destination = get_string_content(result)
-          elseif tag == "email" then
-            result.t = "email"
-            result.destination = "mailto:" .. get_string_content(result)
-          elseif tag == "imagetext" or tag == "linktext" then
-            -- gobble image marker, link destination or link reference
-            local nextmatch = matches[idx]
-            local _, _, nextannot = unpack_match(nextmatch)
-            if tag == "imagetext" and nextannot == "image_marker" then
-              idx = idx + 1
-              -- gobble again for image destination or image reference
-              nextmatch = matches[idx]
-              _, _, nextannot = unpack_match(nextmatch)
-            end
-            if nextannot == "+destination" then
-              idx = idx + 1
-              local dest = get_node("destination")
-              result.destination = get_string_content(dest):gsub("\r?\n", "")
-            elseif nextannot == "+reference" then
-              idx = idx + 1
-              local ref = get_node("reference")
-              if ref.t == "reference" and has_children(ref) then
-                result.reference = get_string_content(ref):gsub("\r?\n", " ")
-              else
-                result.reference = get_string_content(result):gsub("\r?\n", " ")
-              end
-            end
-            result.t = result.t:gsub("text","")
-          elseif tag == "heading" then
-            result.level = get_length(matched)
-            local heading_str = get_string_content(result)
-                                 :gsub("^%s+",""):gsub("%s+$","")
-            if not result.attr then
-              result.attr = mkattributes{}
-            end
-            if not result.attr.id then
-              insert_attribute(result.attr, "id", get_identifier(heading_str))
-            end
-            -- insert into references unless there's a same-named one already:
-            if not references[heading_str] then
-              references[heading_str] = {destination = "#" .. result.attr.id}
-            end
-          elseif tag == "table" then
-            -- look for a separator line
-            -- if found, make the preceding rows headings
-            -- and set attributes for column alignments on the table
-            local i=1
-            local aligns = {}
-            while i <= #result.c do
-              local found, align
-              if result.c[i].t == "row" then
-                local row = result.c[i].c
-                for j=1,#row do
-                  found, _, align = find(row[j].t, "^separator_(.*)")
-                  if not found then
-                    break
-                  end
-                  aligns[j] = align
-                end
-                if found and #aligns > 0 then
-                  -- set previous row to head and adjust aligns
-                  local prevrow = result.c[i - 1]
-                  if prevrow and prevrow.t == "row" then
-                    prevrow.head = true
-                    for k=1,#prevrow.c do
-                      -- set head on cells too
-                      prevrow.c[k].head = true
-                      if aligns[k] ~= "default" then
-                        prevrow.c[k].align = aligns[k]
-                      end
-                    end
-                  end
-                  table.remove(result.c, i) -- remove sep line
-                  -- we don't need to increment i because we removed ith elt
-                else
-                  if #aligns > 0 then
-                    for l=1,#result.c[i].c do
-                      if aligns[l] ~= "default" then
-                        result.c[i].c[l].align = aligns[l]
-                      end
-                    end
-                  end
-                  i = i + 1
-                end
-              end
-            end
-            result.level = get_length(matched)
-          elseif tag == "div" then
-            if result.c[1] and result.c[1].t == "class" then
-              result.attr = mkattributes(result.attr)
-              insert_attribute(result.attr, "class", get_string_content(result.c[1]))
-              table.remove(result.c, 1)
-            end
-          elseif tag == "code_block" then
-            if has_children(result) then
-              if result.c[1].t == "code_language" then
-                result.lang = result.c[1].s
-                table.remove(result.c, 1)
-              elseif result.c[1].t == "raw_format" then
-                local fmt = result.c[1].s:sub(2)
-                table.remove(result.c, 1)
-                result.t = "raw_block"
-                result.format = fmt
-              end
-            end
-            result.s = get_string_content(result)
-            result.c = nil
-          elseif tag == "block_attributes" then
-            if block_attributes then
-              block_attributes[#block_attributes + 1] = result.c
-            else
-              block_attributes = mkattributes{result.c}
-            end
-            result = nil
-          elseif tag == "attributes" then
-            -- parse attributes, add to last node
-            local prevnode = has_children(node) and node.c[#node.c]
-            local endswithspace = false
-            if type(prevnode) == "table" then
-              if prevnode.t == "str" then
-                -- split off last consecutive word of string
-                -- to which to attach attributes
-                local lastwordpos = string.find(prevnode.s, "[^%s]+$")
-                if not lastwordpos then
-                  endswithspace = true
-                elseif lastwordpos > 1 then
-                  local newnode = {t = "str",
-                                   s = sub(prevnode.s, lastwordpos, -1)}
-                  prevnode.s = sub(prevnode.s, 1, lastwordpos - 1)
-                  add_child(node, newnode)
-                  prevnode = newnode
-                end
-              end
-              if has_children(result) and not endswithspace then
-                insert_attributes_from_nodes(prevnode, result.c)
-              else
-                warn({message = "Ignoring unattached attribute", pos = startpos})
-              end
-            end
-            result = nil
-          elseif find(tag, "^list_item") then
-            local marker = string.match(subject, "^%S+", startpos)
-            local styles = {}
-            gsub(tag, "%[([^]]*)%]", function(x) styles[#styles + 1] = x end)
-            -- create a list node with the consecutive list items
-            -- of the same kind
-            local list = mknode("list")
-            list.c = {result}
-            -- put the attributes from the first item on the list itself:
-            list.attr = result.attr
-            result.attr = nil
-            result.t = "list_item"
-            if marker == ":" then
-              make_definition_list_item(result)
-            end
-            if sourcepos then
-              list.pos = {result.pos[1], result.pos[2]}
-            end
-            -- now get remaining items
-            local nextitem = matches[idx]
-            while nextitem do
-              local sp, ep, ann = unpack_match(nextitem)
-              if not find(ann, "^%+list_item") then
-                break
-              end
-              -- check which of the styles this item matches
-              local newstyles = {}
-              gsub(ann, "%[([^]]*)%]",
-                          function(x) newstyles[x] = true end)
-              local matched_styles = {}
-              for _,x in ipairs(styles) do
-                if newstyles[x] then
-                  matched_styles[#matched_styles + 1] = x
-                end
-              end
-              if #styles > 0 and #matched_styles == 0 then
-                break  -- does not match any styles
-              end
-              styles = matched_styles
-              -- at this point styles contains the styles that match all items
-              -- in the list so far...
+        node.pos = {sp, nil}
+      end
+    end
+  end
 
-              if #list.c > 0 then
-                list.c[#list.c].tight =
-                  is_tight(matches, startidx, idx - 1, false)
-              end
-              startidx = idx
-              idx = idx + 1
-              local item = get_node(tag)
-              if tag == "list_item[X]" then
-                set_checkbox(item, startidx)
-              end
-              item.t = "list_item"
-              if sourcepos then
-                item.pos = {sourceposmap[sp]}
-                if has_children(item) then
-                  item.pos[2] = item.c[#item.c].pos[2]
-                else
-                  item.pos[2] = sourceposmap[ep]
-                end
-                list.pos[2] = item.pos[2]
-              end
-              if marker == ":" then
-                make_definition_list_item(item)
-              end
-              list.c[#list.c + 1] = item
-              nextitem = matches[idx]
-            end
-            if #list.c > 0 then
-              list.c[#list.c].tight =
-                is_tight(matches, startidx, idx - 1, true)
-            end
-            local tight = true
-            for i=1,#list.c do
-              tight = tight and list.c[i].tight
-              list.c[i].tight = nil
-            end
-            list.list_style = styles[1] -- resolve, if still ambiguous
-            list.tight = tight
-            list.start = get_list_start(marker, list.list_style)
-            result = list
-          end
-          add_child(node, result)
-        elseif mod == "-" then -- close
-          assert(false, "unmatched " .. annot .. " encountered at byte " ..
-                   startpos)
-          idx = idx + 1
-          return nil
-        elseif tag == "reference_key" then
-          local key = sub(subject, startpos + 1, endpos - 1)
-          local result = mknode("reference_key")
-          result.s = key
-          idx = idx + 1
-          add_child(node, result)
-        elseif tag == "reference_value" then
-          local val = sub(subject, startpos, endpos)
-          local result = mknode("reference_value")
-          result.s = val
-          idx = idx + 1
-          add_child(node, result)
-        else -- leaf
-          local result
-          if tag == "softbreak" then
-            result = mknode(tag)
-          elseif tag == "footnote_reference" then
-            result = mknode(tag)
-            result.s = sub(subject, startpos + 2, endpos - 1)
-          elseif tag == "emoji" then
-            result = mknode("emoji")
-            result.alias = sub(subject, startpos + 1, endpos - 1)
-            emoji = require("djot.emoji")
-            local found = emoji[result.alias]
-            result.s = found
-          else
-            result = mknode(tag)
-            result.s = sub(subject, startpos, endpos)
-          end
-          if sourcepos then
-            result.pos = {sourceposmap[startpos], sourceposmap[endpos]}
-          end
-          if block_attributes then
-            for i=1,#block_attributes do
-              insert_attributes_from_nodes(result, block_attributes[i])
-            end
-            block_attributes = nil
-          end
-          idx = idx + 1
-          if result then
-            add_child(node, result)
-          end
+  local function set_endpos(node, pos)
+    if sourceposmap and node.pos then
+      local ep = format_sourcepos(pos)
+      if node.pos then
+        node.pos[2] = ep
+      else
+        node.pos = {nil, ep}
+      end
+    end
+  end
+
+  local blocktag = {
+    heading = true,
+    div = true,
+    list = true,
+    list_item = true,
+    code_block = true,
+    para = true,
+    blockquote = true,
+    table = true,
+    thematic_break = true,
+    raw_block = true,
+    reference_definition = true,
+    footnote = true
+  }
+
+  local block_attributes = nil
+  local function add_block_attributes(node)
+    if block_attributes and blocktag[node.t:gsub("%[.*%]","")] then
+      for i=1,#block_attributes do
+        insert_attributes_from_nodes(node, block_attributes[i])
+      end
+      -- add to identifiers table so we don't get duplicate auto-generated ids
+      if node.attr and node.attr.id then
+        identifiers[node.attr.id] = true
+      end
+      block_attributes = nil
+    end
+  end
+
+  -- two variables used for tight/loose list determination:
+  local tags = {} -- used to keep track of blank lines
+  local matchidx = 0 -- keep track of the index of the match
+
+  local function is_tight(startidx, endidx, is_last_item)
+    -- see if there are any blank lines between blocks in a list item.
+    local blanklines = 0
+    -- we don't care about blank lines at very end of list
+    for i=startidx, endidx do
+      local tag = tags[i]
+      if tag == "blankline" then
+        if not ((string.find(tags[i+1], "%+list_item") or
+                (string.find(tags[i+1], "%-list_item") and
+                 (is_last_item or
+                   string.find(tags[i+2], "%-list_item"))))) then
+          -- don't count blank lines before list starts
+          -- don't count blank lines at end of nested lists or end of last item
+          blanklines = blanklines + 1
         end
       end
     end
-    return node
+    return (blanklines == 0)
   end
 
-  local doc = get_node("doc")
+  local function add_child_to_tip(containers, child)
+    if containers[#containers].t == "list" and
+        not (child.t == "list_item" or child.t == "definition_list_item") then
+      -- close list
+      local oldlist = table.remove(containers)
+      add_child_to_tip(containers, oldlist)
+    end
+    if child.t == "list" then
+      if child.pos then
+        child.pos[2] = child.c[#child.c].pos[2]
+      end
+      -- calculate tightness (TODO not quite right)
+      local tight = true
+      for i=1,#child.c do
+        tight = tight and is_tight(child.c[i].startidx,
+                                     child.c[i].endidx, i == #child.c)
+        child.c[i].startidx = nil
+        child.c[i].endidx = nil
+      end
+      child.tight = tight
+
+      -- resolve style if still ambiguous
+      resolve_style(child)
+    end
+    add_child(containers[#containers], child)
+  end
+
+
+  -- process a match:
+  -- containers is the stack of containers, with #container
+  -- being the one that would receive a new node
+  local function handle_match(match, containers)
+    matchidx = matchidx + 1
+    local startpos, endpos, annot = unpack_match(match)
+    local mod, tag = string.match(annot, "^([-+]?)(.+)")
+    tags[matchidx] = annot
+    if ignorable[tag] then
+      return
+    end
+    if mod == "+" then
+      -- process open match:
+      -- * open a new node and put it at end of containers stack
+      -- * depending on the tag name, do other things
+      local node = mknode(tag)
+      set_startpos(node, startpos)
+
+      -- add block attributes if any have accumulated:
+      add_block_attributes(node)
+
+      if tag == "heading" then
+         node.level = get_length(match)
+
+      elseif find(tag, "^list_item") then
+        node.t = "list_item"
+        node.startidx = matchidx -- for tight/loose determination
+        local _, _, style_marker = string.find(tag, "(%[.*)")
+        local styles = {}
+        if style_marker then
+          local i=1
+          for sty in string.gmatch(style_marker, "%[([^]]*)%]") do
+            styles[sty] = i
+            i = i + 1
+          end
+        end
+        node.style_marker = style_marker
+
+        local marker = string.match(subject, "^%S+", startpos)
+
+        -- adjust container stack so that the tip can accept this
+        -- kind of list item, adding a list if needed and possibly
+        -- closing an existing list
+
+        local tip = containers[#containers]
+        if tip.t ~= "list" then
+          -- container is not a list ; add one
+          local list = mknode("list")
+          set_startpos(list, startpos)
+          list.styles = styles
+          list.attr = node.attr
+          list.startmarker = marker
+          node.attr = nil
+          containers[#containers + 1] = list
+        else
+          -- it's a list, but is it the right kind?
+          local matched_styles = {}
+          local has_match = false
+          for k,_ in pairs(styles) do
+            if tip.styles[k] then
+              has_match = true
+              matched_styles[k] = styles[k]
+            end
+          end
+          if has_match then
+            -- yes, list can accept this item
+            tip.styles = matched_styles
+          else
+            -- no, list can't accept this item ; close it
+            local oldlist = table.remove(containers)
+            add_child_to_tip(containers, oldlist)
+            -- add a new sibling list node with the right style
+            local list = mknode("list")
+            set_startpos(list, startpos)
+            list.styles = styles
+            list.attr = node.attr
+            list.startmarker = marker
+            node.attr = nil
+            containers[#containers + 1] = list
+          end
+        end
+
+
+      end
+
+      -- add to container stack
+      containers[#containers + 1] = node
+
+    elseif mod == "-" then
+      -- process close match:
+      -- * check end of containers stack; if tag matches, add
+      --   end position, pop the item off the stack, and add
+      --   it as a child of the next container on the stack
+      -- * if it doesn't match, issue a warning and ignore this tag
+
+      if containers[#containers].t == "list" then
+        local listnode = table.remove(containers)
+        add_child_to_tip(containers, listnode)
+      end
+
+      if tag == containers[#containers].t then
+        local node = table.remove(containers)
+        set_endpos(node, endpos)
+
+        if node.t == "block_attributes" then
+          if not block_attributes then
+            block_attributes = {}
+          end
+          block_attributes[#block_attributes + 1] = node.c
+          return -- we don't add this to parent; instead we store
+          -- the block attributes and add them to the next block
+
+        elseif node.t == "attributes" then
+          -- parse attributes, add to last node
+          local tip = containers[#containers]
+          local prevnode = has_children(tip) and tip.c[#tip.c]
+          if prevnode then
+            local endswithspace = false
+            if prevnode.t == "str" then
+              -- split off last consecutive word of string
+              -- to which to attach attributes
+              local lastwordpos = string.find(prevnode.s, "[^%s]+$")
+              if not lastwordpos then
+                endswithspace = true
+              elseif lastwordpos > 1 then
+                local newnode = mknode("str")
+                newnode.s = sub(prevnode.s, lastwordpos, -1)
+                prevnode.s = sub(prevnode.s, 1, lastwordpos - 1)
+                add_child_to_tip(containers, newnode)
+                prevnode = newnode
+              end
+            end
+            if has_children(node) and not endswithspace then
+              insert_attributes_from_nodes(prevnode, node.c)
+            else
+              warn({message = "Ignoring unattached attribute", pos = startpos})
+            end
+          else
+            warn({message = "Ignoring unattached attribute", pos = startpos})
+          end
+          return -- don't add the attribute node to the tree
+
+        elseif tag == "reference_definition" then
+          local dest = ""
+          local key
+          for i=1,#node.c do
+            if node.c[i].t == "reference_key" then
+              key = node.c[i].s
+            end
+            if node.c[i].t == "reference_value" then
+              dest = dest .. node.c[i].s
+            end
+          end
+          references[key] = mknode("reference_definition")
+          references[key].destination = dest
+          if node.attr then
+            references[key].attr = node.attr
+          end
+          return -- don't include in tree
+
+        elseif tag == "footnote" then
+          local label
+          if has_children(node) and node.c[1].t == "note_label" then
+            label = node.c[1].s
+            table.remove(node.c, 1)
+          end
+          if label then
+            footnotes[label] = node
+          end
+          return -- don't include in tree
+
+
+        elseif tag == "table" then
+
+          -- Children are the rows. Look for a separator line:
+          -- if found, make the preceding rows headings
+          -- and set attributes for column alignments on the table.
+
+          local i=1
+          local aligns = {}
+          while i <= #node.c do
+            local found, align
+            if node.c[i].t == "row" then
+              local row = node.c[i].c
+              for j=1,#row do
+                found, _, align = find(row[j].t, "^separator_(.*)")
+                if not found then
+                  break
+                end
+                aligns[j] = align
+              end
+              if found and #aligns > 0 then
+                -- set previous row to head and adjust aligns
+                local prevrow = node.c[i - 1]
+                if prevrow and prevrow.t == "row" then
+                  prevrow.head = true
+                  for k=1,#prevrow.c do
+                    -- set head on cells too
+                    prevrow.c[k].head = true
+                    if aligns[k] ~= "default" then
+                      prevrow.c[k].align = aligns[k]
+                    end
+                  end
+                end
+                table.remove(node.c, i) -- remove sep line
+                -- we don't need to increment i because we removed ith elt
+              else
+                if #aligns > 0 then
+                  for l=1,#node.c[i].c do
+                    if aligns[l] ~= "default" then
+                      node.c[i].c[l].align = aligns[l]
+                    end
+                  end
+                end
+                i = i + 1
+              end
+            end
+          end
+
+        elseif tag == "code_block" then
+          if has_children(node) then
+            if node.c[1].t == "code_language" then
+              node.lang = node.c[1].s
+              table.remove(node.c, 1)
+            elseif node.c[1].t == "raw_format" then
+              local fmt = node.c[1].s:sub(2)
+              table.remove(node.c, 1)
+              node.t = "raw_block"
+              node.format = fmt
+            end
+          end
+          node.s = get_string_content(node)
+          node.c = nil
+
+        elseif find(tag, "^list_item") then
+          node.t = "list_item"
+          node.endidx = matchidx -- for tight/loose determination
+
+          if node.style_marker == "[:]" then
+            make_definition_list_item(node)
+          end
+
+          if node.style_marker == "[X]" and has_children(node) then
+            if node.c[1].t == "checkbox_checked" then
+              node.checkbox = "checked"
+              table.remove(node.c, 1)
+            elseif node.c[1].t == "checkbox_unchecked" then
+              node.checkbox = "unchecked"
+              table.remove(node.c, 1)
+            end
+          end
+
+          node.style_marker = nil
+
+        elseif tag == "inline_math" then
+          node.t = "math"
+          node.attr = mkattributes{class = "math inline"}
+
+        elseif tag == "display_math" then
+          node.t = "math"
+          node.attr = mkattributes{class = "math display"}
+
+        elseif tag == "imagetext" then
+          node.t = "image"
+
+        elseif tag == "linktext" then
+          node.t = "link"
+
+        elseif tag == "div" then
+          node.c = node.c or {}
+          if node.c[1] and node.c[1].t == "class" then
+            node.attr = mkattributes(node.attr)
+            insert_attribute(node.attr, "class", get_string_content(node.c[1]))
+            table.remove(node.c, 1)
+          end
+
+        elseif tag == "verbatim" then
+          local s = get_string_content(node)
+          -- trim space next to ` at beginning or end
+          if find(s, "^ +`") then
+            s = s:sub(2)
+          end
+          if find(s, "` +$") then
+            s = s:sub(1, #s - 1)
+          end
+          node.s = s
+          node.c = nil
+
+        elseif tag == "url" then
+          node.destination = get_string_content(node)
+
+        elseif tag == "email" then
+          node.destination = "mailto:" .. get_string_content(node)
+
+        elseif tag == "caption" then
+          local tip = containers[#containers]
+          local prevnode = has_children(tip) and tip.c[#tip.c]
+          if prevnode and prevnode.t == "table" then
+            -- move caption in table node
+            table.insert(prevnode.c, 1, node)
+          else
+            warn({ message = "Ignoring caption without preceding table",
+                   pos = startpos })
+          end
+          return
+
+        elseif tag == "heading" then
+          local heading_str =
+                 get_string_content(node):gsub("^%s+",""):gsub("%s+$","")
+          if not node.attr then
+            node.attr = mkattributes{}
+          end
+          if not node.attr.id then  -- generate id attribute from heading
+            insert_attribute(node.attr, "id", get_identifier(heading_str))
+          end
+          -- insert into references unless there's a same-named one already:
+          if not references[heading_str] then
+            references[heading_str] = {destination = "#" .. node.attr.id}
+          end
+
+        elseif tag == "destination" then
+           local tip = containers[#containers]
+           local prevnode = has_children(tip) and tip.c[#tip.c]
+           assert(prevnode and (prevnode.t == "image" or prevnode.t == "link"),
+                  "destination with no preceding link or image")
+           prevnode.destination = get_string_content(node):gsub("\r?\n", "")
+           return  -- do not put on container stack
+
+        elseif tag == "reference" then
+           local tip = containers[#containers]
+           local prevnode = has_children(tip) and tip.c[#tip.c]
+           assert(prevnode and (prevnode.t == "image" or prevnode.t == "link"),
+                 "reference with no preceding link or image")
+           if has_children(node) then
+             prevnode.reference = get_string_content(node):gsub("\r?\n", " ")
+           else
+             prevnode.reference = get_string_content(prevnode):gsub("\r?\n", " ")
+           end
+           return  -- do not put on container stack
+        end
+
+        add_child_to_tip(containers, node)
+      else
+        assert(false, "unmatched " .. annot .. " encountered at byte " ..
+                  startpos)
+        return
+      end
+    else
+      -- process leaf node:
+      -- * add position info
+      -- * special handling depending on tag type
+      -- * add node as child of container at end of containers stack
+      local node = mknode(tag)
+      add_block_attributes(node)
+      set_startpos(node, startpos)
+      set_endpos(node, endpos)
+
+      -- special handling:
+      if tag == "softbreak" then
+        node.s = nil
+      elseif tag == "reference_key" then
+        node.s = sub(subject, startpos + 1, endpos - 1)
+      elseif tag == "footnote_reference" then
+        node.s = sub(subject, startpos + 2, endpos - 1)
+      elseif tag == "emoji" then
+        node.alias = sub(subject, startpos + 1, endpos - 1)
+        emoji = require("djot.emoji")
+        local found = emoji[node.alias]
+        node.s = found
+      elseif tag == "raw_format" then
+        local tip = containers[#containers]
+        local prevnode = has_children(tip) and tip.c[#tip.c]
+        if prevnode and prevnode.t == "verbatim" then
+          local s = get_string_content(prevnode)
+          prevnode.t = "raw_inline"
+          prevnode.s = s
+          prevnode.c = nil
+          prevnode.format = sub(subject, startpos + 2, endpos - 1)
+          return  -- don't add this node to containers
+        else
+          node.s = sub(subject, startpos, endpos)
+        end
+      else
+        node.s = sub(subject, startpos, endpos)
+      end
+
+      add_child_to_tip(containers, node)
+
+    end
+  end
+
+  local doc = mknode("doc")
+  local containers = {doc}
+  for match in tokenizer:tokenize() do
+    handle_match(match, containers)
+  end
+  -- close any open containers
+  while #containers > 1 do
+    local node = table.remove(containers)
+    add_child_to_tip(containers, node)
+    if sourceposmap then
+      containers[#containers].pos[2] = node.pos[2]
+    end
+  end
+  doc = add_sections(doc)
+
   doc.references = references
   doc.footnotes = footnotes
 
-  return doc
+  return doc, sourceposmap
 end
 
 local function render_node(node, handle, indent)
   indent = indent or 0
   handle:write(rep(" ", indent))
+  if indent > 128 then
+    handle:write("(((DEEPLY NESTED CONTENT OMITTED)))\n")
+    return
+  end
+
   if node.t then
     handle:write(node.t)
     if node.pos then
@@ -752,8 +938,12 @@ local function render(doc, handle)
   render_node(doc, handle, 0)
   if doc.references then
     handle:write("references = {\n")
+    local i = 1
     for k,v in pairs(doc.references) do
-      handle:write(format("  [%q] = %q,\n", k, v.destination))
+      local maybecomma = i == 1 and " " or ","
+      handle:write(format("%s [%q] =\n", maybecomma, k))
+      render_node(v, handle, 4)
+      i = i + 1
     end
     handle:write("}\n")
   end

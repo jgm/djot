@@ -35,18 +35,17 @@ function Tests:new()
 end
 
 function Tests:do_test(file, linenum, renderer, inp, out)
-  local parser = djot.Parser:new(inp)
-  parser:parse()
+  local doc = djot.parse(inp)
   local actual
   if self.verbose then
     io.write(string.format("Testing %s at linen %d\n", file, linenum))
   end
   if renderer == "[html]" then
-    actual = parser:render_html()
+    actual = doc:render_html()
   elseif renderer == "[matches]" then
-    actual = parser:render_matches()
+    actual = doc:render_matches()
   elseif renderer == "[ast]" then
-    actual = parser:render_ast()
+    actual = doc:render_ast()
   end
   if actual == out then
     self.passed = self.passed + 1
@@ -106,23 +105,6 @@ function Tests:do_tests(file)
     end
   end
 end
-
---[[
-local test = function()
-  local s = "a=b #ident\n.class\nkey=val1\n .class key2=\"val two \\\" ok\"}"
-local parser = AttributeParser:new(s)
-  local x,y = parser:feed(1,16)
-  print(x,y)
-  local x,y = parser:feed(17,#s)
-  print(x,y)
-  local matches = parser:get_matches()
-  print(string.sub(parser.subject, y, y))
-  print(require'inspect'(matches))
-end
-
-test()
---]]
-
 
 
 local tests = Tests:new()

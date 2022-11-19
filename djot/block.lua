@@ -47,9 +47,9 @@ local function get_list_styles(marker)
   end
 end
 
-local Parser = {}
+local Tokenizer = {}
 
-function Parser:new(subject, opts, warn)
+function Tokenizer:new(subject, warn)
   -- ensure the subject ends with a newline character
   if not subject:find("[\r\n]$") then
     subject = subject .. "\n"
@@ -66,15 +66,15 @@ function Parser:new(subject, opts, warn)
     pos = 1,
     last_matched_container = 0,
     timer = {},
-    opts = opts or {},
-    finished_line = false }
+    finished_line = false,
+    returned = 0 }
   setmetatable(state, self)
   self.__index = self
   return state
 end
 
 -- parameters are start and end position
-function Parser:parse_table_row(sp, ep)
+function Tokenizer:tokenize_table_row(sp, ep)
   local orig_matches = #self.matches  -- so we can rewind
   local startpos = self.pos
   self:add_match(sp, sp, "+row")
@@ -115,40 +115,57 @@ function Parser:parse_table_row(sp, ep)
     self.finished_line = true
     return true
   end
-  local inline_parser = inline.Parser:new(self.subject, self.opts, self.warn)
+  local inline_tokenizer = inline.Tokenizer:new(self.subject, self.warn)
   self:add_match(sp, sp, "+cell")
+  local complete_cell = false
   while self.pos <= ep do
     -- parse a chunk as inline content
-    local _,nextbar = self:find("^[^|\r\n]*|")
-    inline_parser:feed(self.pos, nextbar - 1)
-    if inline_parser:in_verbatim() then
-      -- read the next | as part of verbatim
-      inline_parser:feed(nextbar, nextbar)
-      self.pos = nextbar + 1
-    else
-      self.pos = nextbar + 1  -- skip past the next |
-      -- add a table cell
-      local cell_matches = inline_parser:get_matches()
-      for i=1,#cell_matches do
-        local s,e,ann = unpack_match(cell_matches[i])
-        if i == #cell_matches and ann == "str" then
-          -- strip trailing space
-          while byte(self.subject, e) == 32 and e >= s do
-            e = e - 1
-          end
-        end
-        self:add_match(s,e,ann)
+    local nextbar
+    while not nextbar do
+      _,nextbar = self:find("^[^|\r\n]*|")
+      if not nextbar then
+        break
       end
-      self:add_match(nextbar, nextbar, "-cell")
-      if nextbar < ep then
-        -- reset inline parser state
-        inline_parser = inline.Parser:new(self.subject, self.opts, self.warn)
-        self:add_match(nextbar, nextbar, "+cell")
-        self.pos = find(self.subject, "%S", self.pos)
+      if string.find(self.subject, "^\\", nextbar - 1) then -- \|
+        inline_tokenizer:feed(self.pos, nextbar)
+        self.pos = nextbar + 1
+        nextbar = nil
+      else
+        inline_tokenizer:feed(self.pos, nextbar - 1)
+        if inline_tokenizer:in_verbatim() then
+          inline_tokenizer:feed(nextbar, nextbar)
+          self.pos = nextbar + 1
+          nextbar = nil
+        else
+          self.pos = nextbar + 1
+        end
       end
     end
+    complete_cell = nextbar
+    if not complete_cell then
+      break
+    end
+    -- add a table cell
+    local cell_matches = inline_tokenizer:get_matches()
+    for i=1,#cell_matches do
+      local s,e,ann = unpack_match(cell_matches[i])
+      if i == #cell_matches and ann == "str" then
+        -- strip trailing space
+        while byte(self.subject, e) == 32 and e >= s do
+          e = e - 1
+        end
+      end
+      self:add_match(s,e,ann)
+    end
+    self:add_match(nextbar, nextbar, "-cell")
+    if nextbar < ep then
+      -- reset inline tokenizer state
+      inline_tokenizer = inline.Tokenizer:new(self.subject, self.warn)
+      self:add_match(nextbar, nextbar, "+cell")
+      self.pos = find(self.subject, "%S", self.pos)
+    end
   end
-  if inline_parser:in_verbatim() then
+  if not complete_cell then
     -- rewind, this is not a valid table row
     self.pos = startpos
     for i = orig_matches,#self.matches do
@@ -163,7 +180,7 @@ function Parser:parse_table_row(sp, ep)
   end
 end
 
-function Parser:specs()
+function Tokenizer:specs()
   return {
     { name = "para",
       is_para = true,
@@ -173,8 +190,8 @@ function Parser:specs()
       end,
       open = function(spec)
         self:add_container(Container:new(spec,
-            { inline_parser =
-                inline.Parser:new(self.subject, self.opts, self.warn) }))
+            { inline_tokenizer =
+                inline.Tokenizer:new(self.subject, self.warn) }))
         self:add_match(self.pos, self.pos, "+para")
         return true
       end,
@@ -196,8 +213,8 @@ function Parser:specs()
         if ep then
           self.pos = ep + 1
           self:add_container(Container:new(spec,
-            { inline_parser =
-                inline.Parser:new(self.subject, self.opts, self.warn) }))
+            { inline_tokenizer =
+                inline.Tokenizer:new(self.subject, self.warn) }))
           self:add_match(self.pos, self.pos, "+caption")
           return true
         end
@@ -360,7 +377,6 @@ function Parser:specs()
         local _, ep, rest = self:find("^(%S+)")
         if ep then
           self:add_match(ep - #rest + 1, ep, "reference_value")
-          container.value = rest
           self.pos = ep + 1
         end
         return true
@@ -370,7 +386,6 @@ function Parser:specs()
         if sp then
           self:add_container(Container:new(spec,
              { key = label,
-               value = rest,
                indent = self.indent }))
           self:add_match(sp, sp, "+reference_definition")
           self:add_match(sp, sp + #label + 1, "reference_key")
@@ -397,8 +412,7 @@ function Parser:specs()
         if ep and find(self.subject, "^%s", ep + 1) then
           local level = ep - sp + 1
           self:add_container(Container:new(spec, {level = level,
-               inline_parser = inline.Parser:new(self.subject, self.opts,
-                 self.warn) }))
+               inline_tokenizer = inline.Tokenizer:new(self.subject, self.warn) }))
           self:add_match(sp, ep, "+heading")
           self.pos = ep + 1
           return true
@@ -485,6 +499,9 @@ function Parser:specs()
     { name = "fenced_div",
       content = "block",
       continue = function(container)
+        if self.containers[#self.containers].name == "code_block" then
+          return true -- see #109
+        end
         local sp, ep, equals = self:find("^(::::*)[ \t]*[r\n]")
         if ep and #equals >= container.equals then
           container.end_fence_sp = sp
@@ -500,7 +517,7 @@ function Parser:specs()
         if not ep1 then
           return false
         end
-        local clsp, ep = find(self.subject, "^%w*", ep1 + 1)
+        local clsp, ep = find(self.subject, "^[%w_-]*", ep1 + 1)
         local _, eol = find(self.subject, "^[ \t]*[\r\n]", ep + 1)
         if eol then
           self:add_container(Container:new(spec, {equals = #equals}))
@@ -531,7 +548,7 @@ function Parser:specs()
         local sp, ep = self:find("^|[^\r\n]*|")
         local eolsp = " *[\r\n]" -- make sure at end of line
         if sp and eolsp then
-          return self:parse_table_row(sp, ep)
+          return self:tokenize_table_row(sp, ep)
         end
       end,
       open = function(spec)
@@ -540,11 +557,10 @@ function Parser:specs()
         if sp and eolsp then
           self:add_container(Container:new(spec, { columns = 0 }))
           self:add_match(sp, sp, "+table")
-          if self:parse_table_row(sp, ep) then
+          if self:tokenize_table_row(sp, ep) then
             return true
           else
             self.containers[#self.containers] = nil
-            self.matches[#self.matches] = nil  -- remove +table match
             return false
           end
         end
@@ -577,28 +593,28 @@ function Parser:specs()
         end
       end,
       close = function(container)
-        local attribute_parser = attributes.AttributeParser:new(self.subject)
+        local attribute_tokenizer = attributes.AttributeTokenizer:new(self.subject)
         local slices = container.slices
         local status, finalpos
         for i=1,#slices do
-          status, finalpos = attribute_parser:feed(unpack(slices[i]))
+          status, finalpos = attribute_tokenizer:feed(unpack(slices[i]))
           if status ~= 'continue' then
             break
           end
         end
         -- make sure there's no extra content after the }
         if status == 'done' and find(self.subject, "^[ \t]*[\r\n]", finalpos + 1) then
-          local attr_matches = attribute_parser:get_matches()
+          local attr_matches = attribute_tokenizer:get_matches()
           self:add_match(slices[1][1], slices[1][1], "+block_attributes")
           for i=1,#attr_matches do
             self:add_match(unpack_match(attr_matches[i]))
           end
           self:add_match(slices[#slices][2], slices[#slices][2], "-block_attributes")
         else -- If not, parse it as inlines and add paragraph match
-          container.inline_parser = inline.Parser:new(self.subject, self.opts)
+          container.inline_tokenizer = inline.Tokenizer:new(self.subject, self.warn)
           self:add_match(slices[1][1], slices[1][1], "+para")
           for i=1,#slices do
-            container.inline_parser:feed(unpack(slices[i]))
+            container.inline_tokenizer:feed(unpack(slices[i]))
           end
           self:get_inline_matches()
           self:add_match(slices[#slices][2], slices[#slices][2], "-para")
@@ -609,23 +625,23 @@ function Parser:specs()
   }
 end
 
-function Parser:get_inline_matches()
+function Tokenizer:get_inline_matches()
   local matches =
-    self.containers[#self.containers].inline_parser:get_matches()
+    self.containers[#self.containers].inline_tokenizer:get_matches()
   for i=1,#matches do
     self.matches[#self.matches + 1] = matches[i]
   end
 end
 
-function Parser:find(patt)
+function Tokenizer:find(patt)
   return find(self.subject, patt, self.pos)
 end
 
-function Parser:add_match(startpos, endpos, annotation)
+function Tokenizer:add_match(startpos, endpos, annotation)
   self.matches[#self.matches + 1] = make_match(startpos, endpos, annotation)
 end
 
-function Parser:add_container(container)
+function Tokenizer:add_container(container)
   local last_matched = self.last_matched_container
   while #self.containers > last_matched or
          (#self.containers > 0 and
@@ -635,7 +651,7 @@ function Parser:add_container(container)
   self.containers[#self.containers + 1] = container
 end
 
-function Parser:skip_space()
+function Tokenizer:skip_space()
   local newpos, _ = find(self.subject, "[^ \t]", self.pos)
   if newpos then
     self.indent = newpos - self.startline
@@ -643,7 +659,7 @@ function Parser:skip_space()
   end
 end
 
-function Parser:get_eol()
+function Tokenizer:get_eol()
   local starteol, endeol = find(self.subject, "[\r]?[\n]", self.pos)
   if not endeol then
     starteol, endeol = #self.subject, #self.subject
@@ -652,135 +668,150 @@ function Parser:get_eol()
   self.endeol = endeol
 end
 
-function Parser:parse()
+function Tokenizer:tokenize()
   local specs = self:specs()
   local para_spec = specs[1]
   local subjectlen = #self.subject
-  while self.pos <= subjectlen do
 
-    self.indent = 0
-    self.startline = self.pos
-    self.finished_line = false
-    self:get_eol()
+  return function()  -- iterator
 
-    -- check open containers for continuation
-    self.last_matched_container = 0
-    local idx = 0
-    while idx < #self.containers do
-      idx = idx + 1
-      local container = self.containers[idx]
-      -- skip any indentation
-      self:skip_space()
-      if container:continue() then
-        self.last_matched_container = idx
-      else
-        break
-      end
+    -- return any accumulated matches
+    while self.returned < #self.matches do
+      self.returned = self.returned + 1
+      return self.matches[self.returned]
     end
+    while self.pos <= subjectlen do
 
-    -- if we hit a close fence, we can move to next line
-    if self.finished_line then
-      while #self.containers > self.last_matched_container do
-        self.containers[#self.containers]:close()
+      -- return any accumulated matches
+      while self.returned < #self.matches do
+        self.returned = self.returned + 1
+        return self.matches[self.returned]
       end
-    end
 
-    if not self.finished_line then
-      -- check for new containers
-      self:skip_space()
-      local is_blank = (self.pos == self.starteol)
+      self.indent = 0
+      self.startline = self.pos
+      self.finished_line = false
+      self:get_eol()
 
-      local new_starts = false
-      local last_match = self.containers[self.last_matched_container]
-      local check_starts = not is_blank and
-                          (not last_match or last_match.content == "block") and
-                            not self:find("^%a+%s") -- optimization
-      while check_starts do
-        check_starts = false
-        for i=1,#specs do
-          local spec = specs[i]
-          if not spec.is_para then
-            if spec:open() then
-              self.last_matched_container = #self.containers
-              if self.finished_line then
-                check_starts = false
-              else
-                self:skip_space()
-                new_starts = true
-                check_starts = spec.content == "block"
-              end
-              break
-            end
-          end
+      -- check open containers for continuation
+      self.last_matched_container = 0
+      local idx = 0
+      while idx < #self.containers do
+        idx = idx + 1
+        local container = self.containers[idx]
+        -- skip any indentation
+        self:skip_space()
+        if container:continue() then
+          self.last_matched_container = idx
+        else
+          break
+        end
+      end
+
+      -- if we hit a close fence, we can move to next line
+      if self.finished_line then
+        while #self.containers > self.last_matched_container do
+          self.containers[#self.containers]:close()
         end
       end
 
       if not self.finished_line then
-        -- handle remaining content
+        -- check for new containers
         self:skip_space()
+        local is_blank = (self.pos == self.starteol)
 
-        is_blank = (self.pos == self.starteol)
-
-        local is_lazy = not is_blank and
-                        not new_starts and
-                        self.last_matched_container < #self.containers and
-                        self.containers[#self.containers].content == 'inline'
-
-        if not is_lazy and
-          self.last_matched_container < #self.containers then
-          while #self.containers > self.last_matched_container do
-            self.containers[#self.containers]:close()
+        local new_starts = false
+        local last_match = self.containers[self.last_matched_container]
+        local check_starts = not is_blank and
+                            (not last_match or last_match.content == "block") and
+                              not self:find("^%a+%s") -- optimization
+        while check_starts do
+          check_starts = false
+          for i=1,#specs do
+            local spec = specs[i]
+            if not spec.is_para then
+              if spec:open() then
+                self.last_matched_container = #self.containers
+                if self.finished_line then
+                  check_starts = false
+                else
+                  self:skip_space()
+                  new_starts = true
+                  check_starts = spec.content == "block"
+                end
+                break
+              end
+            end
           end
         end
 
-        local tip = self.containers[#self.containers]
+        if not self.finished_line then
+          -- handle remaining content
+          self:skip_space()
 
-        -- add para by default if there's text
-        if not tip or tip.content == 'block' then
-          if is_blank then
-            if not new_starts then
-              -- need to track these for tight/loose lists
-              self:add_match(self.pos, self.endeol, "blankline")
+          is_blank = (self.pos == self.starteol)
+
+          local is_lazy = not is_blank and
+                          not new_starts and
+                          self.last_matched_container < #self.containers and
+                          self.containers[#self.containers].content == 'inline'
+
+          if not is_lazy and
+            self.last_matched_container < #self.containers then
+            while #self.containers > self.last_matched_container do
+              self.containers[#self.containers]:close()
             end
-          else
-            para_spec:open()
           end
-          tip = self.containers[#self.containers]
-        end
 
-        if tip then
-          if tip.content == "text" then
-            local startpos = self.pos
-            if tip.indent and self.indent > tip.indent then
-              -- get back the leading spaces we gobbled
-              startpos = startpos - (self.indent - tip.indent)
+          local tip = self.containers[#self.containers]
+
+          -- add para by default if there's text
+          if not tip or tip.content == 'block' then
+            if is_blank then
+              if not new_starts then
+                -- need to track these for tight/loose lists
+                self:add_match(self.pos, self.endeol, "blankline")
+              end
+            else
+              para_spec:open()
             end
-            self:add_match(startpos, self.endeol, "str")
-          elseif tip.content == "inline" then
-            if not is_blank then
-              tip.inline_parser:feed(self.pos, self.endeol)
+            tip = self.containers[#self.containers]
+          end
+
+          if tip then
+            if tip.content == "text" then
+              local startpos = self.pos
+              if tip.indent and self.indent > tip.indent then
+                -- get back the leading spaces we gobbled
+                startpos = startpos - (self.indent - tip.indent)
+              end
+              self:add_match(startpos, self.endeol, "str")
+            elseif tip.content == "inline" then
+              if not is_blank then
+                tip.inline_tokenizer:feed(self.pos, self.endeol)
+              end
             end
           end
         end
       end
+
+      self.pos = self.endeol + 1
+
     end
 
-    self.pos = self.endeol + 1
+    -- close unmatched containers
+    while #self.containers > 0 do
+      self.containers[#self.containers]:close()
+    end
+    -- return any accumulated matches
+    while self.returned < #self.matches do
+      self.returned = self.returned + 1
+      return self.matches[self.returned]
+    end
+
   end
-  self:finish()
 
 end
 
-function Parser:finish()
-  -- close unmatched containers
-  while #self.containers > 0 do
-    self.containers[#self.containers]:close()
-  end
-end
-
-function Parser:get_matches()
-  return self.matches
-end
-
-return { Parser = Parser,
+return { Tokenizer = Tokenizer,
          Container = Container }

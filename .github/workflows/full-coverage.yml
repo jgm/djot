@@ -1,6 +1,9 @@
-name: CI tests
+name: Full coverage tests
 
-on: [push, pull_request]
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '53 7 * * *'
 
 jobs:
   linux:
@@ -10,11 +13,7 @@ jobs:
       fail-fast: false
       matrix:
         luaVersion:
-          - '5.1'
-          - '5.2'
-          - '5.3'
           - '5.4'
-          - 'luajit'
     steps:
     - uses: actions/checkout@v1
     - uses: leafo/gh-actions-lua@v9
@@ -23,7 +22,5 @@ jobs:
     - uses: leafo/gh-actions-luarocks@v4
     - name: Build and test
       run: |
-          make testall install
-          cd clib
-          make test
+          lua full-coverage.lua
 

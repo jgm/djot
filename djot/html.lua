@@ -91,18 +91,24 @@ end
 
 
 function Renderer:render_children(node)
-  if node.c and #node.c > 0 then
-    local oldtight
-    if node.tight ~= nil then
-      oldtight = self.tight
-      self.tight = node.tight
+  -- trap stack overflow
+  local ok, err = pcall(function ()
+    if node.c and #node.c > 0 then
+      local oldtight
+      if node.tight ~= nil then
+        oldtight = self.tight
+        self.tight = node.tight
+      end
+      for i=1,#node.c do
+        self[node.c[i].t](self, node.c[i])
+      end
+      if node.tight ~= nil then
+        self.tight = oldtight
+      end
     end
-    for i=1,#node.c do
-      self[node.c[i].t](self, node.c[i])
-    end
-    if node.tight ~= nil then
-      self.tight = oldtight
-    end
+  end)
+  if not ok and err:find("stack overflow") then
+    self.out("(((DEEPLY NESTED CONTENT OMITTED)))\n")
   end
 end
 
@@ -192,6 +198,13 @@ function Renderer:div(node)
   self.out("\n")
   self:render_children(node)
   self.out("</div>\n")
+end
+
+function Renderer:section(node)
+  self:render_tag("section", node)
+  self.out("\n")
+  self:render_children(node)
+  self.out("</section>\n")
 end
 
 function Renderer:heading(node)
@@ -378,8 +391,8 @@ function Renderer:link(node)
   if node.reference then
     local ref = self.references[node.reference]
     if ref then
-      if ref.attributes then
-        copy_attributes(attrs, ref.attributes)
+      if ref.attr then
+        copy_attributes(attrs, ref.attr)
       end
       insert_attribute(attrs, "href", ref.destination)
     end
@@ -406,8 +419,8 @@ function Renderer:image(node)
   if node.reference then
     local ref = self.references[node.reference]
     if ref then
-      if ref.attributes then
-        copy_attributes(attrs, ref.attributes)
+      if ref.attr then
+        copy_attributes(attrs, ref.attr)
       end
       insert_attribute(attrs, "src", ref.destination)
     end

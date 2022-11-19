@@ -23,6 +23,7 @@ static int error(lua_State *L) {
 
 int main (void) {
   char *out;
+  int ok;
 
   /* Do this once, before any use of the djot library */
   lua_State *L = djot_open();
@@ -31,18 +32,32 @@ int main (void) {
     return -1;
   }
 
-  /* Now use functions like djot_to_ast_json */
-  out = djot_to_ast_json(L, "hi *there*\n", 0);
+  out = djot_render_matches(L, "hi *there*\n", true);
   if (!out) error(L);
+  asserteq(out,
+"[[\"+para\",[1,1]]\n\
+,[\"str\",[1,3]]\n\
+,[\"+strong\",[4,4]]\n\
+,[\"str\",[5,9]]\n\
+,[\"-strong\",[10,10]]\n\
+,[\"-para\",[11,11]]\n\
+]\n");
 
-  asserteq(out, "{\"tag\":\"doc\",\"children\":[{\"tag\":\"para\",\"children\":[{\"tag\":\"str\",\"text\":\"hi \"},{\"tag\":\"strong\",\"children\":[{\"tag\":\"str\",\"text\":\"there\"}]}]}],\"references\":[],\"footnotes\":[]}\n");
+  ok = djot_parse(L, "hi *there*\n", true);
+  if (!ok) error(L);
+  out = djot_render_html(L);
+  if (!out) error(L);
+  asserteq(out,
+"<p data-startpos=\"1:1:1\" data-endpos=\"1:11:11\">hi <strong data-startpos=\"1:4:4\" data-endpos=\"1:10:10\">there</strong></p>\n");
+
+  /* Now use functions like djot_to_ast_json */
+  out = djot_render_ast(L, true);
+  if (!out) error(L);
+  asserteq(out,
+"{\"tag\":\"doc\",\"children\":[{\"tag\":\"para\",\"pos\":[\"1:1:1\",\"1:11:11\"],\"children\":[{\"tag\":\"str\",\"text\":\"hi \",\"pos\":[\"1:1:1\",\"1:3:3\"]},{\"tag\":\"strong\",\"pos\":[\"1:4:4\",\"1:10:10\"],\"children\":[{\"tag\":\"str\",\"text\":\"there\",\"pos\":[\"1:5:5\",\"1:9:9\"]}]}]}],\"references\":[],\"footnotes\":[]}\n");
 
   /* When you're finished, close the djot library */
   djot_close(L);
-
-  /* Check that the string returned is still available
-   * after closing the lua state: */
-  asserteq(out, "{\"tag\":\"doc\",\"children\":[{\"tag\":\"para\",\"children\":[{\"tag\":\"str\",\"text\":\"hi \"},{\"tag\":\"strong\",\"children\":[{\"tag\":\"str\",\"text\":\"there\"}]}]}],\"references\":[],\"footnotes\":[]}\n");
 
   if (failed) {
     printf("%d tests failed.\n", failed);

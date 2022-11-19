@@ -51,8 +51,7 @@ for name,test in pairs(tests) do
   io.stdout:write(string.format("%-40s ", name))
   io.stdout:flush()
   local before = os.clock()
-  local parser = djot.Parser:new(test)
-  parser:parse()
+  djot.parse(test)
   local elapsed = os.clock() - before
   local kb_per_second = math.floor((#test / 1000) /  elapsed)
   io.stdout:write(string.format("%6d KB/s\n", kb_per_second))

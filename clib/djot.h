@@ -19,21 +19,26 @@ void djot_close(lua_State *L);
  * a pointer returns NULL. */
 void djot_report_error(lua_State *L);
 
-/* Parse a string and return a C string containing a JSON formatted AST. */
-char * djot_to_ast_json(lua_State *L, char *in, bool sourcepos);
+/* Parse input (optionally including source positions) and return a
+ * thread with the parsed document in the global 'doc'. The
+ * subordinate functions djot_render_html, djot_render_ast,
+ * djot_render_matches, djot_apply_filter can then be used to manipulate
+ * or render the content. Returns 1 on success, 0 on error. */
+int djot_parse(lua_State *L, char *input, bool sourcepos);
 
-/* Parse a string and return a prettyprinted AST. */
-char * djot_to_ast_pretty(lua_State *L, char *in, bool sourcepos);
+/* Render the document in the global 'doc' as HTML, returning a string,
+ * or NULL on error. */
+char *djot_render_html(lua_State *L);
 
-/* Parse a string and return a C string containing a JSON formatted array
- * of match objects. */
-char * djot_to_matches_json(lua_State *L, char *in);
+/* Render the AST of the document in the global 'doc'.
+ * If 'as_json' is true, use JSON, otherwise, produce a compact
+ * human-readable tree. NULL is returned on error. */
+char *djot_render_ast(lua_State *L, bool as_json);
 
-/* Parse a string and return a C string containing a human-readable list of
- * match objects. */
-char * djot_to_matches_pretty(lua_State *L, char *in);
+/* Tokenize input and render the matches.
+ * If 'as_json' is true, use JSON, otherwise, produce a compact
+ * human-readable tree. NULL is returned on error. */
+char *djot_render_matches(lua_State *L, char *input, bool as_json);
 
-/* Parse a string and return a C string containing HTML. */
-char * djot_to_html(lua_State *L, char *in, bool sourcepos);
 
 #endif

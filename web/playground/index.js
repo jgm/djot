@@ -5,37 +5,35 @@ Module['onRuntimeInitialized'] = () => {
   const djot_open = Module.cwrap("djot_open", "number", []);
   const djot_close = Module.cwrap("djot_open", null, ["number"]);
   djot.state = djot_open();
-  const djot_to_ast_json =
-      Module.cwrap("djot_to_ast_json", "string" ,["number", "string", "boolean"]);
-  djot.to_ast_json = (s, sourcepos) => {
-    return djot_to_ast_json(djot.state, s, sourcepos);
+  const djot_parse =
+      Module.cwrap("djot_parse", null, ["number", "string", "boolean"]);
+  djot.parse = (s, sourcepos) => {
+    return djot_parse(djot.state, s, sourcepos);
   }
-  const djot_to_ast_pretty =
-      Module.cwrap("djot_to_ast_pretty", "string" ,["number", "string", "boolean"]);
-  djot.to_ast_pretty = (s, sourcepos) => {
-    return djot_to_ast_pretty(djot.state, s, sourcepos);
+
+  const djot_render_ast =
+      Module.cwrap("djot_render_ast", "string" ,["number", "boolean"]);
+  djot.render_ast = (as_json) => {
+    return djot_render_ast(djot.state, as_json);
   }
-  const djot_to_matches_json =
-      Module.cwrap("djot_to_matches_json", "string" ,["number", "string"]);
-  djot.to_matches_json = (s) => {
-    return djot_to_matches_json(djot.state, s);
+
+  const djot_render_matches =
+      Module.cwrap("djot_render_matches", "string" ,["number", "string", "boolean"]);
+  djot.render_matches = (s, as_json) => {
+    return djot_render_matches(djot.state, s, as_json);
   }
-  const djot_to_matches_pretty =
-      Module.cwrap("djot_to_matches_pretty", "string" ,["number", "string"]);
-  djot.to_matches_pretty = (s) => {
-    return djot_to_matches_pretty(djot.state, s);
-  }
-  const djot_to_html =
-      Module.cwrap("djot_to_html", "string" ,["number", "string", "boolean"]);
-  djot.to_html = (s, sourcepos) => {
-    return djot_to_html(djot.state, s, sourcepos);
+
+  const djot_render_html =
+      Module.cwrap("djot_render_html", "string" ,["number"]);
+  djot.render_html = () => {
+    return djot_render_html(djot.state);
   }
   const input = document.getElementById("input");
-  input.onkeyup = debounce(convert, 400);
+  input.onkeyup = debounce(parse_and_render, 400);
   input.onscroll = syncScroll;
-  document.getElementById("mode").onchange = convert;
-  document.getElementById("sourcepos").onchange = convert;
-  convert();
+  document.getElementById("mode").onchange = render;
+  document.getElementById("sourcepos").onchange = parse_and_render;
+  parse_and_render();
 }
 
 // scroll the preview window to match the input window.
@@ -53,7 +51,9 @@ const syncScroll = () => {
     const selector = '[data-startpos^="' + lineNumber + ':"]';
     const elt = preview.querySelector(selector);
     if (elt) {
-      elt.scrollIntoView(true);
+      elt.scrollIntoView({ behavior: "smooth",
+                           block: "start",
+                           inline: "nearest" });
     }
   }
 }
@@ -79,29 +79,37 @@ const debounce = (func, delay) => {
     }
 }
 
-function convert() {
-  const mode = document.getElementById("mode").value;
+function parse_and_render() {
   const text = document.getElementById("input").value;
-  const iframe = document.getElementById("preview");
   const sourcepos = document.getElementById("sourcepos").checked;
+  djot.parse(text, sourcepos);
+  render();
+}
+
+function render() {
+  const text = document.getElementById("input").value;
+  const mode = document.getElementById("mode").value;
+  const iframe = document.getElementById("preview");
   document.getElementById("result").innerHTML = "";
+  const result = document.getElementById("result");
 
   if (mode == "astjson") {
-    document.getElementById("result").innerText =
-      JSON.stringify(JSON.parse(djot.to_ast_json(text, sourcepos)), null, 2);
+    result.innerText =
+      JSON.stringify(JSON.parse(djot.render_ast(true)), null, 2);
   } else if (mode == "ast") {
-    document.getElementById("result").innerText =
-      djot.to_ast_pretty(text, sourcepos);
-  } else if (mode == "matches") {
-    document.getElementById("result").innerText =
-      djot.to_matches_pretty(text);
+    result.innerText =
+      djot.render_ast(false);
   } else if (mode == "matchesjson") {
-    document.getElementById("result").innerText =
-      JSON.stringify(JSON.parse(djot.to_matches_json(text)), null, 2);
+    result.innerText =
+      djot.render_matches(text, true);
+  } else if (mode == "matches") {
+    result.innerText =
+      djot.render_matches(text, false);
   } else if (mode == "html") {
-    document.getElementById("result").innerText = djot.to_html(text, sourcepos);
+    result.innerText = djot.render_html();
   } else if (mode == "preview") {
-    inject(iframe, djot.to_html(text, true));  // use sourcepos for scrollSync
+    inject(iframe, djot.render_html());  // use sourcepos for scrollSync
   }
   iframe.style.display = mode == "preview" ? "block" : "none";
+  result.style.display = mode == "preview" ? "none" : "block";
 }

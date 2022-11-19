@@ -752,3 +752,10 @@ See the [Epilogue][].
 
 # Epilogue
 ```
+
+## Nesting limits
+
+Conforming implementations can impose reasonable limits on
+nesting to avoid stack overflows or other issues.
+Few realistic documents will need more than, say, 12 levels
+of nesting, so a limit of 512 should be perfectly safe.
