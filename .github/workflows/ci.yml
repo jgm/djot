@@ -21,6 +21,9 @@ jobs:
       with:
         luaVersion: ${{ matrix.luaVersion }}
     - uses: leafo/gh-actions-luarocks@v4
+    - name: Install luaposix for fuzz test
+      run: |
+          luarocks install luaposix # for fuzz tests
     - name: Build and test
       run: |
           make testall install
@@ -58,6 +61,9 @@ jobs:
       with:
         luaVersion: ${{ matrix.luaVersion }}
     - uses: leafo/gh-actions-luarocks@v4
+    - name: Install luaposix for fuzz test
+      run: |
+          luarocks install luaposix # for fuzz tests
     - name: Build and test
       run: |
           make testall install
