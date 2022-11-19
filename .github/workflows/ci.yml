@@ -37,6 +37,12 @@ jobs:
       fail-fast: false
     steps:
     - uses: actions/checkout@v1
+    - name: Install lua
+      run: |
+          winget install "lua for windows"
+    - name: Test lua script
+      run: |
+          lua test.lua
     - name: Install mingw
       run: |
           choco install mingw
