@@ -637,7 +637,8 @@ local function to_ast(tokenizer, sourcepos)
               dest = dest .. node.c[i].s
             end
           end
-          references[key] = { destination = dest }
+          references[key] = mknode("reference_definition")
+          references[key].destination = dest
           if node.attr then
             references[key].attr = node.attr
           end
@@ -937,8 +938,12 @@ local function render(doc, handle)
   render_node(doc, handle, 0)
   if doc.references then
     handle:write("references = {\n")
+    local i = 1
     for k,v in pairs(doc.references) do
-      handle:write(format("  [%q] = %q,\n", k, v.destination))
+      local maybecomma = i == 1 and " " or ","
+      handle:write(format("%s [%q] =\n", maybecomma, k))
+      render_node(v, handle, 4)
+      i = i + 1
     end
     handle:write("}\n")
   end
