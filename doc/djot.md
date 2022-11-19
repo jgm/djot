@@ -9,33 +9,56 @@ djot [options] [file..]
 # DESCRIPTION
 
 djot is a command-line parser for [djot markup](https://djot.net).
-It can produce any of the following representations:
+It can produce
 
-- a stream of annotated tokens with byte offsets
-- an AST in either human-readable or JSON form
-- an HMTL document
+- an HMTL document (default behavior)
+- a stream of annotated tokens with byte offsets (`--matches`)
+- an AST in either human-readable or JSON form (`--ast`).
 
 # OPTIONS
 
-<!-- TBD
+`--matches, -m`
 
---matches        -m          Show matches.
---ast            -a          Show AST.
---json           -j          Use JSON for -m or -a.
---sourcepos      -p          Include source positions in AST.
---filter FILE    -f FILE     Filter AST using filter in FILE.
---verbose        -v          Verbose (show warnings).
---version                    Show version information.
---help           -h          Help.
+:   Show matches (annotated tokens with source positions).
 
--->
+`--ast`, `-a`
 
-# EXAMPLES
+:   Produce and render an abstract syntax tree.
 
-<!-- TBD -->
+`--json`, `-j`
+
+:   Use machine-readable JSON format when used with `--matches`
+    or `--ast`.
+
+`--sourcepos`, `-p`
+
+:   Include source positions in the AST or HTML document.
+
+`--filter` *FILE*, `-f` *FILE*
+
+:   Run the filter defined in *FILE* on the AST between parsing
+    and rendering. The `--filter` option may be used multiple
+    times; filters will be applied in the order specified on the
+    command line.  See [FILTERS][] below for a description of
+    filters.
+
+`--verbose`, `-v`
+
+:   Verbose output, including warnings.
+
+`--version`
+
+:   Print the djot version.
+
+`--help`, `-h`
+
+:   Print usage information.
+
+# FILTERS
+
+TBD
 
 # AUTHORS
 
-<!-- TBD -->
-
+John MacFarlane (<jgm@berkeley.edu>).
 
