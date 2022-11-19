@@ -1,6 +1,7 @@
 LUAVERSION=5.4.4
 LUAURL=https://www.lua.org/ftp/lua-$(LUAVERSION).tar.gz
 LUASRC=lua-src
+LIBLUA=$(LUASRC)/liblua.a
 MODULES=$(patsubst %, ../%, djot/match.lua djot/attributes.lua djot/inline.lua djot/block.lua djot/ast.lua djot/emoji.lua djot/html.lua djot/filter.lua djot/json.lua djot.lua)
 CFLAGS= -std=c99 -O2 -Wall -DLUA_COMPAT_5_3 $(SYSCFLAGS) $(MYCFLAGS)
 UNAME=$(shell uname)
@@ -14,11 +15,11 @@ test: djot tests
 	./tests
 .PHONY: test
 
-tests: tests.c djot.o $(LUASRC)/liblua.a
+tests: tests.c djot.o $(LIBLUA)
 	$(CC) $(CFLAGS) $^ -I . -I $(LUASRC) -o $@ $(LDFLAGS)
 
-djot: main.c djot.o $(LUASRC)/liblua.a djot_main.inc
-	$(CC) $(CFLAGS) $< djot.o $(LUASRC)/liblua.a -I . -I $(LUASRC) -o $@ $(LDFLAGS)
+djot: main.c djot.o $(LIBLUA) djot_main.inc
+	$(CC) $(CFLAGS) $< djot.o $(LIBLUA) -I . -I $(LUASRC) -o $@ $(LDFLAGS)
 
 libdjot.a: djot.o
 	ar -rc $@ $<
