@@ -1,6 +1,6 @@
 LUAVERSION=5.4.4
 LUAURL=https://www.lua.org/ftp/lua-$(LUAVERSION).tar.gz
-LUA=$(shell which lua || echo "`pwd`/lua-src/lua")
+LUA=$(shell which lua || echo "lua-src/lua")
 LUASRC=lua-src
 LIBLUA=$(LUASRC)/liblua.a
 LUAHEADERS=$(LUASRC)
@@ -40,7 +40,7 @@ $(LUASRC):
 djot.o: djot.c djot_combined.inc $(LUASRC)
 	$(CC) $(CFLAGS) -c -I . -I $(LUAHEADERS) $<
 
-$(LUASRC)/lua:
+$(LUASRC)/lua: $(LUASRC)
 	make -C $(LUASRC)
 
 djot_combined.lua: $(LUA) $(MODULES)
