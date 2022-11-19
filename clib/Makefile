@@ -13,6 +13,8 @@ CFLAGS= -std=c99 -O2 -Wall -DLUA_COMPAT_5_3 $(SYSCFLAGS) $(MYCFLAGS)
 UNAME=$(shell uname)
 ifeq (MINGW,$(findstring MINGW,$(UNAME)))
 PLAT=mingw
+else
+PLAT=guess
 endif
 ifeq ($(UNAME), Linux)
 LDFLAGS=-static -lm $(SYSLDFLAGS) $(MYLDFLAGS)
@@ -44,7 +46,7 @@ djot.o: djot.c djot_combined.inc $(LUASRC)
 	$(CC) $(CFLAGS) -c -I . -I $(LUAHEADERS) $<
 
 $(LUASRC)/lua: $(LUASRC)
-	 PLAT=$(PLAT) make -C $(LUASRC)
+	make -C $(LUASRC) $(PLAT)
 
 djot_combined.lua: $(LUA) $(MODULES)
 	$(LUA) combine.lua $(MODULES) > $@
