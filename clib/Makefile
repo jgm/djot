@@ -11,7 +11,7 @@ MODULES=$(patsubst %, ../%, djot/match.lua djot/attributes.lua djot/inline.lua d
 LUASRCS=$(patsubst %,$(LUASRC)/%.c,lapi lgc lstate lauxlib linit lstring lbaselib liolib lstrlib lcode llex ltable lcorolib lmathlib ltablib lctype lmem ltm ldblib loadlib luac ldebug lobject lundump ldo lopcodes lutf8lib ldump loslib lvm lfunc lparser lzio)
 CFLAGS= -std=c99 -O2 -Wall -DLUA_COMPAT_5_3 $(SYSCFLAGS) $(MYCFLAGS)
 UNAME=$(shell uname)
-ifeq (MINGW,$(findstring MINGW,$(UNAME)))
+ifeq (MSYS,$(findstring MSYS,$(UNAME)))
 PLAT=mingw
 else
 PLAT=guess
@@ -46,7 +46,6 @@ djot.o: djot.c djot_combined.inc $(LUASRC)
 	$(CC) $(CFLAGS) -c -I . -I $(LUAHEADERS) $<
 
 $(LUASRC)/lua: $(LUASRC)
-	echo UNAME = $(UNAME)
 	make -C $(LUASRC) $(PLAT)
 
 djot_combined.lua: $(LUA) $(MODULES)
