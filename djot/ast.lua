@@ -414,7 +414,8 @@ local function to_ast(tokenizer, sourcepos)
     table = true,
     thematic_break = true,
     raw_block = true,
-    reference_definition = true
+    reference_definition = true,
+    footnote = true
   }
 
   local block_attributes = nil
