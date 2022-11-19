@@ -170,7 +170,8 @@ Tokenizer.matchers = {
       if not endchar then
         return nil
       end
-      if find(subject, "^%$%$", pos - 2) then
+      if find(subject, "^%$%$", pos - 2) and
+          not find(subject, "^\\", pos - 3) then
         self.matches[pos - 2] = nil
         self.matches[pos - 1] = nil
         self:add_match(pos - 2, endchar, "+display_math")

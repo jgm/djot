@@ -31,3 +31,11 @@ str 4-5
 -para 6-6
 ```
 
+Issue #127:
+
+```
+\$$`a`
+.
+<p>$<span class="math inline">\(a\)</span></p>
+```
+
