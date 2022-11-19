@@ -27,3 +27,50 @@ jobs:
           cd clib
           make test
 
+  windows:
+
+    runs-on: windows-2019
+    strategy:
+      fail-fast: false
+      matrix:
+        luaVersion:
+          - '5.1'
+          - '5.2'
+          - '5.3'
+          - '5.4'
+          - 'luajit'
+    steps:
+    - uses: actions/checkout@v1
+    - uses: leafo/gh-actions-lua@v9
+      with:
+        luaVersion: ${{ matrix.luaVersion }}
+    - uses: leafo/gh-actions-luarocks@v4
+    - name: Build and test
+      run: |
+          make testall install
+          cd clib
+          make test
+
+  macos:
+
+    runs-on: macos-11
+    strategy:
+      fail-fast: false
+      matrix:
+        luaVersion:
+          - '5.1'
+          - '5.2'
+          - '5.3'
+          - '5.4'
+          - 'luajit'
+    steps:
+    - uses: actions/checkout@v1
+    - uses: leafo/gh-actions-lua@v9
+      with:
+        luaVersion: ${{ matrix.luaVersion }}
+    - uses: leafo/gh-actions-luarocks@v4
+    - name: Build and test
+      run: |
+          make testall install
+          cd clib
+          make test
