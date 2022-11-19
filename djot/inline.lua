@@ -605,6 +605,15 @@ function Tokenizer:get_matches()
   local sorted = {}
   local subject = self.subject
   local lastsp, lastep, lastannot
+  while self.attribute_tokenizer do -- unfinished attribute
+    -- backtrack:
+    local pos = self.attribute_start --- back to start but with:
+    self.allow_attributes = false
+    self.attribute_tokenizer = nil
+    self.attribute_start = nil
+    -- reparse
+    self:feed(self.firstpos, self.lastpos)
+  end
   for i=self.firstpos, self.lastpos do
     if self.matches[i] then
       local sp, ep, annot = unpack_match(self.matches[i])
