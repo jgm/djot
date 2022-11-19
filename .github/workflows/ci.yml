@@ -42,7 +42,7 @@ jobs:
           choco install lua53
     - name: Run tests
       run: |
-          lua53 test.lua
+          lua test.lua
           cd clib
           make test
 
