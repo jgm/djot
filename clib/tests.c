@@ -59,11 +59,6 @@ int main (void) {
   /* When you're finished, close the djot library */
   djot_close(L);
 
-  /* Check that the string returned is still available
-   * after closing the lua state: */
-  asserteq(out,
-"{\"tag\":\"doc\",\"children\":[{\"tag\":\"para\",\"pos\":[\"1:1:1\",\"1:11:11\"],\"children\":[{\"tag\":\"str\",\"text\":\"hi \",\"pos\":[\"1:1:1\",\"1:3:3\"]},{\"tag\":\"strong\",\"pos\":[\"1:4:4\",\"1:10:10\"],\"children\":[{\"tag\":\"str\",\"text\":\"there\",\"pos\":[\"1:5:5\",\"1:9:9\"]}]}]}],\"references\":[],\"footnotes\":[]}\n");
-
   if (failed) {
     printf("%d tests failed.\n", failed);
   } else {
