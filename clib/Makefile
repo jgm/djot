@@ -13,6 +13,7 @@ CFLAGS= -std=c99 -O2 -Wall -DLUA_COMPAT_5_3 $(SYSCFLAGS) $(MYCFLAGS)
 UNAME=$(shell uname)
 ifeq (MSYS,$(findstring MSYS,$(UNAME)))
 PLAT=mingw
+CC=gcc
 else
 PLAT=guess
 endif
