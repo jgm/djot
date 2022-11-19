@@ -46,6 +46,7 @@ djot.o: djot.c djot_combined.inc $(LUASRC)
 	$(CC) $(CFLAGS) -c -I . -I $(LUAHEADERS) $<
 
 $(LUASRC)/lua: $(LUASRC)
+	echo UNAME = $(UNAME)
 	make -C $(LUASRC) $(PLAT)
 
 djot_combined.lua: $(LUA) $(MODULES)
