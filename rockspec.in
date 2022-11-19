@@ -21,9 +21,6 @@ dependencies = {
 }
 test_dependencies = {
    "lua >= 5.1",
-   "compat53 >= 0.8",
-   "luafilesystem >= 1.8",
-   "luaposix >= 35.1"
 }
 build = {
    type = "builtin",

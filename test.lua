@@ -1,7 +1,33 @@
 -- run tests
 package.path = "./?.lua;" .. package.path
 
-local lfs = require("lfs")
+local testcases = {
+  "attributes.test",
+  "blockquote.test",
+  "code_blocks.test",
+  "definition_lists.test",
+  "emoji.test",
+  "emphasis.test",
+  "escapes.test",
+  "fenced_divs.test",
+  "footnotes.test",
+  "headings.test",
+  "insert_delete_mark.test",
+  "links_and_images.test",
+  "lists.test",
+  "math.test",
+  "para.test",
+  "raw.test",
+  "regression.test",
+  "smart.test",
+  "spans.test",
+  "super_subscript.test",
+  "tables.test",
+  "task_lists.test",
+  "thematic_breaks.test",
+  "verbatim.test"
+}
+
 local djot = require("./djot")
 
 local opts = {}
@@ -109,11 +135,9 @@ end
 
 local tests = Tests:new()
 local starttime = os.clock()
-for file in lfs.dir("test") do
-  if string.match(file, "%.test") then
-    if not opts.pattern or string.find(file, opts.pattern) then
-      tests:do_tests(file)
-    end
+for _,case in ipairs(testcases) do
+  if not opts.pattern or string.find(case, opts.pattern) then
+    tests:do_tests(case)
   end
 end
 local endtime = os.clock()

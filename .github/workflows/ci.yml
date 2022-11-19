@@ -32,19 +32,15 @@ jobs:
     runs-on: windows-2019
     strategy:
       fail-fast: false
-      matrix:
-        luaVersion:
-          - '5.4'
-          - 'luajit'
     steps:
     - uses: actions/checkout@v1
-    - name: Install lua and luarocks
+    - name: Install lua (5.3)
       run: |
-          choco install lua53
           choco install luarocks
     - name: Build and test
       run: |
-          make testall install
+          luarocks make
+          luarocks test
           cd clib
           make test
 
