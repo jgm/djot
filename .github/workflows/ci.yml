@@ -36,11 +36,10 @@ jobs:
     - uses: actions/checkout@v1
     - name: Install lua (5.3)
       run: |
-          choco install luarocks
-    - name: Build and test
+          choco install lua53
+    - name: Run tests
       run: |
-          luarocks make
-          luarocks test
+          lua53 test.lua
           cd clib
           make test
 
