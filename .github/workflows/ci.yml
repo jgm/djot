@@ -37,17 +37,9 @@ jobs:
       fail-fast: false
     steps:
     - uses: actions/checkout@v1
-    - name: Install winget
-      shell: powershell
-      run: |
-        Invoke-WebRequest -Uri 'https://aka.ms/Microsoft.VCLibs.x64.14.00.Desktop.appx' -OutFile 'VCLibs.appx' # automatically downloads latest version
-        Invoke-WebRequest -Uri 'https://github.com/microsoft/winget-cli/releases/download/latest/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle' -OutFile 'winget.msixbundle'
-        $ReleaseInfo = Invoke-RestMethod 'https://api.github.com/repos/microsoft/winget-cli/releases/latest'
-        Invoke-WebRequest -Uri $ReleaseInfo.assets.Where({ $_.name.EndsWith('License1.xml') }).browser_download_url -OutFile 'license.xml' # because the prefix of the file changes with every release
-        Add-AppxProvisionedPackage -Online -PackagePath winget.msixbundle -LicensePath license.xml -DependencyPackagePath VCLibs.appx
     - name: Install lua
       run: |
-          winget install "lua for windows"
+          choco install lua
     - name: Test lua script
       run: |
           lua test.lua
