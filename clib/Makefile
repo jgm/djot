@@ -1,5 +1,6 @@
 LUAVERSION=5.4.4
 LUAURL=https://www.lua.org/ftp/lua-$(LUAVERSION).tar.gz
+LUA=$(shell which lua || `pwd`/lua-src/lua)
 LUASRC=lua-src
 LIBLUA=$(LUASRC)/liblua.a
 LUAHEADERS=$(LUASRC)
@@ -39,8 +40,11 @@ $(LUASRC):
 djot.o: djot.c djot_combined.inc $(LUASRC)
 	$(CC) $(CFLAGS) -c -I . -I $(LUAHEADERS) $<
 
-djot_combined.lua: $(MODULES)
-	lua combine.lua $^ > $@
+$(LUASRC)/lua:
+	make -C $(LUASRC)
+
+djot_combined.lua: $(LUA) $(MODULES)
+	$(LUA) combine.lua $(MODULES) > $@
 
 djot_combined.inc: djot_combined.lua
 	echo "unsigned char djot_combined_lua[] = {" > $@
