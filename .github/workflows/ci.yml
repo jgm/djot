@@ -37,14 +37,13 @@ jobs:
       fail-fast: false
     steps:
     - uses: actions/checkout@v1
-    - name: Install lua (5.3)
+    - name: Install mingw
       run: |
-          choco install lua53
-    - name: Run tests
+          choco install mingw
+    - name: Build and test executable
       run: |
-          lua test.lua
           cd clib
-          make test
+          make
 
   macos:
 
