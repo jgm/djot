@@ -637,7 +637,7 @@ local function to_ast(tokenizer, sourcepos)
               dest = dest .. node.c[i].s
             end
           end
-          references[key] = mknode("reference_definition")
+          references[key] = mknode("reference")
           references[key].destination = dest
           if node.attr then
             references[key].attr = node.attr
@@ -801,7 +801,9 @@ local function to_ast(tokenizer, sourcepos)
           end
           -- insert into references unless there's a same-named one already:
           if not references[heading_str] then
-            references[heading_str] = {destination = "#" .. node.attr.id}
+            references[heading_str] =
+              mknode("reference")
+            references[heading_str].destination = "#" .. node.attr.id
           end
 
         elseif tag == "destination" then
