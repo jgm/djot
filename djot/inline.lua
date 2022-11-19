@@ -127,7 +127,13 @@ function Tokenizer.between_matched(c, annotation, defaultmatch, opentest)
       defaultmatch = defaultmatch:gsub("^left", "right")
     end
 
-    local openers = self.openers[c]
+    local d
+    if has_close_marker then
+      d = "{" .. c
+    else
+      d = c
+    end
+    local openers = self.openers[d]
     if can_close and openers and #openers > 0 then
        -- check openers for a match
       local openpos, openposend = unpack(openers[#openers])
@@ -138,9 +144,15 @@ function Tokenizer.between_matched(c, annotation, defaultmatch, opentest)
         return endcloser + 1
       end
     end
+
     -- if we get here, we didn't match an opener
     if can_open then
-      self:add_opener(c, startopener, pos)
+      if has_open_marker then
+        d = "{" .. c
+      else
+        d = c
+      end
+      self:add_opener(d, startopener, pos)
       self:add_match(startopener, pos, defaultmatch)
       return pos + 1
     else

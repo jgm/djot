@@ -119,6 +119,17 @@ _({_foo_})_
 <p><em>(<em>foo</em>)</em></p>
 ```
 
+Note that an explicitly marked opener can only be closed
+by an explicitly marked closer, and a non-marked opener
+can only be closed by a non-marked closer:
+
+```
+{_ x_ _} _x_}
+.
+<p><em> x_ </em> _x_}</p>
+```
+
+
 ```
 _(*foo*)_
 .
