@@ -391,8 +391,8 @@ function Renderer:link(node)
   if node.reference then
     local ref = self.references[node.reference]
     if ref then
-      if ref.attributes then
-        copy_attributes(attrs, ref.attributes)
+      if ref.attr then
+        copy_attributes(attrs, ref.attr)
       end
       insert_attribute(attrs, "href", ref.destination)
     end
@@ -419,8 +419,8 @@ function Renderer:image(node)
   if node.reference then
     local ref = self.references[node.reference]
     if ref then
-      if ref.attributes then
-        copy_attributes(attrs, ref.attributes)
+      if ref.attr then
+        copy_attributes(attrs, ref.attr)
       end
       insert_attribute(attrs, "src", ref.destination)
     end

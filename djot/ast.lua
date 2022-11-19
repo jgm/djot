@@ -638,7 +638,7 @@ local function to_ast(tokenizer, sourcepos)
           end
           references[key] = { destination = dest }
           if node.attr then
-            references[key].attributes = node.attr
+            references[key].attr = node.attr
           end
           return -- don't include in tree
 
