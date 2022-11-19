@@ -1,9 +1,7 @@
 LUAVERSION=5.4.4
 LUAURL=https://www.lua.org/ftp/lua-$(LUAVERSION).tar.gz
-LUASRC=lua-$(LUAVERSION)/src
+LUASRC=lua-src
 MODULES=$(patsubst %, ../%, djot/match.lua djot/attributes.lua djot/inline.lua djot/block.lua djot/ast.lua djot/emoji.lua djot/html.lua djot/filter.lua djot/json.lua djot.lua)
-LUAOBJS=$(patsubst %,$(LUASRC)/%.o,lapi lgc lstate lauxlib linit lstring lbaselib liolib lstrlib lcode llex ltable lcorolib lmathlib ltablib lctype lmem ltm ldblib loadlib luac ldebug lobject lundump ldo lopcodes lutf8lib ldump loslib lvm lfunc lparser lzio)
-LUASRCS=$(patsubst %.o,%.c,$(LUAOBJS))
 CFLAGS= -std=c99 -O2 -Wall -DLUA_COMPAT_5_3 $(SYSCFLAGS) $(MYCFLAGS)
 UNAME=$(shell uname)
 ifeq ($(UNAME), Linux)
@@ -17,7 +15,7 @@ test: djot tests
 .PHONY: test
 
 tests: tests.c djot.o $(LUASRC)/liblua.a
-	$(CC) $(CFLAGS) $^ -I . -o $@ $(LDFLAGS)
+	$(CC) $(CFLAGS) $^ -I . -I $(LUASRC) -o $@ $(LDFLAGS)
 
 djot: main.c djot.o $(LUASRC)/liblua.a djot_main.inc
 	$(CC) $(CFLAGS) $< djot.o $(LUASRC)/liblua.a -I . -I $(LUASRC) -o $@ $(LDFLAGS)
@@ -29,9 +27,10 @@ $(LUASRC)/liblua.a: $(LUASRC)
 	make -C $(LUASRC) liblua.a
 
 $(LUASRC):
-	curl $(LUAURL) | tar xzv lua-$(LUAVERSION)/src
+	mkdir -p $(LUASRC)
+	curl $(LUAURL) | tar xzv -C $(LUASRC) --strip-components=2 lua-$(LUAVERSION)/src
 
-djot.o: djot.c djot_combined.inc
+djot.o: djot.c djot_combined.inc $(LUASRC)
 	$(CC) $(CFLAGS) -c -I . -I $(LUASRC) $<
 
 djot_combined.lua: $(MODULES)

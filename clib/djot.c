@@ -3,7 +3,7 @@
 #include <lua.h>
 #include <lauxlib.h>
 #include <lualib.h>
-#include "djot.h"
+#include <djot.h>
 
 #include "djot_combined.inc"
 /* unsigned char djot_combined_lua[] */
