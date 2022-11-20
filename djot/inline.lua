@@ -619,7 +619,18 @@ function Tokenizer:get_matches()
   local sorted = {}
   local subject = self.subject
   local lastsp, lastep, lastannot
-  assert(self.attribute_tokenizer == nil)
+  if self.attribute_tokenizer then -- we're still in an attribute parse
+    -- backtrack:
+    local slices = self.attribute_slices
+    self.allow_attributes = false
+    self.attribute_tokenizer = nil
+    self.attribute_start = nil
+    for i=1,#slices do
+      self:feed(unpack(slices[i]))
+    end
+    self.allow_attributes = true
+    self.slices = nil
+  end
   for i=self.firstpos, self.lastpos do
     if self.matches[i] then
       local sp, ep, annot = unpack_match(self.matches[i])
