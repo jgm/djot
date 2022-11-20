@@ -39,6 +39,7 @@ function Tokenizer:new(subject, warn)
       allow_attributes = true, -- allow parsing of attributes
       attribute_tokenizer = nil,  -- attribute parser
       attribute_start = nil,  -- start of potential attribute
+      attribute_slices = nil, -- slices we've tried to parse as attributes
     }
   setmetatable(state, self)
   self.__index = self
@@ -383,10 +384,9 @@ Tokenizer.matchers = {
       elseif self.allow_attributes then
         self.attribute_tokenizer = attributes.AttributeTokenizer:new(self.subject)
         self.attribute_start = pos
+        self.attribute_slices = {}
         return pos
-      else -- disabling allow_attributes only lasts
-        -- for one potential attribute start {, and then is re-enabled
-        self.allow_attributes = true
+      else
         self:add_match(pos, pos, "str")
         return pos + 1
       end
@@ -497,10 +497,9 @@ function Tokenizer:single_char(pos)
   return pos + 1
 end
 
-local special = "[][\\`{}_*()!<>~^:=+$\r\n'\".-]"
-
 -- Feed a slice to the parser, updating state.
 function Tokenizer:feed(spos, endpos)
+  local special = "[][\\`{}_*()!<>~^:=+$\r\n'\".-]"
   local subject = self.subject
   local matchers = self.matchers
   local pos
@@ -533,11 +532,23 @@ function Tokenizer:feed(spos, endpos)
         pos = ep + 1
       elseif status == "fail" then
         -- backtrack:
-        pos = self.attribute_start --- back to start but with:
+        local slices = self.attribute_slices
         self.allow_attributes = false
         self.attribute_tokenizer = nil
         self.attribute_start = nil
+        for i=1,#slices do
+          self:feed(unpack(slices[i]))
+        end
+        self.allow_attributes = true
+        self.slices = nil
+        pos = sp
       elseif status == "continue" then
+        if #self.attribute_slices > 0 and
+           sp == self.attribute_slices[#self.attribute_slices][2] + 1 then
+          self.attribute_slices[#self.attribute_slices][2] = ep
+        else
+          self.attribute_slices[#self.attribute_slices + 1] = {sp,ep}
+        end
         pos = ep + 1
       end
     else
