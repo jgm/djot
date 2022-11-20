@@ -96,13 +96,14 @@ function Tokenizer:str_matches(startpos, endpos)
 end
 
 function Tokenizer.between_matched(c, annotation, defaultmatch, opentest)
-  return function(self, pos)
+  return function(self, pos, endpos)
     local defaultmatch = defaultmatch or "str"
     local subject = self.subject
     local can_open = find(subject, "^%S", pos + 1)
     local can_close = find(subject, "^%S", pos - 1)
     local has_open_marker = matches_pattern(self.matches[pos - 1], "^open%_marker")
-    local has_close_marker = byte(subject, pos + 1) == 125 -- }
+    local has_close_marker = pos + 1 <= endpos and
+                              byte(subject, pos + 1) == 125 -- }
     local endcloser = pos
     local startopener = pos
 
@@ -513,7 +514,10 @@ function Tokenizer:feed(spos, endpos)
   while pos <= endpos do
     if self.attribute_tokenizer then
       local sp = pos
-      local ep2 = bounded_find(subject, special, pos, endpos) or endpos
+      local ep2 = bounded_find(subject, special, pos, endpos)
+      if not ep2 or ep2 > endpos then
+        ep2 = endpos
+      end
       local status, ep = self.attribute_tokenizer:feed(sp, ep2)
       if status == "done" then
         local attribute_start = self.attribute_start
@@ -541,7 +545,8 @@ function Tokenizer:feed(spos, endpos)
         end
         self.allow_attributes = true
         self.slices = nil
-        pos = sp
+        pos = sp  -- we'll want to go over the whole failed portion again,
+                  -- as no slice was added for it
       elseif status == "continue" then
         if #self.attribute_slices > 0 and
            sp == self.attribute_slices[#self.attribute_slices][2] + 1 then
