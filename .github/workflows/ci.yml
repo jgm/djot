@@ -21,14 +21,17 @@ jobs:
       with:
         luaVersion: ${{ matrix.luaVersion }}
     - uses: leafo/gh-actions-luarocks@v4
+    - name: Install emscripten for web target
+      run: |
+          sudo apt-get install emscripten
     - name: Install luaposix for fuzz test
       run: |
           luarocks install luaposix # for fuzz tests
     - name: Build and test
       run: |
           make testall install
-          cd clib
-          make test
+          make -C clib
+          make -C web
 
   windows:
 
