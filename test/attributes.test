@@ -228,3 +228,38 @@ hi
 .
 <p>hi</p>
 ```
+
+Non-attributes:
+
+```
+text{a=x
+
+hello
+.
+<p>text{a=x</p>
+<p>hello</p>
+```
+
+```
+{a=x
+hello
+.
+<p>{a=x
+hello</p>
+```
+
+```
+text{a=x
+# non-heading
+.
+<p>text{a=x
+# non-heading</p>
+```
+
+```
+{a=x
+# non-heading
+.
+<p>{a=x
+# non-heading</p>
+```
