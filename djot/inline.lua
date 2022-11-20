@@ -500,15 +500,17 @@ end
 
 -- Reparse attribute_slices that we tried to parse as an attribute
 function Tokenizer:reparse_attributes()
+  local slices = self.attribute_slices
   if not self.attribute_tokenizer then
     return
   end
   self.allow_attributes = false
-  local slices = self.attribute_slices
   self.attribute_tokenizer = nil
   self.attribute_start = nil
-  for i=1,#slices do
-    self:feed(unpack(slices[i]))
+  if slices then
+    for i=1,#slices do
+      self:feed(unpack(slices[i]))
+    end
   end
   self.allow_attributes = true
   self.slices = nil
