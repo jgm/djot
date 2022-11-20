@@ -548,12 +548,10 @@ function Tokenizer:feed(spos, endpos)
         pos = sp  -- we'll want to go over the whole failed portion again,
                   -- as no slice was added for it
       elseif status == "continue" then
-        if #self.attribute_slices > 0 and
-           sp == self.attribute_slices[#self.attribute_slices][2] + 1 then
-          self.attribute_slices[#self.attribute_slices][2] = ep
-        else
-          self.attribute_slices[#self.attribute_slices + 1] = {sp,ep}
+        if #self.attribute_slices == 0 then
+          self.attribute_slices = {}
         end
+        self.attribute_slices[#self.attribute_slices + 1] = {sp,ep}
         pos = ep + 1
       end
     else
@@ -621,6 +619,7 @@ function Tokenizer:get_matches()
   local sorted = {}
   local subject = self.subject
   local lastsp, lastep, lastannot
+  assert(self.attribute_tokenizer == nil)
   for i=self.firstpos, self.lastpos do
     if self.matches[i] then
       local sp, ep, annot = unpack_match(self.matches[i])
