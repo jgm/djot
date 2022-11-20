@@ -498,6 +498,22 @@ function Tokenizer:single_char(pos)
   return pos + 1
 end
 
+-- Reparse attribute_slices that we tried to parse as an attribute
+function Tokenizer:reparse_attributes()
+  if not self.attribute_tokenizer then
+    return
+  end
+  self.allow_attributes = false
+  local slices = self.attribute_slices
+  self.attribute_tokenizer = nil
+  self.attribute_start = nil
+  for i=1,#slices do
+    self:feed(unpack(slices[i]))
+  end
+  self.allow_attributes = true
+  self.slices = nil
+end
+
 -- Feed a slice to the parser, updating state.
 function Tokenizer:feed(spos, endpos)
   local special = "[][\\`{}_*()!<>~^:=+$\r\n'\".-]"
@@ -535,16 +551,7 @@ function Tokenizer:feed(spos, endpos)
         self.attribute_slices = nil
         pos = ep + 1
       elseif status == "fail" then
-        -- backtrack:
-        local slices = self.attribute_slices
-        self.allow_attributes = false
-        self.attribute_tokenizer = nil
-        self.attribute_start = nil
-        for i=1,#slices do
-          self:feed(unpack(slices[i]))
-        end
-        self.allow_attributes = true
-        self.slices = nil
+        self:reparse_attributes()
         pos = sp  -- we'll want to go over the whole failed portion again,
                   -- as no slice was added for it
       elseif status == "continue" then
@@ -620,16 +627,7 @@ function Tokenizer:get_matches()
   local subject = self.subject
   local lastsp, lastep, lastannot
   if self.attribute_tokenizer then -- we're still in an attribute parse
-    -- backtrack:
-    local slices = self.attribute_slices
-    self.allow_attributes = false
-    self.attribute_tokenizer = nil
-    self.attribute_start = nil
-    for i=1,#slices do
-      self:feed(unpack(slices[i]))
-    end
-    self.allow_attributes = true
-    self.slices = nil
+    self:reparse_attributes()
   end
   for i=self.firstpos, self.lastpos do
     if self.matches[i] then
