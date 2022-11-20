@@ -34,14 +34,16 @@ a *b{#id key="*"}o
 <p>a <span id="id" key="*">*b</span>o</p>
 ```
 
-Don't allow attributes to start when we're parsing a potential
-attribute.
+Don't mind braces in quotes:
 
 ```
 hi{key="{#hi"}
 .
-<p>hi{key=&ldquo;{#hi&rdquo;</p>
+<p><span key="{#hi">hi</span></p>
 ```
+
+Don't allow attributes to start when we're parsing a potential
+attribute.
 
 ```
 hi\{key="abc{#hi}"
