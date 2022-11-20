@@ -186,7 +186,11 @@ function Tokenizer:specs()
       is_para = true,
       content = "inline",
       continue = function()
-        return self:find("^%S")
+        if self:find("^%S") then
+          return true
+        else
+          return false
+        end
       end,
       open = function(spec)
         self:add_container(Container:new(spec,
@@ -573,52 +577,68 @@ function Tokenizer:specs()
 
     { name = "attributes",
       content = "attributes",
-      continue = function(container)
-        if self.indent > container.indent then
-          container.slices[#container.slices + 1] =
-            {self.pos, self.endeol}
-          self.pos = self.starteol
-          return true
-        else
-          return false
-        end
-      end,
       open = function(spec)
         if self:find("^%{") then
-          self:add_container(Container:new(spec,
-                             { slices = {{self.pos, self.endeol}},
-                               indent = self.indent }))
-          self.pos = self.starteol
+          local attribute_tokenizer =
+                  attributes.AttributeTokenizer:new(self.subject)
+          local status, ep =
+                 attribute_tokenizer:feed(self.pos, self.endeol)
+          if status == 'fail' or ep + 1 < self.endeol then
+            return false
+          else
+            self:add_container(Container:new(spec,
+                               { status = status,
+                                 indent = self.indent,
+                                 startpos = self.pos,
+                                 slices = {},
+                                 attribute_tokenizer = attribute_tokenizer }))
+            local container = self.containers[#self.containers]
+            container.slices = { {self.pos, self.endeol } }
+            self.pos = self.starteol
+            return true
+          end
+
+        end
+      end,
+      continue = function(container)
+        if self.indent > container.indent then
+          table.insert(container.slices, { self.pos, self.endeol })
+          local status, ep =
+            container.attribute_tokenizer:feed(self.pos, self.endeol)
+          container.status = status
+          if status ~= 'fail' or ep + 1 < self.endeol then
+            self.pos = self.starteol
+            return true
+          end
+        end
+        -- if we get to here, we don't continue; either we
+        -- reached the end of indentation or we failed in
+        -- parsing attributes
+        if container.status == 'done' then
+          return false
+        else -- attribute parsing failed; convert to para and continue
+             -- with that
+          local para_spec = self:specs()[1]
+          local para = Container:new(para_spec,
+                        { inline_tokenizer =
+                           inline.Tokenizer:new(self.subject, self.warn) })
+          self:add_match(container.start, container.start, "+para")
+          self.containers[#self.containers] = para
+          -- reparse the text we couldn't parse as a block attribute:
+          para.inline_tokenizer.attribute_slices = container.slices
+          para.inline_tokenizer:reparse_attributes()
+          self.pos = para.inline_tokenizer.lastpos + 1
           return true
         end
       end,
       close = function(container)
-        local attribute_tokenizer = attributes.AttributeTokenizer:new(self.subject)
         local slices = container.slices
-        local status, finalpos
-        for i=1,#slices do
-          status, finalpos = attribute_tokenizer:feed(unpack(slices[i]))
-          if status ~= 'continue' then
-            break
-          end
+        local attr_matches = container.attribute_tokenizer:get_matches()
+        self:add_match(container.startpos, container.startpos, "+block_attributes")
+        for i=1,#attr_matches do
+          self:add_match(unpack_match(attr_matches[i]))
         end
-        -- make sure there's no extra content after the }
-        if status == 'done' and find(self.subject, "^[ \t]*[\r\n]", finalpos + 1) then
-          local attr_matches = attribute_tokenizer:get_matches()
-          self:add_match(slices[1][1], slices[1][1], "+block_attributes")
-          for i=1,#attr_matches do
-            self:add_match(unpack_match(attr_matches[i]))
-          end
-          self:add_match(slices[#slices][2], slices[#slices][2], "-block_attributes")
-        else -- If not, parse it as inlines and add paragraph match
-          container.inline_tokenizer = inline.Tokenizer:new(self.subject, self.warn)
-          self:add_match(slices[1][1], slices[1][1], "+para")
-          for i=1,#slices do
-            container.inline_tokenizer:feed(unpack(slices[i]))
-          end
-          self:get_inline_matches()
-          self:add_match(slices[#slices][2], slices[#slices][2], "-para")
-        end
+        self:add_match(self.pos, self.pos, "-block_attributes")
         self.containers[#self.containers] = nil
       end
     }

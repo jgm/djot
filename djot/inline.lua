@@ -501,7 +501,7 @@ end
 -- Reparse attribute_slices that we tried to parse as an attribute
 function Tokenizer:reparse_attributes()
   local slices = self.attribute_slices
-  if not self.attribute_tokenizer then
+  if not slices then
     return
   end
   self.allow_attributes = false
