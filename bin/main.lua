@@ -109,8 +109,8 @@ else
   if opts.filters then
     for _,fp in ipairs(opts.filters) do
       local oldpackagepath = package.path
-      package.path = "?.lua;" .. package.path
-      local filter = require(fp)
+      package.path = "./?.lua;" .. package.path
+      local filter = require(fp:gsub("%.lua$",""))
       package.path = oldpackagepath
       if #filter > 0 then -- multiple filters as in pandoc
         for _,f in ipairs(filter) do
