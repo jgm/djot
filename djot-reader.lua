@@ -126,7 +126,9 @@ function Renderer:doc(node)
 end
 
 function Renderer:section(node)
-  return pandoc.Div(self:render_children(node), to_attr(node.attrs))
+  local attrs = to_attr(node.attr)
+  table.insert(attrs.classes, 1, "section")
+  return pandoc.Div(self:render_children(node), attrs)
 end
 
 function Renderer:raw_block(node)
