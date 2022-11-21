@@ -56,7 +56,57 @@ It can produce
 
 # FILTERS
 
-TBD
+Filters are small Lua programs that modify the parsed document
+prior to rendering.  Here is an example of a filter that
+capitalizes all the content text in a document:
+
+```lua
+return {
+  str = function(e)
+     e.text = e.text:upper()
+   end
+}
+```
+
+Save this as `caps.lua` use tell djot to use it using
+
+   djot --filter caps input.djot
+
+Note that djot will search your LUA_PATH for the filter if
+it is not found in the working directory, so you can in
+principle install filters using luarocks.
+
+Here's a filter that prints a list of all the URLs you
+link to in a document.  This filter doesn't alter the
+document at all; it just prints the list to stderr.
+
+```lua
+return {
+  link = function(el)
+    io.stderr:write(el.destination .. "\n")
+  end
+}
+```
+
+A filter walks the document's abstract syntax tree, applying
+functions to like-tagged nodes, so you will want to get familiar
+with how djot's AST is designed. The easiest way to do this is
+to use `djot --ast`.
+
+Normally a "bottom-up" traversal is done, with child nodes being
+modified before their parents.  If you want a "top-down"
+traversal instead, add `traversal = "topdown"` to your filter:
+
+return {
+  traversal = "topdown",
+  str = function(e)
+     e.text = e.text:upper()
+   end
+}
+
+TODO check.
+
+
 
 # AUTHORS
 
