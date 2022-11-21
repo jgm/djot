@@ -21,20 +21,6 @@ local function copy(tbl)
   return result
 end
 
-local function to_text(node)
-  local buffer = {}
-  if node[1] == "str" then
-    buffer[#buffer + 1] = node[2]
-  elseif node[1] == "softbreak" then
-    buffer[#buffer + 1] = " "
-  elseif #node > 1 then
-    for i=2,#node do
-      buffer[#buffer + 1] = to_text(node[i])
-    end
-  end
-  return table.concat(buffer)
-end
-
 local Renderer = {}
 
 function Renderer:new()
@@ -48,13 +34,24 @@ function Renderer:new()
   return state
 end
 
+local function words(s)
+  if s then
+    local res = {}
+    string.gsub(s, "(%S+)", function(x) table.insert(res, x) end)
+    return res
+  else
+    return {}
+  end
+end
+
 local function to_attr(attr)
   if not attr then
     return nil
   end
   local result = copy(attr)
-  result._keys = nil
-  return result
+  result.id = nil
+  result.class = nil
+  return pandoc.Attr(attr.id or "", words(attr.class), result)
 end
 
 function Renderer:with_optional_span(node, f)
@@ -75,23 +72,31 @@ function Renderer:with_optional_div(node, f)
   end
 end
 
+function Renderer:render_node(node)
+  return self[node.tag](self, node)
+end
+
 function Renderer:render_children(node)
   local buff = {}
-  if #node > 1 then
+  local inline = false
+  if node.children and #node.children > 0 then
     local oldtight
     if node.tight ~= nil then
       oldtight = self.tight
       self.tight = node.tight
     end
-    for i=2,#node do
-      local elt = self[node[i][1]](self, node[i])
+    local function integrate_elt(elt)
       if elt.__name == "Inlines" or elt.__name == "Blocks" then
         for i=1,#elt do
-          buff[#buff + 1] = elt[i]
+          integrate_elt(elt[i])
         end
       else
         buff[#buff + 1] = elt
       end
+    end
+    for _,child in ipairs(node.children) do
+      local elt = self:render_node(child)
+      integrate_elt(elt)
     end
     if node.tight ~= nil then
       self.tight = oldtight
@@ -100,18 +105,20 @@ function Renderer:render_children(node)
   return buff
 end
 
-function Renderer:render(doc)
-  self.footnotes = doc.footnotes
-  self.references = doc.references
-  return self[doc[1]](self, doc)
-end
-
 function Renderer:doc(node)
+  self.footnotes = node.footnotes
+  self.references = node.references
   return pandoc.Pandoc(self:render_children(node))
 end
 
+function Renderer:section(node)
+  local attrs = to_attr(node.attr)
+  table.insert(attrs.classes, 1, "section")
+  return pandoc.Div(self:render_children(node), attrs)
+end
+
 function Renderer:raw_block(node)
-  return pandoc.RawBlock(node.format, node[2])
+  return pandoc.RawBlock(node.format, node.text)
 end
 
 function Renderer:para(node)
@@ -131,7 +138,9 @@ function Renderer:div(node)
 end
 
 function Renderer:heading(node)
-  return pandoc.Header(node.level, self:render_children(node), to_attr(node.attr))
+  return pandoc.Header(node.level,
+              self:render_children(node),
+              to_attr(node.attr))
 end
 
 function Renderer:thematic_break(node)
@@ -149,7 +158,7 @@ function Renderer:code_block(node)
   else
     attr.class = node.lang .. " " .. attr.class
   end
-  return pandoc.CodeBlock(to_text(node):gsub("\n$",""), attr)
+  return pandoc.CodeBlock(node.text:gsub("\n$",""), attr)
 end
 
 function Renderer:table(node)
@@ -250,10 +259,9 @@ function Renderer:list_item(node)
 end
 
 function Renderer:definition_list_item(node)
-  local items = self:render_children(node)
-  local term = items[1]
-  table.remove(items, 1)
-  return { term, items }
+  local term = self:render_node(node.children[1])
+  local defn = self:render_node(node.children[2])
+  return { term, defn }
 end
 
 function Renderer:term(node)
@@ -269,7 +277,7 @@ function Renderer:reference_definition()
 end
 
 function Renderer:footnote_reference(node)
-  local label = node[2]
+  local label = node.text
   local note = self.footnotes[label]
   if note then
     return pandoc.Note(self:render_children(note))
@@ -280,15 +288,15 @@ function Renderer:footnote_reference(node)
 end
 
 function Renderer:raw_inline(node)
-  return pandoc.RawInline(node.format, node[2])
+  return pandoc.RawInline(node.format, node.text)
 end
 
 function Renderer:str(node)
   -- add a span, if needed, to contain attribute on a bare string:
   if node.attr then
-    return pandoc.Span(pandoc.Inlines(node[2]), to_attr(node.attr))
+    return pandoc.Span(pandoc.Inlines(node.text), to_attr(node.attr))
   else
-    return pandoc.Inlines(node[2])
+    return pandoc.Inlines(node.text)
   end
 end
 
@@ -305,7 +313,7 @@ function Renderer:nbsp()
 end
 
 function Renderer:verbatim(node)
-  return pandoc.Code(to_text(node), to_attr(node.attr))
+  return pandoc.Code(node.text, to_attr(node.attr))
 end
 
 function Renderer:link(node)
@@ -434,11 +442,11 @@ end
 
 function Renderer:emoji(node)
   emoji = require("djot.emoji")
-  local found = emoji[node[2]:sub(2,-2)]
+  local found = emoji[node.text:sub(2,-2)]
   if found then
     return found
   else
-    return node[2]
+    return node.text
   end
 end
 
@@ -447,12 +455,10 @@ function Renderer:math(node)
   if find(node.attr.class, "display") then
     math_type = "DisplayMath"
   end
-  return pandoc.Math(math_type, to_text(node))
+  return pandoc.Math(math_type, node.text)
 end
 
 function Reader(input)
-  local parser = djot.Parser:new(tostring(input))
-  parser:parse()
-  parser:build_ast()
-  return Renderer:render(parser.ast)
+  local doc = djot.parse(tostring(input))
+  return Renderer:render_node(doc.ast)
 end

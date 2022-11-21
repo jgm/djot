@@ -21,9 +21,54 @@ jobs:
       with:
         luaVersion: ${{ matrix.luaVersion }}
     - uses: leafo/gh-actions-luarocks@v4
+    - uses: mymindstorm/setup-emsdk@v11
+    - name: Install luaposix for fuzz test
+      run: |
+          luarocks install luaposix # for fuzz tests
+    - name: Build and test
+      run: |
+          make testall install
+          make -C clib
+          make -C web playground/djot.js
+
+  windows:
+
+    runs-on: windows-2019
+    strategy:
+      fail-fast: false
+    steps:
+    - uses: actions/checkout@v1
+    - name: Install mingw
+      run: |
+          choco install mingw
+    - name: Build and test executable
+      run: |
+          cd clib
+          make
+    - name: Test lua script
+      run: |
+          ./clib/lua-src/lua test.lua
+
+  macos:
+
+    runs-on: macos-11
+    strategy:
+      fail-fast: false
+      matrix:
+        luaVersion:
+          - '5.4'
+          - 'luajit'
+    steps:
+    - uses: actions/checkout@v1
+    - uses: leafo/gh-actions-lua@v9
+      with:
+        luaVersion: ${{ matrix.luaVersion }}
+    - uses: leafo/gh-actions-luarocks@v4
+    - name: Install luaposix for fuzz test
+      run: |
+          luarocks install luaposix # for fuzz tests
     - name: Build and test
       run: |
           make testall install
           cd clib
           make test
-

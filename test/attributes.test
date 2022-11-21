@@ -34,14 +34,16 @@ a *b{#id key="*"}o
 <p>a <span id="id" key="*">*b</span>o</p>
 ```
 
-Don't allow attributes to start when we're parsing a potential
-attribute.
+Don't mind braces in quotes:
 
 ```
 hi{key="{#hi"}
 .
-<p>hi{key=&ldquo;{#hi&rdquo;</p>
+<p><span key="{#hi">hi</span></p>
 ```
+
+Don't allow attributes to start when we're parsing a potential
+attribute.
 
 ```
 hi\{key="abc{#hi}"
@@ -225,4 +227,39 @@ Block attributes can be empty:
 hi
 .
 <p>hi</p>
+```
+
+Non-attributes:
+
+```
+text{a=x
+
+hello
+.
+<p>text{a=x</p>
+<p>hello</p>
+```
+
+```
+{a=x
+hello
+.
+<p>{a=x
+hello</p>
+```
+
+```
+text{a=x
+# non-heading
+.
+<p>text{a=x
+# non-heading</p>
+```
+
+```
+{a=x
+# non-heading
+.
+<p>{a=x
+# non-heading</p>
 ```

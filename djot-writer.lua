@@ -139,8 +139,17 @@ Blocks.Header = function(el)
 end
 
 Blocks.Div = function(el)
-  local attr = render_attributes(el, true)
-  return concat{attr, cr, ":::", cr, blocks(el.content, blankline), cr, ":::"}
+  if el.classes:includes("section") then
+    -- sections are implicit in djot
+    if el.identifier and el.content[1].t == "Header" and
+        el.content[1].identifier == "" then
+      el.content[1].identifier = el.identifier
+    end
+    return blocks(el.content, blankline)
+  else
+    local attr = render_attributes(el, true)
+    return concat{attr, cr, ":::", cr, blocks(el.content, blankline), cr, ":::"}
+  end
 end
 
 Blocks.RawBlock = function(el)

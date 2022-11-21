@@ -39,6 +39,7 @@ function Tokenizer:new(subject, warn)
       allow_attributes = true, -- allow parsing of attributes
       attribute_tokenizer = nil,  -- attribute parser
       attribute_start = nil,  -- start of potential attribute
+      attribute_slices = nil, -- slices we've tried to parse as attributes
     }
   setmetatable(state, self)
   self.__index = self
@@ -119,7 +120,8 @@ function Tokenizer.between_matched(c, annotation, defaultmatch, opentest)
     local can_open = find(subject, "^%S", pos + 1)
     local can_close = find(subject, "^%S", pos - 1)
     local has_open_marker = matches_pattern(self.matches[pos - 1], "^open%_marker")
-    local has_close_marker = byte(subject, pos + 1) == 125 -- }
+    local has_close_marker = pos + 1 <= endpos and
+                              byte(subject, pos + 1) == 125 -- }
     local endcloser = pos
     local startopener = pos
 
@@ -145,7 +147,13 @@ function Tokenizer.between_matched(c, annotation, defaultmatch, opentest)
       defaultmatch = defaultmatch:gsub("^left", "right")
     end
 
-    local openers = self.openers[c]
+    local d
+    if has_close_marker then
+      d = "{" .. c
+    else
+      d = c
+    end
+    local openers = self.openers[d]
     if can_close and openers and #openers > 0 then
       -- check openers for a match
       local opener = openers[#openers]
@@ -180,9 +188,15 @@ function Tokenizer.between_matched(c, annotation, defaultmatch, opentest)
         end
       end
     end
+
     -- if we get here, we didn't match an opener
     if can_open then
-      self:add_opener(c, startopener, pos)
+      if has_open_marker then
+        d = "{" .. c
+      else
+        d = c
+      end
+      self:add_opener(d, startopener, pos)
       self:add_match(startopener, pos, defaultmatch)
       return pos + 1
     else
@@ -200,7 +214,8 @@ Tokenizer.matchers = {
       if not endchar then
         return nil
       end
-      if find(subject, "^%$%$", pos - 2) then
+      if find(subject, "^%$%$", pos - 2) and
+          not find(subject, "^\\", pos - 3) then
         self.matches[pos - 2] = nil
         self.matches[pos - 1] = nil
         self:add_match(pos - 2, endchar, "+display_math")
@@ -395,10 +410,9 @@ Tokenizer.matchers = {
       elseif self.allow_attributes then
         self.attribute_tokenizer = attributes.AttributeTokenizer:new(self.subject)
         self.attribute_start = pos
+        self.attribute_slices = {}
         return pos
-      else -- disabling allow_attributes only lasts
-        -- for one potential attribute start {, and then is re-enabled
-        self.allow_attributes = true
+      else
         self:add_match(pos, pos, "str")
         return pos + 1
       end
@@ -509,10 +523,27 @@ function Tokenizer:single_char(pos)
   return pos + 1
 end
 
-local special = "[][\\`{}_*()!<>~^:=+$\r\n'\".-]"
+-- Reparse attribute_slices that we tried to parse as an attribute
+function Tokenizer:reparse_attributes()
+  local slices = self.attribute_slices
+  if not slices then
+    return
+  end
+  self.allow_attributes = false
+  self.attribute_tokenizer = nil
+  self.attribute_start = nil
+  if slices then
+    for i=1,#slices do
+      self:feed(unpack(slices[i]))
+    end
+  end
+  self.allow_attributes = true
+  self.slices = nil
+end
 
 -- Feed a slice to the parser, updating state.
 function Tokenizer:feed(spos, endpos)
+  local special = "[][\\`{}_*()!<>~^:=+$\r\n'\".-]"
   local subject = self.subject
   local matchers = self.matchers
   local pos
@@ -526,7 +557,10 @@ function Tokenizer:feed(spos, endpos)
   while pos <= endpos do
     if self.attribute_tokenizer then
       local sp = pos
-      local ep2 = bounded_find(subject, special, pos, endpos) or endpos
+      local ep2 = bounded_find(subject, special, pos, endpos)
+      if not ep2 or ep2 > endpos then
+        ep2 = endpos
+      end
       local status, ep = self.attribute_tokenizer:feed(sp, ep2)
       if status == "done" then
         local attribute_start = self.attribute_start
@@ -544,12 +578,14 @@ function Tokenizer:feed(spos, endpos)
         self.attribute_slices = nil
         pos = ep + 1
       elseif status == "fail" then
-        -- backtrack:
-        pos = self.attribute_start --- back to start but with:
-        self.allow_attributes = false
-        self.attribute_tokenizer = nil
-        self.attribute_start = nil
+        self:reparse_attributes()
+        pos = sp  -- we'll want to go over the whole failed portion again,
+                  -- as no slice was added for it
       elseif status == "continue" then
+        if #self.attribute_slices == 0 then
+          self.attribute_slices = {}
+        end
+        self.attribute_slices[#self.attribute_slices + 1] = {sp,ep}
         pos = ep + 1
       end
     else
@@ -617,6 +653,9 @@ function Tokenizer:get_matches()
   local sorted = {}
   local subject = self.subject
   local lastsp, lastep, lastannot
+  if self.attribute_tokenizer then -- we're still in an attribute parse
+    self:reparse_attributes()
+  end
   for i=self.firstpos, self.lastpos do
     if self.matches[i] then
       local sp, ep, annot = unpack_match(self.matches[i])

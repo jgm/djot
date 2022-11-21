@@ -2,8 +2,6 @@
 let
   myLua = pkgs.luajit;
   myLuaWithPackages = myLua.withPackages(ps: with ps; [
-      busted
-      luafilesystem
       luaposix
   ]);
 in

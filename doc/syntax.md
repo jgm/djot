@@ -44,6 +44,10 @@ emphasis, while `_}` behaves like `_` but can *only* close emphasis:
     {_Emphasized_}
     _}not emphasized{_
 
+Explicitly marked closers can only match explicitly marked
+openers, and non-marked closers can only match non-marked
+openers (so, for example, `{_hi_`) doesn't produce emphasis).
+
 When there are multiple openers that might be matched with a
 given closer, the closest one is used.  For example:
 

@@ -1,5 +1,6 @@
 LUAVERSION=5.4.4
 LUAURL=https://www.lua.org/ftp/lua-$(LUAVERSION).tar.gz
+LUA=$(shell which lua || echo "lua-src/lua")
 LUASRC=lua-src
 LIBLUA=$(LUASRC)/liblua.a
 LUAHEADERS=$(LUASRC)
@@ -10,6 +11,12 @@ MODULES=$(patsubst %, ../%, djot/match.lua djot/attributes.lua djot/inline.lua d
 LUASRCS=$(patsubst %,$(LUASRC)/%.c,lapi lgc lstate lauxlib linit lstring lbaselib liolib lstrlib lcode llex ltable lcorolib lmathlib ltablib lctype lmem ltm ldblib loadlib luac ldebug lobject lundump ldo lopcodes lutf8lib ldump loslib lvm lfunc lparser lzio)
 CFLAGS= -std=c99 -O2 -Wall -DLUA_COMPAT_5_3 $(SYSCFLAGS) $(MYCFLAGS)
 UNAME=$(shell uname)
+ifeq (MSYS,$(findstring MSYS,$(UNAME)))
+PLAT=mingw
+CC=gcc
+else
+PLAT=guess
+endif
 ifeq ($(UNAME), Linux)
 LDFLAGS=-static -lm $(SYSLDFLAGS) $(MYLDFLAGS)
 else
@@ -39,8 +46,11 @@ $(LUASRC):
 djot.o: djot.c djot_combined.inc $(LUASRC)
 	$(CC) $(CFLAGS) -c -I . -I $(LUAHEADERS) $<
 
-djot_combined.lua: $(MODULES)
-	lua combine.lua $^ > $@
+$(LUASRC)/lua: $(LUASRC)
+	make -C $(LUASRC) $(PLAT)
+
+djot_combined.lua: $(LUA) $(MODULES)
+	$(LUA) combine.lua $(MODULES) > $@
 
 djot_combined.inc: djot_combined.lua
 	echo "unsigned char djot_combined_lua[] = {" > $@
