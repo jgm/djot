@@ -21,20 +21,6 @@ local function copy(tbl)
   return result
 end
 
-local function to_text(node)
-  local buffer = {}
-  if node.tag == "str" then
-    buffer[#buffer + 1] = node.text
-  elseif node.tag == "softbreak" then
-    buffer[#buffer + 1] = " "
-  elseif #node > 1 then
-    for i=2,#node do
-      buffer[#buffer + 1] = to_text(node[i])
-    end
-  end
-  return table.concat(buffer)
-end
-
 local Renderer = {}
 
 function Renderer:new()
@@ -172,7 +158,7 @@ function Renderer:code_block(node)
   else
     attr.class = node.lang .. " " .. attr.class
   end
-  return pandoc.CodeBlock(to_text(node):gsub("\n$",""), attr)
+  return pandoc.CodeBlock(node.text:gsub("\n$",""), attr)
 end
 
 function Renderer:table(node)
@@ -327,7 +313,7 @@ function Renderer:nbsp()
 end
 
 function Renderer:verbatim(node)
-  return pandoc.Code(to_text(node), to_attr(node.attr))
+  return pandoc.Code(node.text, to_attr(node.attr))
 end
 
 function Renderer:link(node)
@@ -469,7 +455,7 @@ function Renderer:math(node)
   if find(node.attr.class, "display") then
     math_type = "DisplayMath"
   end
-  return pandoc.Math(math_type, to_text(node))
+  return pandoc.Math(math_type, node.text)
 end
 
 function Reader(input)
