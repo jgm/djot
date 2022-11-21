@@ -21,9 +21,7 @@ jobs:
       with:
         luaVersion: ${{ matrix.luaVersion }}
     - uses: leafo/gh-actions-luarocks@v4
-    - name: Install emscripten for web target
-      run: |
-          sudo apt-get install emscripten
+    - uses: mymindstorm/setup-emsdk@v11
     - name: Install luaposix for fuzz test
       run: |
           luarocks install luaposix # for fuzz tests
