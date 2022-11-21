@@ -193,7 +193,6 @@ function AttributeTokenizer:new(subject)
     subject = subject,
     state = START,
     begin = nil,
-    failed = nil,
     lastpos = nil,
     matches = {}
     }
