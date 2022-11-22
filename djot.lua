@@ -69,6 +69,7 @@ end
 
 function Doc:apply_filter(filter)
   apply_filter(self.ast, filter)
+  return self
 end
 
 function Doc:render_matches(handle, use_json, warn)
