@@ -1,4 +1,5 @@
 local djot = require("djot")
+local filter = require("djot.filter")
 
 local help = [[
 djot [opts] [file*]
@@ -108,16 +109,9 @@ else
 
   if opts.filters then
     for _,fp in ipairs(opts.filters) do
-      local oldpackagepath = package.path
-      package.path = "./?.lua;" .. package.path
-      local filter = require(fp:gsub("%.lua$",""))
-      package.path = oldpackagepath
-      if #filter > 0 then -- multiple filters as in pandoc
-        for _,f in ipairs(filter) do
-          doc:apply_filter(f)
-        end
-      else
-        doc:apply_filter(filter)
+      local filters = filter.load_filter(fp)
+      for _,f in ipairs(filters) do
+        doc:apply_filter(f)
       end
     end
   end
