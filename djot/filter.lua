@@ -9,12 +9,13 @@
 -- }
 --
 -- A filter may define functions for as many different tag types
--- as it likes.  applyFilter will walk the AST and apply matching
+-- as it likes.  traverse will walk the AST and apply matching
 -- functions to each node.
 --
 -- to load a filter:
--- local filters = load_filters_from_string(contents) or
--- local filters = load_filters(path)
+-- local filter = require_filter(path)
+-- or
+-- local filter = load_filter(string)
 --
 -- By default filters do a bottom-up traversal; that is, the
 -- filter for a node is run after its children have been processed.
@@ -59,7 +60,7 @@
 --   }
 -- }
 --
--- A single file may return a table with multiple filters, which will be
+-- A single filter may return a table with multiple tables, which will be
 -- applied sequentially.
 --
 -- TODO: Should we automatically make available djot.ast functions like
@@ -67,8 +68,8 @@
 -- TODO: Filter tests/examples.
 -- TODO: Filter documentation
 --
-local function handle_node(node, filter)
-  local action = filter[node.t]
+local function handle_node(node, filterpart)
+  local action = filterpart[node.t]
   local action_in, action_out
   if type(action) == "table" then
     action_in = action.enter
@@ -84,12 +85,12 @@ local function handle_node(node, filter)
   end
   if node.c then
     for _,child in ipairs(node.c) do
-      handle_node(child, filter, topdown)
+      handle_node(child, filterpart, topdown)
     end
   end
   if node.footnotes then
     for _, note in pairs(node.footnotes) do
-      handle_node(note, filter, topdown)
+      handle_node(note, filterpart, topdown)
     end
   end
   if action_out then
@@ -97,16 +98,22 @@ local function handle_node(node, filter)
   end
 end
 
-local function traverse(node, filter)
-  handle_node(node, filter)
+local function traverse(node, filterpart)
+  handle_node(node, filterpart)
   return node
 end
 
--- Returns a table containing the filters defined in fp.
+local function apply_filter(node, filter)
+  for _,filterpart in ipairs(filter) do
+    traverse(node, filterpart)
+  end
+end
+
+-- Returns a table containing the filter defined in fp.
 -- fp will be sought using 'require', so it may occur anywhere
 -- on the LUA_PATH, or in the working directory. On error,
 -- returns nil and an error message.
-local function load_filters(fp)
+local function require_filter(fp)
   local oldpackagepath = package.path
   -- allow omitting or providing the .lua extension:
   local ok, filter = pcall(function()
@@ -120,17 +127,17 @@ local function load_filters(fp)
   elseif type(filter) ~= "table" then
     return nil,  "filter must be a table"
   end
-  if #filter == 0 then -- just a single filter given
+  if #filter == 0 then -- just a single filter part given
     return {filter}
   else
     return filter
   end
 end
 
--- Load filter(s) from a string, which should have the
+-- Load filter from a string, which should have the
 -- form 'return { ... }'.  On error, return nil and an
 -- error message.
-local function load_filters_from_string(s)
+local function load_filter(s)
   local fn, err = load(s)
   if fn then
     local filter = fn()
@@ -148,7 +155,7 @@ local function load_filters_from_string(s)
 end
 
 return {
-  traverse = traverse,
-  load_filters = load_filters,
-  load_filters_from_string = load_filters_from_string
+  apply_filter = apply_filter,
+  require_filter = require_filter,
+  load_filter = load_filter
 }

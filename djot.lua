@@ -3,7 +3,7 @@ local ast = require("djot.ast")
 local html = require("djot.html")
 local match = require("djot.match")
 local json = require("djot.json")
-local traverse = require("djot.filter").traverse
+local apply_filter = require("djot.filter").apply_filter
 
 local unpack_match = match.unpack_match
 local format_match = match.format_match
@@ -68,7 +68,7 @@ function Doc:render_html(handle)
 end
 
 function Doc:apply_filter(filter)
-  traverse(self.ast, filter)
+  apply_filter(self.ast, filter)
 end
 
 function Doc:render_matches(handle, use_json, warn)
