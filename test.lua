@@ -142,6 +142,8 @@ for _,case in ipairs(testcases) do
 end
 local endtime = os.clock()
 
+dofile("testfilters.lua")(tests)
+
 io.write(string.format("%d tests completed in %0.3f s\n",
           tests.passed + tests.failed + tests.errors, endtime - starttime))
 io.write(string.format("PASSED: %4d\n", tests.passed))
