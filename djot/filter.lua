@@ -4,7 +4,7 @@
 -- example: This filter uppercases all str elements.
 -- return {
 --   str = function(e)
---     e.string = e.string:upper()
+--     e.text = e.text:upper()
 --    end
 -- }
 --
@@ -13,8 +13,8 @@
 -- functions to each node.
 --
 -- to load a filter:
--- local filter = dostring(contents) or
--- local filters = load_filter(path)
+-- local filters = load_filters_from_string(contents) or
+-- local filters = load_filters(path)
 --
 -- By default filters do a bottom-up traversal; that is, the
 -- filter for a node is run after its children have been processed.
@@ -104,13 +104,22 @@ end
 
 -- Returns a table containing the filters defined in fp.
 -- fp will be sought using 'require', so it may occur anywhere
--- on the LUA_PATH, or in the working directory.
-local function load_filter(fp)
+-- on the LUA_PATH, or in the working directory. On error,
+-- returns nil and an error message.
+local function load_filters(fp)
   local oldpackagepath = package.path
-  package.path = "./?.lua;" .. package.path
   -- allow omitting or providing the .lua extension:
-  local filter = require(fp:gsub("%.lua$",""))
-  package.path = oldpackagepath
+  local ok, filter = pcall(function()
+                         package.path = "./?.lua;" .. package.path
+                         local f = require(fp:gsub("%.lua$",""))
+                         package.path = oldpackagepath
+                         return f
+                      end)
+  if not ok then
+    return nil, filter
+  elseif type(filter) ~= "table" then
+    return nil,  "filter must be a table"
+  end
   if #filter == 0 then -- just a single filter given
     return {filter}
   else
@@ -118,7 +127,28 @@ local function load_filter(fp)
   end
 end
 
+-- Load filter(s) from a string, which should have the
+-- form 'return { ... }'.  On error, return nil and an
+-- error message.
+local function load_filters_from_string(s)
+  local fn, err = load(s)
+  if fn then
+    local filter = fn()
+    if type(filter) ~= "table" then
+      return nil,  "filter must be a table"
+    end
+    if #filter == 0 then -- just a single filter given
+      return {filter}
+    else
+      return filter
+    end
+  else
+    return nil, err
+  end
+end
+
 return {
   traverse = traverse,
-  load_filter = load_filter
+  load_filters = load_filters,
+  load_filters_from_string = load_filters_from_string
 }
