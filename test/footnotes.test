@@ -1,4 +1,4 @@
-```
+````
 test[^a] and another[^foo_bar].
 
 [^a]: This is a note.
@@ -28,7 +28,7 @@ another ref to the first note[^a].
 </li>
 </ol>
 </section>
-```
+````
 
 ```
 test[^nonexistent]
@@ -44,5 +44,3 @@ test[^nonexistent]
 </ol>
 </section>
 ```
-
-

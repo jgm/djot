@@ -24,11 +24,11 @@ Special characters: `*hi*`
 <p>*foo<code>*</code></p>
 ```
 
-```
+```````
 `````a`a``a```a````a``````a`````
 .
 <p><code>a`a``a```a````a``````a</code></p>
-```
+```````
 
 ```
 ` ``a`` `

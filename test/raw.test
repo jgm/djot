@@ -1,10 +1,10 @@
 Raw inline content:
 
-````
+```
 `<a>`{=html}
 .
 <p><a></p>
-````
+```
 
 Raw block-level content:
 
@@ -18,13 +18,13 @@ Raw block-level content:
 
 You can't mix regular attributes and raw syntax:
 
-```
+````
 `<b>foo</b>`{=html #id}
 ```
 .
 <p><code>&lt;b&gt;foo&lt;/b&gt;</code>{=html #id}
 <code></code></p>
-```
+````
 
 Attributes attached to raw content will just be ignored:
 
