@@ -53,6 +53,7 @@ function Tests:new()
     passed = 0,
     failed = 0,
     errors = 0,
+    accept = false,
     verbose = opts.verbose
   }
   setmetatable(contents, Tests)
@@ -60,78 +61,92 @@ function Tests:new()
   return contents
 end
 
-function Tests:do_test(file, linenum, renderer, inp, out)
-  local doc = djot.parse(inp)
+function Tests:do_test(test)
+  local doc = djot.parse(test.input)
   local actual
   if self.verbose then
-    io.write(string.format("Testing %s at linen %d\n", file, linenum))
+    io.write(string.format("Testing %s at linen %d\n", test.file, test.linenum))
   end
-  if renderer == "[html]" then
+  if test.renderer == "[html]" then
     actual = doc:render_html()
-  elseif renderer == "[matches]" then
+  elseif test.renderer == "[matches]" then
     actual = doc:render_matches()
-  elseif renderer == "[ast]" then
+  elseif test.renderer == "[ast]" then
     actual = doc:render_ast()
   end
-  if actual == out then
+  if actual == test.output then
     self.passed = self.passed + 1
     return true
   else
-    io.write(string.format("FAILED at %s line %d\n", file, linenum))
-    io.write(string.format("--- INPUT -------------------------------------\n%s--- EXPECTED ----------------------------------\n%s--- GOT ---------------------------------------\n%s-----------------------------------------------\n\n", inp, out, actual))
+    io.write(string.format("FAILED at %s line %d\n", test.file, test.linenum))
+    io.write(string.format("--- INPUT -------------------------------------\n%s--- EXPECTED ----------------------------------\n%s--- GOT ---------------------------------------\n%s-----------------------------------------------\n\n", test.input, test.output, actual))
     self.failed = self.failed + 1
-    return false, inp, out
+    return false
   end
 end
 
-function Tests:do_tests(file)
+function read_tests(file)
   local f = io.open("test/" .. file,"r")
   assert(f ~= nil, "File " .. file .. " cannot be read")
   local line
   local linenum = 0
-  while true do
-    local inp = ""
-    local out = ""
-    line = f:read()
-    linenum = linenum + 1
-    while line and not line:match("^```") do
+  return function()
+    while true do
+      local inp = ""
+      local out = ""
+      line = f:read()
+      local pretext = {line}
+      linenum = linenum + 1
+      while line and not line:match("^```") do
+        line = f:read()
+        pretext[#pretext + 1] = line
+        linenum = linenum + 1
+      end
+      local testlinenum = linenum
+      if not line then
+        break
+      end
+      local ticks, modifier = line:match("^(`+)%s*(%S*)")
+      local renderer = "[html]"
+      if modifier and #modifier > 0 then
+        renderer = modifier
+      end
       line = f:read()
       linenum = linenum + 1
-    end
-    local testlinenum = linenum
-    if not line then
-      break
-    end
-    local ticks, modifier = line:match("^(`+)%s*(%S*)")
-    local renderer = "[html]"
-    if modifier and #modifier > 0 then
-      renderer = modifier
-    end
-    line = f:read()
-    linenum = linenum + 1
-    while not line:match("^%.$") do
-      inp = inp .. line .. "\n"
+      while not line:match("^%.$") do
+        inp = inp .. line .. "\n"
+        line = f:read()
+        linenum = linenum + 1
+      end
       line = f:read()
       linenum = linenum + 1
-    end
-    line = f:read()
-    linenum = linenum + 1
-    while not line:match("^" .. ticks) do
-      out = out .. line .. "\n"
-      line = f:read()
-      linenum = linenum + 1
-    end
-    local ok, err = pcall(function()
-          self:do_test(file, testlinenum, renderer, inp, out)
-        end)
-    if not ok then
-      io.stderr:write(string.format("Error running test %s line %d:\n%s\n",
-                                    file, linenum, err))
-      self.errors = self.errors + 1
+      while not line:match("^" .. ticks) do
+        out = out .. line .. "\n"
+        line = f:read()
+        linenum = linenum + 1
+      end
+      return { file = file,
+               linenum = testlinenum,
+               pretext = pretext,
+               renderer = renderer,
+               input = inp,
+               output = out }
     end
   end
 end
 
+function Tests:do_tests(file)
+  for test in read_tests(file) do
+    local ok, err = pcall(function()
+          self:do_test(test)
+        end)
+    if not ok then
+      io.stderr:write(string.format("Error running test %s line %d:\n%s\n",
+                                    test.file, test.line, err))
+      self.errors = self.errors + 1
+    end
+  end
+end
 
 local tests = Tests:new()
 local starttime = os.clock()
