@@ -18,7 +18,7 @@ Issue #106:
 <p>|<code>|</code></p>
 ```
 
-``` [matches]
+``` matches
 
 |`|x
 .

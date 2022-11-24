@@ -202,13 +202,15 @@ function Tests:do_tests(file)
         pretext = pretext .. "\n"
       end
 
-      fh:write(string.format("%s%s%s\n%s.\n%s%s\n",
-      pretext,
-      ticks,
-      (test.renderer == "html" and "") or " " .. test.renderer,
-      test.input,
-      test.output,
-      ticks))
+      fh:write(string.format("%s%s%s\n%s",
+        pretext,
+        ticks,
+        (test.renderer == "html" and "") or " " .. test.renderer,
+        test.input))
+      for _,f in ipairs(test.filters) do
+        fh:write(string.format("!\n%s", f))
+      end
+      fh:write(string.format(".\n%s%s\n", test.output, ticks))
     end
     fh:close()
   end
