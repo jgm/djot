@@ -1,6 +1,7 @@
 -- run tests
 package.path = "./?.lua;" .. package.path
-local djot = require("./djot")
+local djot = require("djot")
+local load_filter = require("djot.filter").load_filter
 
 local testcases = {
   "attributes.test",
@@ -11,6 +12,7 @@ local testcases = {
   "emphasis.test",
   "escapes.test",
   "fenced_divs.test",
+  "filters.test",
   "footnotes.test",
   "headings.test",
   "insert_delete_mark.test",
@@ -180,7 +182,7 @@ function Tests:do_tests(file)
         end)
     if not ok then
       io.stderr:write(string.format("Error running test %s line %d:\n%s\n",
-                                    test.file, test.line, err))
+                                    test.file, test.linenum, err))
       self.errors = self.errors + 1
     end
   end
@@ -220,8 +222,6 @@ for _,case in ipairs(testcases) do
   end
 end
 local endtime = os.clock()
-
-dofile("testfilters.lua")(tests)
 
 io.write(string.format("%d tests completed in %0.3f s\n",
           tests.passed + tests.failed + tests.errors, endtime - starttime))
