@@ -63,16 +63,23 @@ function Tests:new()
 end
 
 function Tests:do_test(test)
-  local doc = djot.parse(test.input)
-  local actual
   if self.verbose then
     io.write(string.format("Testing %s at linen %d\n", test.file, test.linenum))
   end
-  if test.renderer == "[html]" then
+  local doc = djot.parse(test.input)
+  for _,filt in ipairs(test.filters) do
+    local f, err = load_filter(filt)
+    if not f then
+      error(err)
+    end
+    doc:apply_filter(f)
+  end
+  local actual
+  if test.renderer == "html" then
     actual = doc:render_html()
-  elseif test.renderer == "[matches]" then
+  elseif test.renderer == "matches" then
     actual = doc:render_matches()
-  elseif test.renderer == "[ast]" then
+  elseif test.renderer == "ast" then
     actual = doc:render_ast()
   end
   if self.accept then
@@ -110,18 +117,41 @@ function read_tests(file)
       if not line then
         break
       end
-      local ticks, modifier = line:match("^(`+)%s*(%S*)")
-      local renderer = "[html]"
-      if modifier and #modifier > 0 then
-        renderer = modifier
-      end
+      local ticks, modifier = line:match("^(`+)%s*(.*)")
+      local renderer = "html"
+      string.gsub(modifier, "(%a+)", function(x)
+          if x == "html" then
+            renderer = "html"
+          elseif x == "ast" then
+            renderer = "ast"
+          elseif x == "matches" then
+            renderer = "matches"
+          end
+        end)
+
+      -- parse input
       line = f:read()
       linenum = linenum + 1
-      while not line:match("^%.$") do
+      while not line:match("^[%.%!]$") do
         inp = inp .. line .. "\n"
         line = f:read()
         linenum = linenum + 1
       end
+
+      filters = {}
+      while line == "!" do -- parse filter
+        line = f:read()
+        linenum = linenum + 1
+        local filt = ""
+        while not line:match("^[%.%!]$") do
+          filt = filt .. line .. "\n"
+          line = f:read()
+          linenum = linenum + 1
+        end
+        table.insert(filters, filt)
+      end
+
+      -- parse output
       line = f:read()
       linenum = linenum + 1
       while not line:match("^" .. ticks) do
@@ -129,10 +159,12 @@ function read_tests(file)
         line = f:read()
         linenum = linenum + 1
       end
+
       return { file = file,
                linenum = testlinenum,
                pretext = table.concat(pretext, "\n"),
                renderer = renderer,
+               filters = filters,
                input = inp,
                output = out }
     end
@@ -171,7 +203,7 @@ function Tests:do_tests(file)
       fh:write(string.format("%s%s%s\n%s.\n%s%s\n",
       pretext,
       ticks,
-      (test.renderer == "[html]" and "") or " " .. test.renderer,
+      (test.renderer == "html" and "") or " " .. test.renderer,
       test.input,
       test.output,
       ticks))
