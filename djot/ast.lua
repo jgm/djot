@@ -939,27 +939,19 @@ end
 
 local function render(doc, handle)
   render_node(doc, handle, 0)
-  if doc.references then
-    handle:write("references = {")
-    local i = 1
+  if next(doc.references) ~= nil then
+    handle:write("references\n")
     for k,v in pairs(doc.references) do
-      local maybecomma = i == 1 and "\n " or ","
-      handle:write(format("%s [%q] =\n", maybecomma, k))
+      handle:write(format("  [%q] =\n", k))
       render_node(v, handle, 4)
-      i = i + 1
     end
-    handle:write("}\n")
   end
-  if doc.footnotes then
-    handle:write("footnotes = {")
-    local i = 1
+  if next(doc.footnotes) ~= nil then
+    handle:write("footnotes\n")
     for k,v in pairs(doc.footnotes) do
-      local maybecomma = i == 1 and "\n " or ","
-      handle:write(format("%s [%q] =\n", maybecomma, k))
+      handle:write(format("  [%q] =\n", k))
       render_node(v, handle, 4)
-      i = i + 1
     end
-    handle:write("}\n")
   end
 end
 

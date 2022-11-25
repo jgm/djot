@@ -60,12 +60,9 @@ doc
     str text="HELLO"
     footnote_reference text="1"
     str text="."
-references = {
-}
-footnotes = {
+footnotes
   ["1"] =
     footnote
       para
         str text="This is a note."
-}
 ```

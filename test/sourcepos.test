@@ -10,8 +10,4 @@ doc
     list_item (2:2:7-4:1:11)
       para (2:4:9-2:5:10)
         str (2:4:9-2:4:9) text="b"
-references = {
-}
-footnotes = {
-}
 ```
