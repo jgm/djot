@@ -70,7 +70,7 @@ function Tests:do_test(test)
     io.write(string.format("Testing %s at linen %d\n", test.file, test.linenum))
   end
   local sourcepos = false
-  if test.options:match("s") then
+  if test.options:match("p") then
     sourcepos = true
   end
   local doc = djot.parse(test.input, sourcepos)
