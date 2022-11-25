@@ -82,8 +82,11 @@ const debounce = (func, delay) => {
 function parse_and_render() {
   const text = document.getElementById("input").value;
   const sourcepos = document.getElementById("sourcepos").checked;
-  djot.parse(text, sourcepos);
-  render();
+  if (djot.parse(text, sourcepos)) {
+    render();
+  } else {
+    console.log("djot.parse failed.");
+  }
 }
 
 function render() {
