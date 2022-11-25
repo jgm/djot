@@ -5,7 +5,7 @@ all: $(PLAYGROUND)/djot.js $(PLAYGROUND)/styles.css
 .PHONY: all
 
 # also creates djot.wasm
-$(PLAYGROUND)/djot.js: $(CLIB)/djot.c $(CLIB)/djot.h $(CLIB)/djot_combined.inc
+$(PLAYGROUND)/djot.js:
 	make -C $(CLIB) wasm
 	cp $(CLIB)/djot.js $(PLAYGROUND)/
 	cp $(CLIB)/djot.wasm $(PLAYGROUND)/
@@ -22,5 +22,5 @@ upload:
 .PHONY: upload
 
 clean:
-	rm -rf djot.js djot.wasm styles.css
+	rm -rf $(PLAYGROUND)/djot.js $(PLAYGROUND)/djot.wasm $(PLAYGROUND)/styles.css
 .PHONY: clean
