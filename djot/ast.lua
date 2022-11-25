@@ -886,7 +886,8 @@ local function to_ast(tokenizer, sourcepos)
   while #containers > 1 do
     local node = table.remove(containers)
     add_child_to_tip(containers, node)
-    if sourceposmap then
+    -- note: doc container doesn't have pos, so we check:
+    if sourceposmap and containers[#containers].pos then
       containers[#containers].pos[2] = node.pos[2]
     end
   end
