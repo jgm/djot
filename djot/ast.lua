@@ -940,10 +940,10 @@ end
 local function render(doc, handle)
   render_node(doc, handle, 0)
   if doc.references then
-    handle:write("references = {\n")
+    handle:write("references = {")
     local i = 1
     for k,v in pairs(doc.references) do
-      local maybecomma = i == 1 and " " or ","
+      local maybecomma = i == 1 and "\n " or ","
       handle:write(format("%s [%q] =\n", maybecomma, k))
       render_node(v, handle, 4)
       i = i + 1
@@ -951,10 +951,13 @@ local function render(doc, handle)
     handle:write("}\n")
   end
   if doc.footnotes then
-    handle:write("footnotes = {\n")
+    handle:write("footnotes = {")
+    local i = 1
     for k,v in pairs(doc.footnotes) do
-      handle:write(format("  [%q] =\n", k))
+      local maybecomma = i == 1 and "\n " or ","
+      handle:write(format("%s [%q] =\n", maybecomma, k))
       render_node(v, handle, 4)
+      i = i + 1
     end
     handle:write("}\n")
   end
