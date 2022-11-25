@@ -68,7 +68,11 @@ function Tests:do_test(test)
   if self.verbose then
     io.write(string.format("Testing %s at linen %d\n", test.file, test.linenum))
   end
-  local doc = djot.parse(test.input)
+  local sourcepos = false
+  if test.options:match("s") then
+    sourcepos = true
+  end
+  local doc = djot.parse(test.input, sourcepos)
   for _,filt in ipairs(test.filters) do
     local f, err = load_filter(filt)
     if not f then
@@ -76,13 +80,13 @@ function Tests:do_test(test)
     end
     doc:apply_filter(f)
   end
-  local actual
-  if test.renderer == "html" then
-    actual = doc:render_html()
-  elseif test.renderer == "matches" then
-    actual = doc:render_matches()
-  elseif test.renderer == "ast" then
-    actual = doc:render_ast()
+  local actual = ""
+  if test.options:match("m") then
+    actual = actual .. doc:render_matches()
+  elseif test.options:match("a") then
+    actual = actual .. doc:render_ast()
+  else -- match 'h' or empty
+    actual = actual .. doc:render_html()
   end
   if self.accept then
     test.output = actual
@@ -119,17 +123,7 @@ function read_tests(file)
       if not line then
         break
       end
-      local ticks, modifier = line:match("^(`+)%s*(.*)")
-      local renderer = "html"
-      string.gsub(modifier, "(%a+)", function(x)
-          if x == "html" then
-            renderer = "html"
-          elseif x == "ast" then
-            renderer = "ast"
-          elseif x == "matches" then
-            renderer = "matches"
-          end
-        end)
+      local ticks, options = line:match("^(`+)%s*(.*)")
 
       -- parse input
       line = f:read()
@@ -165,7 +159,7 @@ function read_tests(file)
       return { file = file,
                linenum = testlinenum,
                pretext = table.concat(pretext, "\n"),
-               renderer = renderer,
+               options = options,
                filters = filters,
                input = inp,
                output = out }
@@ -205,7 +199,7 @@ function Tests:do_tests(file)
       fh:write(string.format("%s%s%s\n%s",
         pretext,
         ticks,
-        (test.renderer == "html" and "") or " " .. test.renderer,
+        (test.options == "" and "") or " " .. test.options,
         test.input))
       for _,f in ipairs(test.filters) do
         fh:write(string.format("!\n%s", f))
