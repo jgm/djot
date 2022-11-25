@@ -24,6 +24,7 @@ local testcases = {
   "regression.test",
   "smart.test",
   "spans.test",
+  "sourcepos.test",
   "super_subscript.test",
   "tables.test",
   "task_lists.test",

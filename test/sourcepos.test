@@ -1,0 +1,17 @@
+``` as
+ - a
+ - b
+.
+doc
+  list (1:2:2-4:1:11) list_style="-" tight="true"
+    list_item (1:2:2-2:2:7)
+      para (1:4:4-2:1:6)
+        str (1:4:4-1:4:4) text="a"
+    list_item (2:2:7-4:1:11)
+      para (2:4:9-2:5:10)
+        str (2:4:9-2:4:9) text="b"
+references = {
+}
+footnotes = {
+}
+```
