@@ -1,9 +1,6 @@
 -- this allows the code to work with both lua and luajit:
 local unpack = unpack or table.unpack
-local match = require("djot.match")
 local attributes = require("djot.attributes")
-local make_match, unpack_match, matches_pattern =
-  match.make_match, match.unpack_match, match.matches_pattern
 local find, byte = string.find, string.byte
 
 -- allow up to 3 captures...
@@ -47,7 +44,7 @@ function Tokenizer:new(subject, warn)
 end
 
 function Tokenizer:add_match(startpos, endpos, annotation)
-  self.matches[startpos] = make_match(startpos, endpos, annotation)
+  self.matches[startpos] = {startpos, endpos, annotation}
 end
 
 function Tokenizer:add_opener(name, ...)
@@ -87,13 +84,20 @@ function Tokenizer:str_matches(startpos, endpos)
   for i = startpos, endpos do
     local m = self.matches[i]
     if m then
-      local sp, ep, annot = unpack_match(m)
+      local sp, ep, annot = unpack(m)
       if annot ~= "str" and annot ~= "escape" then
-        self.matches[i] = make_match(sp, ep, "str")
+        self.matches[i] = {sp, ep, "str"}
       end
     end
   end
 end
+
+local function matches_pattern(match, patt)
+  if match then
+    return string.find(match[3], patt)
+  end
+end
+
 
 function Tokenizer.between_matched(c, annotation, defaultmatch, opentest)
   return function(self, pos, endpos)
@@ -198,7 +202,7 @@ Tokenizer.matchers = {
       if endchar then
         -- see if there were preceding spaces
         if #self.matches > 0 then
-          local sp, ep, annot = unpack_match(self.matches[#self.matches])
+          local sp, ep, annot = unpack(self.matches[#self.matches])
           if annot == "str" then
             while subject:byte(ep) == 32 or subject:byte(ep) == 9 do
               ep = ep -1
@@ -545,7 +549,7 @@ function Tokenizer:feed(spos, endpos)
         local attr_matches = self.attribute_tokenizer:get_matches()
         -- add attribute matches
         for i=1,#attr_matches do
-          self:add_match(unpack_match(attr_matches[i]))
+          self:add_match(unpack(attr_matches[i]))
         end
         -- restore state to prior to adding attribute parser:
         self.attribute_tokenizer = nil
@@ -633,10 +637,10 @@ function Tokenizer:get_matches()
   end
   for i=self.firstpos, self.lastpos do
     if self.matches[i] then
-      local sp, ep, annot = unpack_match(self.matches[i])
+      local sp, ep, annot = unpack(self.matches[i])
       if annot == "str" and lastannot == "str" and lastep + 1 == sp then
           -- consolidate adjacent strs
-        sorted[#sorted] = make_match(lastsp, ep, annot)
+        sorted[#sorted] = {lastsp, ep, annot}
         lastsp, lastep, lastannot = lastsp, ep, annot
       else
         sorted[#sorted + 1] = self.matches[i]
@@ -646,7 +650,7 @@ function Tokenizer:get_matches()
   end
   if #sorted > 0 then
     local last = sorted[#sorted]
-    local startpos, endpos, annot = unpack_match(last)
+    local startpos, endpos, annot = unpack(last)
     -- remove final softbreak
     if annot == "softbreak" then
       sorted[#sorted] = nil
@@ -654,19 +658,18 @@ function Tokenizer:get_matches()
       if not last then
         return sorted
       end
-      startpos, endpos, annot = unpack_match(last)
+      startpos, endpos, annot = unpack(last)
     end
     -- remove trailing spaces
     if annot == "str" and byte(subject, endpos) == 32 then
       while endpos > startpos and byte(subject, endpos) == 32 do
         endpos = endpos - 1
       end
-      sorted[#sorted] = make_match(startpos, endpos, annot)
+      sorted[#sorted] = {startpos, endpos, annot}
     end
     if self.verbatim > 0 then -- unclosed verbatim
       self.warn({ message = "Unclosed verbatim", pos = endpos })
-      sorted[#sorted + 1] = make_match(endpos, endpos,
-                                       "-" .. self.verbatim_type)
+      sorted[#sorted + 1] = {endpos, endpos, "-" .. self.verbatim_type}
     end
   end
   return sorted

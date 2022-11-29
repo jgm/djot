@@ -13,13 +13,10 @@ if not utf8 then -- if not lua 5.3 or higher...
   end
 end
 local unpack = unpack or table.unpack
-local match = require("djot.match")
 local emoji -- require this later, only if emoji encountered
 
 local find, lower, sub, rep, format =
   string.find, string.lower, string.sub, string.rep, string.format
-
-local unpack_match, get_length = match.unpack_match, match.get_length
 
 -- Creates a sparse array whose indices are byte positions.
 -- sourcepos_map[bytepos] = "line:column:charpos"
@@ -489,7 +486,7 @@ local function to_ast(tokenizer, sourcepos)
   -- being the one that would receive a new node
   local function handle_match(match, containers)
     matchidx = matchidx + 1
-    local startpos, endpos, annot = unpack_match(match)
+    local startpos, endpos, annot = unpack(match)
     local mod, tag = string.match(annot, "^([-+]?)(.+)")
     tags[matchidx] = annot
     if ignorable[tag] then
@@ -506,7 +503,7 @@ local function to_ast(tokenizer, sourcepos)
       add_block_attributes(node)
 
       if tag == "heading" then
-         node.level = get_length(match)
+         node.level = (endpos - startpos) + 1
 
       elseif find(tag, "^list_item") then
         node.t = "list_item"

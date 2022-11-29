@@ -1,7 +1,7 @@
 VERSION=$(shell grep "version =" djot.lua | sed -e 's/.*"\([^"]*\).*"/\1/')
 REVISION=1
 ROCKSPEC=djot-$(VERSION)-$(REVISION).rockspec
-MODULES=djot/match.lua djot/attributes.lua djot/inline.lua djot/block.lua djot/ast.lua djot/emoji.lua djot/html.lua djot/filter.lua djot.lua
+MODULES=djot/attributes.lua djot/inline.lua djot/block.lua djot/ast.lua djot/emoji.lua djot/html.lua djot/filter.lua djot.lua
 SOURCES=$(MODULES) bin/main.lua
 TESTSOURCES=test.lua pathological_tests.lua
 BUNDLE=djot

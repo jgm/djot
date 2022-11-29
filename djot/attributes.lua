@@ -1,6 +1,4 @@
 local find, sub = string.find, string.sub
-local match = require("djot.match")
-local make_match = match.make_match
 
 -- tokenizer for attributes
 -- attributes { id = "foo", class = "bar baz",
@@ -202,7 +200,7 @@ function AttributeTokenizer:new(subject)
 end
 
 function AttributeTokenizer:add_match(sp, ep, tag)
-  self.matches[#self.matches + 1] = make_match(sp, ep, tag)
+  self.matches[#self.matches + 1] = {sp, ep, tag}
 end
 
 function AttributeTokenizer:get_matches()

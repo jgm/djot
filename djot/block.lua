@@ -1,7 +1,5 @@
 local inline = require("djot.inline")
 local attributes = require("djot.attributes")
-local match = require("djot.match")
-local make_match, unpack_match = match.make_match, match.unpack_match
 local unpack = unpack or table.unpack
 local find, sub, byte = string.find, string.sub, string.byte
 
@@ -148,7 +146,7 @@ function Tokenizer:tokenize_table_row(sp, ep)
     -- add a table cell
     local cell_matches = inline_tokenizer:get_matches()
     for i=1,#cell_matches do
-      local s,e,ann = unpack_match(cell_matches[i])
+      local s,e,ann = unpack(cell_matches[i])
       if i == #cell_matches and ann == "str" then
         -- strip trailing space
         while byte(self.subject, e) == 32 and e >= s do
@@ -425,7 +423,7 @@ function Tokenizer:specs()
       close = function(_container)
         self:get_inline_matches()
         local last = self.matches[#self.matches] or self.pos - 1
-        local sp, ep, annot = unpack_match(last)
+        local sp, ep, annot = unpack(last)
         -- handle final ###
         local endheadingpos = ep
         local endheadingendpos = ep
@@ -439,7 +437,7 @@ function Tokenizer:specs()
               self.matches[#self.matches] = nil
             else
               self.matches[#self.matches] =
-                make_match(sp, sp + (endheadingstart - 2), "str")
+              {sp, sp + (endheadingstart - 2), "str"}
             end
           end
         end
@@ -636,7 +634,7 @@ function Tokenizer:specs()
         local attr_matches = container.attribute_tokenizer:get_matches()
         self:add_match(container.startpos, container.startpos, "+block_attributes")
         for i=1,#attr_matches do
-          self:add_match(unpack_match(attr_matches[i]))
+          self:add_match(unpack(attr_matches[i]))
         end
         self:add_match(self.pos, self.pos, "-block_attributes")
         self.containers[#self.containers] = nil
@@ -658,7 +656,7 @@ function Tokenizer:find(patt)
 end
 
 function Tokenizer:add_match(startpos, endpos, annotation)
-  self.matches[#self.matches + 1] = make_match(startpos, endpos, annotation)
+  self.matches[#self.matches + 1] = {startpos, endpos, annotation}
 end
 
 function Tokenizer:add_container(container)

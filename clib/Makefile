@@ -7,7 +7,7 @@ LUAHEADERS=$(LUASRC)
 # Or, for example, to use homebrew-installed luajit on macos:
 # LIBLUA=$(shell brew --prefix)/lib/libluajit.a
 # LUAHEADERS=$(shell brew --prefix)/include/luajit-2.1
-MODULES=$(patsubst %, ../%, djot/match.lua djot/attributes.lua djot/inline.lua djot/block.lua djot/ast.lua djot/emoji.lua djot/html.lua djot/filter.lua djot/json.lua djot.lua)
+MODULES=$(patsubst %, ../%, djot/attributes.lua djot/inline.lua djot/block.lua djot/ast.lua djot/emoji.lua djot/html.lua djot/filter.lua djot/json.lua djot.lua)
 LUASRCS=$(patsubst %,$(LUASRC)/%.c,lapi lgc lstate lauxlib linit lstring lbaselib liolib lstrlib lcode llex ltable lcorolib lmathlib ltablib lctype lmem ltm ldblib loadlib luac ldebug lobject lundump ldo lopcodes lutf8lib ldump loslib lvm lfunc lparser lzio)
 CFLAGS= -std=c99 -O2 -Wall -DLUA_COMPAT_5_3 $(SYSCFLAGS) $(MYCFLAGS)
 UNAME=$(shell uname)

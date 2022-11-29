@@ -1,12 +1,15 @@
+local unpack = unpack or table.unpack
 local block = require("djot.block")
 local ast = require("djot.ast")
 local html = require("djot.html")
-local match = require("djot.match")
 local json = require("djot.json")
 local apply_filter = require("djot.filter").apply_filter
 
-local unpack_match = match.unpack_match
-local format_match = match.format_match
+local format_match = function(match)
+  local startpos, endpos, annotation = unpack(match)
+  return string.format("%-s %d-%d\n", annotation, startpos, endpos)
+end
+
 
 local StringHandle = {}
 
@@ -81,7 +84,7 @@ function Doc:render_matches(handle, use_json, warn)
   end
   for idx,match in ipairs(self.matches) do
     if use_json then
-      local startpos, endpos, annotation = unpack_match(match)
+      local startpos, endpos, annotation = unpack(match)
       if idx > 1 then
         handle:write(",")
       end
@@ -146,7 +149,7 @@ local function render_matches(input, handle, use_json, warn)
   for match in tokenizer:tokenize() do
     idx = idx + 1
     if use_json then
-      local startpos, endpos, annotation = unpack_match(match)
+      local startpos, endpos, annotation = unpack(match)
       if idx > 1 then
         handle:write(",")
       end
