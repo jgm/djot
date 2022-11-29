@@ -776,9 +776,9 @@ function Tokenizer:tokenize()
                           self.last_matched_container < #self.containers and
                           self.containers[#self.containers].content == 'inline'
 
-          if not is_lazy and
-            self.last_matched_container < #self.containers then
-            while #self.containers > self.last_matched_container do
+          local last_matched = self.last_matched_container
+          if not is_lazy then
+            while #self.containers > 0 and #self.containers > last_matched do
               self.containers[#self.containers]:close()
             end
           end
