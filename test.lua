@@ -225,5 +225,5 @@ io.write(string.format("%d tests completed in %0.3f s\n",
 io.write(string.format("PASSED: %4d\n", tests.passed))
 io.write(string.format("FAILED: %4d\n", tests.failed))
 io.write(string.format("ERRORS: %4d\n", tests.errors))
-os.exit(tests.failed)
+os.exit(tests.failed + tests.errors)
 
