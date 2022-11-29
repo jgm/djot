@@ -101,7 +101,7 @@ end
 
 function Tokenizer.between_matched(c, annotation, defaultmatch, opentest)
   return function(self, pos, endpos)
-    local defaultmatch = defaultmatch or "str"
+    defaultmatch = defaultmatch or "str"
     local subject = self.subject
     local can_open = find(subject, "^%S", pos + 1)
     local can_close = find(subject, "^%S", pos - 1)

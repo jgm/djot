@@ -103,7 +103,7 @@ function Tests:do_test(test)
   end
 end
 
-function read_tests(file)
+local function read_tests(file)
   local f = io.open("test/" .. file,"r")
   assert(f ~= nil, "File " .. file .. " cannot be read")
   local line
@@ -135,7 +135,7 @@ function read_tests(file)
         linenum = linenum + 1
       end
 
-      filters = {}
+      local filters = {}
       while line == "!" do -- parse filter
         line = f:read()
         linenum = linenum + 1

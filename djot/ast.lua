@@ -662,7 +662,7 @@ local function to_ast(tokenizer, sourcepos)
           local i=1
           local aligns = {}
           while i <= #node.c do
-            local found, align
+            local found, align, _
             if node.c[i].t == "row" then
               local row = node.c[i].c
               for j=1,#row do

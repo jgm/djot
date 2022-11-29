@@ -85,12 +85,12 @@ local function handle_node(node, filterpart)
   end
   if node.c then
     for _,child in ipairs(node.c) do
-      handle_node(child, filterpart, topdown)
+      handle_node(child, filterpart)
     end
   end
   if node.footnotes then
     for _, note in pairs(node.footnotes) do
-      handle_node(note, filterpart, topdown)
+      handle_node(note, filterpart)
     end
   end
   if action_out then

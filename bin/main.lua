@@ -109,9 +109,9 @@ else
 
   if opts.filters then
     for _,fp in ipairs(opts.filters) do
-      local filter, err = filter.require_filter(fp)
-      if filter then
-         doc:apply_filter(filter)
+      local filt, err = filter.require_filter(fp)
+      if filt then
+         doc:apply_filter(filt)
       else
         io.stderr:write("Error loading filter " .. fp .. ":\n" .. err .. "\n")
       end

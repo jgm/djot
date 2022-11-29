@@ -118,9 +118,9 @@ function Tokenizer:tokenize_table_row(sp, ep)
   local complete_cell = false
   while self.pos <= ep do
     -- parse a chunk as inline content
-    local nextbar
+    local nextbar, _
     while not nextbar do
-      _,nextbar = self:find("^[^|\r\n]*|")
+      _, nextbar = self:find("^[^|\r\n]*|")
       if not nextbar then
         break
       end
@@ -630,7 +630,6 @@ function Tokenizer:specs()
         end
       end,
       close = function(container)
-        local slices = container.slices
         local attr_matches = container.attribute_tokenizer:get_matches()
         self:add_match(container.startpos, container.startpos, "+block_attributes")
         for i=1,#attr_matches do
@@ -694,14 +693,14 @@ function Tokenizer:tokenize()
   return function()  -- iterator
 
     -- return any accumulated matches
-    while self.returned < #self.matches do
+    if self.returned < #self.matches then
       self.returned = self.returned + 1
       return self.matches[self.returned]
     end
     while self.pos <= subjectlen do
 
       -- return any accumulated matches
-      while self.returned < #self.matches do
+      if self.returned < #self.matches then
         self.returned = self.returned + 1
         return self.matches[self.returned]
       end
@@ -822,7 +821,7 @@ function Tokenizer:tokenize()
       self.containers[#self.containers]:close()
     end
     -- return any accumulated matches
-    while self.returned < #self.matches do
+    if self.returned < #self.matches then
       self.returned = self.returned + 1
       return self.matches[self.returned]
     end
