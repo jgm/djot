@@ -27,7 +27,9 @@ jobs:
           luarocks install luaposix # for fuzz tests
     - name: Build and test
       run: |
-          make testall install && make -C clib && make -C web playground/djot.js
+          make testall install
+          make -C clib
+          make -C web playground/djot.js
 
   windows:
 
@@ -67,4 +69,6 @@ jobs:
           luarocks install luaposix # for fuzz tests
     - name: Build and test
       run: |
-          make testall install && cd clib && make test
+          make testall install
+          cd clib
+          make test
