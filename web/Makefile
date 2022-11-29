@@ -10,9 +10,6 @@ $(PLAYGROUND)/djot.js:
 	cp $(CLIB)/djot.js $(PLAYGROUND)/
 	cp $(CLIB)/djot.wasm $(PLAYGROUND)/
 
-$(PLAYGROUND)/styles.css: $(PLAYGROUND)/index.html $(PLAYGROUND)/input.css
-	tailwindcss --content $< --input $(PLAYGROUND)/input.css --minify > $@
-
 server:
 	cd playground && python3 -m http.server
 .PHONY: server
@@ -22,5 +19,5 @@ upload:
 .PHONY: upload
 
 clean:
-	rm -rf $(PLAYGROUND)/djot.js $(PLAYGROUND)/djot.wasm $(PLAYGROUND)/styles.css
+	rm -rf $(PLAYGROUND)/djot.js $(PLAYGROUND)/djot.wasm
 .PHONY: clean
