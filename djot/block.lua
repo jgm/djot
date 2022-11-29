@@ -526,7 +526,7 @@ function Tokenizer:specs()
         if eol then
           self:add_container(Container:new(spec, {equals = #equals}))
           self:add_match(sp, ep, "+div")
-          if ep > clsp then
+          if ep >= clsp then
             self:add_match(clsp, ep, "class")
           end
           self.pos = eol + 1
