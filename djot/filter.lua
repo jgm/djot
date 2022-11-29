@@ -138,7 +138,12 @@ end
 -- form 'return { ... }'.  On error, return nil and an
 -- error message.
 local function load_filter(s)
-  local fn, err = load(s)
+  local fn, err
+  if _VERSION:match("5.1") then
+    fn, err = loadstring(s)
+  else
+    fn, err = load(s)
+  end
   if fn then
     local filter = fn()
     if type(filter) ~= "table" then
