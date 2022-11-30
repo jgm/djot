@@ -484,9 +484,8 @@ local function to_ast(tokenizer, sourcepos)
   -- process a match:
   -- containers is the stack of containers, with #container
   -- being the one that would receive a new node
-  local function handle_match(match, containers)
+  local function handle_match(containers, startpos, endpos, annot)
     matchidx = matchidx + 1
-    local startpos, endpos, annot = unpack(match)
     local mod, tag = string.match(annot, "^([-+]?)(.+)")
     tags[matchidx] = annot
     if ignorable[tag] then
@@ -876,8 +875,8 @@ local function to_ast(tokenizer, sourcepos)
 
   local doc = mknode("doc")
   local containers = {doc}
-  for match in tokenizer:tokenize() do
-    handle_match(match, containers)
+  for sp, ep, annot in tokenizer:tokenize() do
+    handle_match(containers, sp, ep, annot)
   end
   -- close any open containers
   while #containers > 1 do

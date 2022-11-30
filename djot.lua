@@ -5,12 +5,6 @@ local html = require("djot.html")
 local json = require("djot.json")
 local apply_filter = require("djot.filter").apply_filter
 
-local format_match = function(match)
-  local startpos, endpos, annotation = unpack(match)
-  return string.format("%-s %d-%d\n", annotation, startpos, endpos)
-end
-
-
 local StringHandle = {}
 
 function StringHandle:new()
@@ -38,8 +32,7 @@ function Doc:new(tokenizer, sourcepos)
     ast.to_ast(tokenizer, sourcepos)
   local state = {
     ast = the_ast,
-    sourcepos_map = sourcepos_map,
-    matches = tokenizer.matches
+    sourcepos_map = sourcepos_map
   }
   setmetatable(state, self)
   self.__index = self
@@ -75,59 +68,6 @@ function Doc:apply_filter(filter)
   return self
 end
 
-function Doc:render_matches(handle, use_json, warn)
-  if not handle then
-    handle = StringHandle:new()
-  end
-  if use_json then
-    handle:write("[")
-  end
-  for idx,match in ipairs(self.matches) do
-    if use_json then
-      local startpos, endpos, annotation = unpack(match)
-      if idx > 1 then
-        handle:write(",")
-      end
-      handle:write(json.encode({ annotation, {startpos, endpos} }))
-      handle:write("\n")
-    else
-      handle:write(format_match(match))
-    end
-  end
-  if use_json then
-    handle:write("]\n")
-  end
-
-  return handle:flush()
-end
-
--- function Doc:format_source_pos(bytepos)
---   local pos = self.sourcepos_map[bytepos]
---   if pos then
---     return string.format("line %d, column %d", pos[1], pos[2])
---   else
---     return string.format("byte position %d", bytepos)
---   end
--- end
-
--- function Doc:render_warnings(handle, as_json)
---   if #self.warnings == 0 then
---     return
---   end
---   if as_json then
---     handle:write(json.encode(warnings))
---   else
---     for _,warning in ipairs(self.warnings) do
---       handle:write(string.format("%s at %s\n",
---         warning.message, self:format_source_pos(warning.pos)))
---     end
---   end
---   if as_json then
---     handle:write("\n")
---   end
---   return handle:flush()
--- end
-
 local function parse(input, sourcepos, warn)
   local tokenizer = Tokenizer:new(input, warn)
   return Doc:new(tokenizer, sourcepos)
@@ -146,17 +86,16 @@ local function render_matches(input, handle, use_json, warn)
   if use_json then
     handle:write("[")
   end
-  for match in tokenizer:tokenize() do
+  for startpos, endpos, annotation in tokenizer:tokenize() do
     idx = idx + 1
     if use_json then
-      local startpos, endpos, annotation = unpack(match)
       if idx > 1 then
         handle:write(",")
       end
       handle:write(json.encode({ annotation, {startpos, endpos} }))
       handle:write("\n")
     else
-      handle:write(format_match(match))
+      handle:write(string.format("%-s %d-%d\n", annotation, startpos, endpos))
     end
   end
   if use_json then

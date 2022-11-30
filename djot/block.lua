@@ -620,7 +620,7 @@ function Tokenizer:specs()
           local para = Container:new(para_spec,
                         { inline_tokenizer =
                            inline.Tokenizer:new(self.subject, self.warn) })
-          self:add_match(container.start, container.start, "+para")
+          self:add_match(container.startpos, container.startpos, "+para")
           self.containers[#self.containers] = para
           -- reparse the text we couldn't parse as a block attribute:
           para.inline_tokenizer.attribute_slices = container.slices
@@ -697,7 +697,7 @@ function Tokenizer:tokenize()
       -- return any accumulated matches
       if self.returned < #self.matches then
         self.returned = self.returned + 1
-        return self.matches[self.returned]
+        return unpack(self.matches[self.returned])
       end
 
       self.indent = 0
@@ -818,7 +818,7 @@ function Tokenizer:tokenize()
     -- return any accumulated matches
     if self.returned < #self.matches then
       self.returned = self.returned + 1
-      return self.matches[self.returned]
+      return unpack(self.matches[self.returned])
     end
 
   end

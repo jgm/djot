@@ -73,21 +73,23 @@ function Tests:do_test(test)
   if test.options:match("p") then
     sourcepos = true
   end
-  local doc = djot.parse(test.input, sourcepos)
-  for _,filt in ipairs(test.filters) do
-    local f, err = load_filter(filt)
-    if not f then
-      error(err)
-    end
-    doc:apply_filter(f)
-  end
   local actual = ""
   if test.options:match("m") then
-    actual = actual .. doc:render_matches()
-  elseif test.options:match("a") then
-    actual = actual .. doc:render_ast()
-  else -- match 'h' or empty
-    actual = actual .. doc:render_html()
+    actual = actual .. djot.render_matches(test.input)
+  else
+    local doc = djot.parse(test.input, sourcepos)
+    for _,filt in ipairs(test.filters) do
+      local f, err = load_filter(filt)
+      if not f then
+        error(err)
+      end
+      doc:apply_filter(f)
+    end
+    if test.options:match("a") then
+      actual = actual .. doc:render_ast()
+    else -- match 'h' or empty
+      actual = actual .. doc:render_html()
+    end
   end
   if self.accept then
     test.output = actual
