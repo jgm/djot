@@ -45,9 +45,9 @@ local function get_list_styles(marker)
   end
 end
 
-local Tokenizer = {}
+local Parser = {}
 
-function Tokenizer:new(subject, warn)
+function Parser:new(subject, warn)
   -- ensure the subject ends with a newline character
   if not subject:find("[\r\n]$") then
     subject = subject .. "\n"
@@ -72,7 +72,7 @@ function Tokenizer:new(subject, warn)
 end
 
 -- parameters are start and end position
-function Tokenizer:tokenize_table_row(sp, ep)
+function Parser:parse_table_row(sp, ep)
   local orig_matches = #self.matches  -- so we can rewind
   local startpos = self.pos
   self:add_match(sp, sp, "+row")
@@ -157,7 +157,7 @@ function Tokenizer:tokenize_table_row(sp, ep)
     end
     self:add_match(nextbar, nextbar, "-cell")
     if nextbar < ep then
-      -- reset inline tokenizer state
+      -- reset inline parser state
       inline_parser = InlineParser:new(self.subject, self.warn)
       self:add_match(nextbar, nextbar, "+cell")
       self.pos = find(self.subject, "%S", self.pos)
@@ -178,7 +178,7 @@ function Tokenizer:tokenize_table_row(sp, ep)
   end
 end
 
-function Tokenizer:specs()
+function Parser:specs()
   return {
     { name = "para",
       is_para = true,
@@ -550,7 +550,7 @@ function Tokenizer:specs()
         local sp, ep = self:find("^|[^\r\n]*|")
         local eolsp = " *[\r\n]" -- make sure at end of line
         if sp and eolsp then
-          return self:tokenize_table_row(sp, ep)
+          return self:parse_table_row(sp, ep)
         end
       end,
       open = function(spec)
@@ -559,7 +559,7 @@ function Tokenizer:specs()
         if sp and eolsp then
           self:add_container(Container:new(spec, { columns = 0 }))
           self:add_match(sp, sp, "+table")
-          if self:tokenize_table_row(sp, ep) then
+          if self:parse_table_row(sp, ep) then
             return true
           else
             self.containers[#self.containers] = nil
@@ -642,7 +642,7 @@ function Tokenizer:specs()
   }
 end
 
-function Tokenizer:get_inline_matches()
+function Parser:get_inline_matches()
   local matches =
     self.containers[#self.containers].inline_parser:get_matches()
   for i=1,#matches do
@@ -650,15 +650,15 @@ function Tokenizer:get_inline_matches()
   end
 end
 
-function Tokenizer:find(patt)
+function Parser:find(patt)
   return find(self.subject, patt, self.pos)
 end
 
-function Tokenizer:add_match(startpos, endpos, annotation)
+function Parser:add_match(startpos, endpos, annotation)
   self.matches[#self.matches + 1] = {startpos, endpos, annotation}
 end
 
-function Tokenizer:add_container(container)
+function Parser:add_container(container)
   local last_matched = self.last_matched_container
   while #self.containers > last_matched or
          (#self.containers > 0 and
@@ -668,7 +668,7 @@ function Tokenizer:add_container(container)
   self.containers[#self.containers + 1] = container
 end
 
-function Tokenizer:skip_space()
+function Parser:skip_space()
   local newpos, _ = find(self.subject, "[^ \t]", self.pos)
   if newpos then
     self.indent = newpos - self.startline
@@ -676,7 +676,7 @@ function Tokenizer:skip_space()
   end
 end
 
-function Tokenizer:get_eol()
+function Parser:get_eol()
   local starteol, endeol = find(self.subject, "[\r]?[\n]", self.pos)
   if not endeol then
     starteol, endeol = #self.subject, #self.subject
@@ -685,7 +685,10 @@ function Tokenizer:get_eol()
   self.endeol = endeol
 end
 
-function Tokenizer:tokenize()
+-- Returns an iterator over events.  At each iteration, the iterator
+-- returns three values: start byte position, end byte position,
+-- and annotation.
+function Parser:events()
   local specs = self:specs()
   local para_spec = specs[1]
   local subjectlen = #self.subject
@@ -825,5 +828,5 @@ function Tokenizer:tokenize()
 
 end
 
-return { Tokenizer = Tokenizer,
+return { Parser = Parser,
          Container = Container }

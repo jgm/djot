@@ -1,5 +1,5 @@
 local unpack = unpack or table.unpack
-local block = require("djot.block")
+local Parser = require("djot.block").Parser
 local ast = require("djot.ast")
 local html = require("djot.html")
 local json = require("djot.json")
@@ -22,14 +22,12 @@ function StringHandle:flush()
   return table.concat(self)
 end
 
-local Tokenizer = block.Tokenizer
-
 -- Doc
 local Doc = {}
 
-function Doc:new(tokenizer, sourcepos)
+function Doc:new(parser, sourcepos)
   local the_ast, sourcepos_map =
-    ast.to_ast(tokenizer, sourcepos)
+    ast.to_ast(parser, sourcepos)
   local state = {
     ast = the_ast,
     sourcepos_map = sourcepos_map
@@ -69,24 +67,24 @@ function Doc:apply_filter(filter)
 end
 
 local function parse(input, sourcepos, warn)
-  local tokenizer = Tokenizer:new(input, warn)
-  return Doc:new(tokenizer, sourcepos)
+  local parser = Parser:new(input, warn)
+  return Doc:new(parser, sourcepos)
 end
 
-local function tokenize(input)
-  return Tokenizer:new(input):tokenize()
+local function parse_events(input)
+  return Parser:new(input):events()
 end
 
 local function render_matches(input, handle, use_json, warn)
   if not handle then
     handle = StringHandle:new()
   end
-  local tokenizer = Tokenizer:new(input, warn)
+  local parser = Parser:new(input, warn)
   local idx = 0
   if use_json then
     handle:write("[")
   end
-  for startpos, endpos, annotation in tokenizer:tokenize() do
+  for startpos, endpos, annotation in parser:events() do
     idx = idx + 1
     if use_json then
       if idx > 1 then
@@ -107,7 +105,7 @@ end
 
 return {
   parse = parse,
-  tokenize = tokenize,
+  parse_events = parse_events,
   render_matches = render_matches,
   version = "0.2.0"
 }
