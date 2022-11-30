@@ -577,10 +577,10 @@ function Tokenizer:specs()
       content = "attributes",
       open = function(spec)
         if self:find("^%{") then
-          local attribute_tokenizer =
-                  attributes.AttributeTokenizer:new(self.subject)
+          local attribute_parser =
+                  attributes.AttributeParser:new(self.subject)
           local status, ep =
-                 attribute_tokenizer:feed(self.pos, self.endeol)
+                 attribute_parser:feed(self.pos, self.endeol)
           if status == 'fail' or ep + 1 < self.endeol then
             return false
           else
@@ -589,7 +589,7 @@ function Tokenizer:specs()
                                  indent = self.indent,
                                  startpos = self.pos,
                                  slices = {},
-                                 attribute_tokenizer = attribute_tokenizer }))
+                                 attribute_parser = attribute_parser }))
             local container = self.containers[#self.containers]
             container.slices = { {self.pos, self.endeol } }
             self.pos = self.starteol
@@ -602,7 +602,7 @@ function Tokenizer:specs()
         if self.indent > container.indent then
           table.insert(container.slices, { self.pos, self.endeol })
           local status, ep =
-            container.attribute_tokenizer:feed(self.pos, self.endeol)
+            container.attribute_parser:feed(self.pos, self.endeol)
           container.status = status
           if status ~= 'fail' or ep + 1 < self.endeol then
             self.pos = self.starteol
@@ -630,7 +630,7 @@ function Tokenizer:specs()
         end
       end,
       close = function(container)
-        local attr_matches = container.attribute_tokenizer:get_matches()
+        local attr_matches = container.attribute_parser:get_matches()
         self:add_match(container.startpos, container.startpos, "+block_attributes")
         for i=1,#attr_matches do
           self:add_match(unpack(attr_matches[i]))
