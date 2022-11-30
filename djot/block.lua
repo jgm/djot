@@ -692,11 +692,6 @@ function Tokenizer:tokenize()
 
   return function()  -- iterator
 
-    -- return any accumulated matches
-    if self.returned < #self.matches then
-      self.returned = self.returned + 1
-      return self.matches[self.returned]
-    end
     while self.pos <= subjectlen do
 
       -- return any accumulated matches
