@@ -52,10 +52,14 @@ $(LUASRC)/lua: $(LUASRC)
 djot_combined.lua: $(LUA) $(MODULES)
 	$(LUA) combine.lua $(MODULES) > $@
 
-djot_combined.inc: djot_combined.lua
-	echo "unsigned char djot_combined_lua[] = {" > $@
-	(cat $< && printf "\0") | xxd -i >> $@
+djot_combined.luac: djot_combined.lua
+	luac -o $@ $<
+
+djot_combined.inc: djot_combined.luac
+	echo "unsigned char djot_combined_luac[] = {" > $@
+	cat $< | xxd -i >> $@
 	echo "};" >> $@
+	echo "size_t djot_combined_luac_len = $(shell wc -c $< | awk '{print $$1}');" >> $@
 
 djot_main.inc: ../bin/main.lua
 	echo "unsigned char djot_main_lua[] = {" > $@
@@ -70,7 +74,7 @@ djot.js: djot.c djot_combined.inc $(LUAOBJS)
 	emcc -g0 -sALLOW_MEMORY_GROWTH -Oz -sFILESYSTEM=0 -s 'EXPORTED_RUNTIME_METHODS=["cwrap"]' -s 'EXPORTED_FUNCTIONS=["_djot_open", "_djot_report_error", "_djot_close", "_djot_parse", "_djot_render_ast", "_djot_render_matches", "_djot_render_html"]'  -I $(LUASRC) -I . $(LUASRCS) -o $@ $<
 
 clean:
-	rm -rf djot_combined.lua djot_combined.inc *.o test
+	rm -rf djot_combined.lua djot_combined.inc *.o test *.luac
 distclean: clean
 	-rm -rf $(LUASRC) djot.js djot.wasm
 .PHONY: clean
