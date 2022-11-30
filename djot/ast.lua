@@ -204,7 +204,7 @@ mt.__pairs = sortedpairs(function(a,b)
   end, function(k) return displaykeys[k] or k end)
 
 
-local function mknode(tag)
+local function new_node(tag)
   local node = { t = tag, c = nil }
   setmetatable(node, mt)
   return node
@@ -222,7 +222,7 @@ local function has_children(node)
   return (node.c and #node.c > 0)
 end
 
-local function mkattributes(tbl)
+local function new_attributes(tbl)
   local attr = tbl or {}
   -- ensure deterministic order of iteration
   setmetatable(attr, {__pairs = sortedpairs(function(a,b) return a < b end,
@@ -251,7 +251,7 @@ local function copy_attributes(target, source)
 end
 
 local function insert_attributes_from_nodes(targetnode, cs)
-  targetnode.attr = targetnode.attr or mkattributes()
+  targetnode.attr = targetnode.attr or new_attributes()
   local i=1
   while i <= #cs do
     local x, y = cs[i].t, cs[i].s
@@ -277,10 +277,10 @@ local function make_definition_list_item(node)
   if node.c[1] and node.c[1].t == "para" then
     node.c[1].t = "term"
   else
-    table.insert(node.c, 1, mknode("term"))
+    table.insert(node.c, 1, new_node("term"))
   end
   if node.c[2] then
-    local defn = mknode("definition")
+    local defn = new_node("definition")
     defn.c = {}
     for i=2,#node.c do
       defn.c[#defn.c + 1] = node.c[i]
@@ -307,7 +307,7 @@ local function add_sections(ast)
   if not has_children(ast) then
     return ast
   end
-  local newast = mknode("doc")
+  local newast = new_node("doc")
   local secs = { {sec = newast, level = 0 } }
   for _,node in ipairs(ast.c) do
     if node.t == "heading" then
@@ -320,8 +320,8 @@ local function add_sections(ast)
         end
       end
       -- now we know: curlevel < level
-      local newsec = mknode("section")
-      newsec.attr = mkattributes{id = node.attr.id}
+      local newsec = new_node("section")
+      newsec.attr = new_attributes{id = node.attr.id}
       node.attr.id = nil
       add_child(newsec, node)
       secs[#secs + 1] = {sec = newsec, level = level}
@@ -495,7 +495,7 @@ local function to_ast(parser, sourcepos)
       -- process open match:
       -- * open a new node and put it at end of containers stack
       -- * depending on the tag name, do other things
-      local node = mknode(tag)
+      local node = new_node(tag)
       set_startpos(node, startpos)
 
       -- add block attributes if any have accumulated:
@@ -527,7 +527,7 @@ local function to_ast(parser, sourcepos)
         local tip = containers[#containers]
         if tip.t ~= "list" then
           -- container is not a list ; add one
-          local list = mknode("list")
+          local list = new_node("list")
           set_startpos(list, startpos)
           list.styles = styles
           list.attr = node.attr
@@ -552,7 +552,7 @@ local function to_ast(parser, sourcepos)
             local oldlist = table.remove(containers)
             add_child_to_tip(containers, oldlist)
             -- add a new sibling list node with the right style
-            local list = mknode("list")
+            local list = new_node("list")
             set_startpos(list, startpos)
             list.styles = styles
             list.attr = node.attr
@@ -605,7 +605,7 @@ local function to_ast(parser, sourcepos)
               if not lastwordpos then
                 endswithspace = true
               elseif lastwordpos > 1 then
-                local newnode = mknode("str")
+                local newnode = new_node("str")
                 newnode.s = sub(prevnode.s, lastwordpos, -1)
                 prevnode.s = sub(prevnode.s, 1, lastwordpos - 1)
                 add_child_to_tip(containers, newnode)
@@ -633,7 +633,7 @@ local function to_ast(parser, sourcepos)
               dest = dest .. node.c[i].s
             end
           end
-          references[key] = mknode("reference")
+          references[key] = new_node("reference")
           references[key].destination = dest
           if node.attr then
             references[key].attr = node.attr
@@ -736,11 +736,11 @@ local function to_ast(parser, sourcepos)
 
         elseif tag == "inline_math" then
           node.t = "math"
-          node.attr = mkattributes{class = "math inline"}
+          node.attr = new_attributes{class = "math inline"}
 
         elseif tag == "display_math" then
           node.t = "math"
-          node.attr = mkattributes{class = "math display"}
+          node.attr = new_attributes{class = "math display"}
 
         elseif tag == "imagetext" then
           node.t = "image"
@@ -751,7 +751,7 @@ local function to_ast(parser, sourcepos)
         elseif tag == "div" then
           node.c = node.c or {}
           if node.c[1] and node.c[1].t == "class" then
-            node.attr = mkattributes(node.attr)
+            node.attr = new_attributes(node.attr)
             insert_attribute(node.attr, "class", get_string_content(node.c[1]))
             table.remove(node.c, 1)
           end
@@ -790,7 +790,7 @@ local function to_ast(parser, sourcepos)
           local heading_str =
                  get_string_content(node):gsub("^%s+",""):gsub("%s+$","")
           if not node.attr then
-            node.attr = mkattributes{}
+            node.attr = new_attributes{}
           end
           if not node.attr.id then  -- generate id attribute from heading
             insert_attribute(node.attr, "id", get_identifier(heading_str))
@@ -798,7 +798,7 @@ local function to_ast(parser, sourcepos)
           -- insert into references unless there's a same-named one already:
           if not references[heading_str] then
             references[heading_str] =
-              mknode("reference")
+              new_node("reference")
             references[heading_str].destination = "#" .. node.attr.id
           end
 
@@ -834,7 +834,7 @@ local function to_ast(parser, sourcepos)
       -- * add position info
       -- * special handling depending on tag type
       -- * add node as child of container at end of containers stack
-      local node = mknode(tag)
+      local node = new_node(tag)
       add_block_attributes(node)
       set_startpos(node, startpos)
       set_endpos(node, endpos)
@@ -873,7 +873,7 @@ local function to_ast(parser, sourcepos)
     end
   end
 
-  local doc = mknode("doc")
+  local doc = new_node("doc")
   local containers = {doc}
   for sp, ep, annot in parser:events() do
     handle_match(containers, sp, ep, annot)
@@ -955,6 +955,6 @@ return { to_ast = to_ast,
          render = render,
          insert_attribute = insert_attribute,
          copy_attributes = copy_attributes,
-         mkattributes = mkattributes,
-         mknode = mknode,
+         new_attributes = new_attributes,
+         new_node = new_node,
          add_child = add_child }
