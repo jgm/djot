@@ -1,4 +1,4 @@
-local inline = require("djot.inline")
+local InlineParser = require("djot.inline").InlineParser
 local attributes = require("djot.attributes")
 local unpack = unpack or table.unpack
 local find, sub, byte = string.find, string.sub, string.byte
@@ -113,7 +113,7 @@ function Tokenizer:tokenize_table_row(sp, ep)
     self.finished_line = true
     return true
   end
-  local inline_tokenizer = inline.Tokenizer:new(self.subject, self.warn)
+  local inline_parser = InlineParser:new(self.subject, self.warn)
   self:add_match(sp, sp, "+cell")
   local complete_cell = false
   while self.pos <= ep do
@@ -125,13 +125,13 @@ function Tokenizer:tokenize_table_row(sp, ep)
         break
       end
       if string.find(self.subject, "^\\", nextbar - 1) then -- \|
-        inline_tokenizer:feed(self.pos, nextbar)
+        inline_parser:feed(self.pos, nextbar)
         self.pos = nextbar + 1
         nextbar = nil
       else
-        inline_tokenizer:feed(self.pos, nextbar - 1)
-        if inline_tokenizer:in_verbatim() then
-          inline_tokenizer:feed(nextbar, nextbar)
+        inline_parser:feed(self.pos, nextbar - 1)
+        if inline_parser:in_verbatim() then
+          inline_parser:feed(nextbar, nextbar)
           self.pos = nextbar + 1
           nextbar = nil
         else
@@ -144,7 +144,7 @@ function Tokenizer:tokenize_table_row(sp, ep)
       break
     end
     -- add a table cell
-    local cell_matches = inline_tokenizer:get_matches()
+    local cell_matches = inline_parser:get_matches()
     for i=1,#cell_matches do
       local s,e,ann = unpack(cell_matches[i])
       if i == #cell_matches and ann == "str" then
@@ -158,7 +158,7 @@ function Tokenizer:tokenize_table_row(sp, ep)
     self:add_match(nextbar, nextbar, "-cell")
     if nextbar < ep then
       -- reset inline tokenizer state
-      inline_tokenizer = inline.Tokenizer:new(self.subject, self.warn)
+      inline_parser = InlineParser:new(self.subject, self.warn)
       self:add_match(nextbar, nextbar, "+cell")
       self.pos = find(self.subject, "%S", self.pos)
     end
@@ -192,8 +192,8 @@ function Tokenizer:specs()
       end,
       open = function(spec)
         self:add_container(Container:new(spec,
-            { inline_tokenizer =
-                inline.Tokenizer:new(self.subject, self.warn) }))
+            { inline_parser =
+                InlineParser:new(self.subject, self.warn) }))
         self:add_match(self.pos, self.pos, "+para")
         return true
       end,
@@ -215,8 +215,8 @@ function Tokenizer:specs()
         if ep then
           self.pos = ep + 1
           self:add_container(Container:new(spec,
-            { inline_tokenizer =
-                inline.Tokenizer:new(self.subject, self.warn) }))
+            { inline_parser =
+                InlineParser:new(self.subject, self.warn) }))
           self:add_match(self.pos, self.pos, "+caption")
           return true
         end
@@ -414,7 +414,7 @@ function Tokenizer:specs()
         if ep and find(self.subject, "^%s", ep + 1) then
           local level = ep - sp + 1
           self:add_container(Container:new(spec, {level = level,
-               inline_tokenizer = inline.Tokenizer:new(self.subject, self.warn) }))
+               inline_parser = InlineParser:new(self.subject, self.warn) }))
           self:add_match(sp, ep, "+heading")
           self.pos = ep + 1
           return true
@@ -618,14 +618,14 @@ function Tokenizer:specs()
              -- with that
           local para_spec = self:specs()[1]
           local para = Container:new(para_spec,
-                        { inline_tokenizer =
-                           inline.Tokenizer:new(self.subject, self.warn) })
+                        { inline_parser =
+                           InlineParser:new(self.subject, self.warn) })
           self:add_match(container.startpos, container.startpos, "+para")
           self.containers[#self.containers] = para
           -- reparse the text we couldn't parse as a block attribute:
-          para.inline_tokenizer.attribute_slices = container.slices
-          para.inline_tokenizer:reparse_attributes()
-          self.pos = para.inline_tokenizer.lastpos + 1
+          para.inline_parser.attribute_slices = container.slices
+          para.inline_parser:reparse_attributes()
+          self.pos = para.inline_parser.lastpos + 1
           return true
         end
       end,
@@ -644,7 +644,7 @@ end
 
 function Tokenizer:get_inline_matches()
   local matches =
-    self.containers[#self.containers].inline_tokenizer:get_matches()
+    self.containers[#self.containers].inline_parser:get_matches()
   for i=1,#matches do
     self.matches[#self.matches + 1] = matches[i]
   end
@@ -800,7 +800,7 @@ function Tokenizer:tokenize()
               self:add_match(startpos, self.endeol, "str")
             elseif tip.content == "inline" then
               if not is_blank then
-                tip.inline_tokenizer:feed(self.pos, self.endeol)
+                tip.inline_parser:feed(self.pos, self.endeol)
               end
             end
           end

@@ -20,9 +20,9 @@ end
 -- opener. We can then change the annotation of the match at
 -- that location to '+emphasis' or whatever.
 
-local Tokenizer = {}
+local InlineParser = {}
 
-function Tokenizer:new(subject, warn)
+function InlineParser:new(subject, warn)
   local state =
     { warn = warn or function() end, -- function to issue warnings
       subject = subject, -- text to parse
@@ -43,11 +43,11 @@ function Tokenizer:new(subject, warn)
   return state
 end
 
-function Tokenizer:add_match(startpos, endpos, annotation)
+function InlineParser:add_match(startpos, endpos, annotation)
   self.matches[startpos] = {startpos, endpos, annotation}
 end
 
-function Tokenizer:add_opener(name, ...)
+function InlineParser:add_opener(name, ...)
   -- 1 = startpos, 2 = endpos, 3 = annotation, 4 = substartpos, 5 = endpos
   --
   -- [link text](url)
@@ -60,7 +60,7 @@ function Tokenizer:add_opener(name, ...)
   table.insert(self.openers[name], {...})
 end
 
-function Tokenizer:clear_openers(startpos, endpos)
+function InlineParser:clear_openers(startpos, endpos)
   -- remove other openers in between the matches
   for _,v in pairs(self.openers) do
     local i = #v
@@ -80,7 +80,7 @@ function Tokenizer:clear_openers(startpos, endpos)
   end
 end
 
-function Tokenizer:str_matches(startpos, endpos)
+function InlineParser:str_matches(startpos, endpos)
   for i = startpos, endpos do
     local m = self.matches[i]
     if m then
@@ -99,7 +99,7 @@ local function matches_pattern(match, patt)
 end
 
 
-function Tokenizer.between_matched(c, annotation, defaultmatch, opentest)
+function InlineParser.between_matched(c, annotation, defaultmatch, opentest)
   return function(self, pos, endpos)
     defaultmatch = defaultmatch or "str"
     local subject = self.subject
@@ -168,7 +168,7 @@ function Tokenizer.between_matched(c, annotation, defaultmatch, opentest)
   end
 end
 
-Tokenizer.matchers = {
+InlineParser.matchers = {
     -- 96 = `
     [96] = function(self, pos, endpos)
       local subject = self.subject
@@ -256,10 +256,10 @@ Tokenizer.matchers = {
     end,
 
     -- 126 = ~
-    [126] = Tokenizer.between_matched('~', 'subscript'),
+    [126] = InlineParser.between_matched('~', 'subscript'),
 
     -- 94 = ^
-    [94] = Tokenizer.between_matched('^', 'superscript'),
+    [94] = InlineParser.between_matched('^', 'superscript'),
 
     -- 91 = [
     [91] = function(self, pos, endpos)
@@ -376,10 +376,10 @@ Tokenizer.matchers = {
     end,
 
     -- 95 = _
-    [95] = Tokenizer.between_matched('_', 'emph'),
+    [95] = InlineParser.between_matched('_', 'emph'),
 
     -- 42 = *
-    [42] = Tokenizer.between_matched('*', 'strong'),
+    [42] = InlineParser.between_matched('*', 'strong'),
 
     -- 123 = {
     [123] = function(self, pos, endpos)
@@ -410,28 +410,28 @@ Tokenizer.matchers = {
     end,
 
     -- 43 = +
-    [43] = Tokenizer.between_matched("+", "insert", "str",
+    [43] = InlineParser.between_matched("+", "insert", "str",
                            function(self, pos)
                              return find(self.subject, "^%{", pos - 1) or
                                     find(self.subject, "^%}", pos + 1)
                            end),
 
     -- 61 = =
-    [61] = Tokenizer.between_matched("=", "mark", "str",
+    [61] = InlineParser.between_matched("=", "mark", "str",
                            function(self, pos)
                              return find(self.subject, "^%{", pos - 1) or
                                     find(self.subject, "^%}", pos + 1)
                            end),
 
     -- 39 = '
-    [39] = Tokenizer.between_matched("'", "single_quoted", "right_single_quote",
+    [39] = InlineParser.between_matched("'", "single_quoted", "right_single_quote",
                            function(self, pos) -- test to open
                              return pos == 1 or
                                find(self.subject, "^[%s\"'-([]", pos - 1)
                              end),
 
     -- 34 = "
-    [34] = Tokenizer.between_matched('"', "double_quoted", "left_double_quote"),
+    [34] = InlineParser.between_matched('"', "double_quoted", "left_double_quote"),
 
     -- 45 = -
     [45] = function(self, pos, endpos)
@@ -439,7 +439,7 @@ Tokenizer.matchers = {
       local nextpos
       if byte(subject, pos - 1) == 123 or
          byte(subject, pos + 1) == 125 then -- (123 = { 125 = })
-        nextpos = Tokenizer.between_matched("-", "delete", "str",
+        nextpos = InlineParser.between_matched("-", "delete", "str",
                            function(slf, p)
                              return find(slf.subject, "^%{", p - 1) or
                                     find(slf.subject, "^%}", p + 1)
@@ -497,13 +497,13 @@ Tokenizer.matchers = {
     end
   }
 
-function Tokenizer:single_char(pos)
+function InlineParser:single_char(pos)
   self:add_match(pos, pos, "str")
   return pos + 1
 end
 
 -- Reparse attribute_slices that we tried to parse as an attribute
-function Tokenizer:reparse_attributes()
+function InlineParser:reparse_attributes()
   local slices = self.attribute_slices
   if not slices then
     return
@@ -521,7 +521,7 @@ function Tokenizer:reparse_attributes()
 end
 
 -- Feed a slice to the parser, updating state.
-function Tokenizer:feed(spos, endpos)
+function InlineParser:feed(spos, endpos)
   local special = "[][\\`{}_*()!<>~^:=+$\r\n'\".-]"
   local subject = self.subject
   local matchers = self.matchers
@@ -624,11 +624,11 @@ function Tokenizer:feed(spos, endpos)
 end
 
   -- Return true if we're parsing verbatim content.
-function Tokenizer:in_verbatim()
+function InlineParser:in_verbatim()
   return self.verbatim > 0
 end
 
-function Tokenizer:get_matches()
+function InlineParser:get_matches()
   local sorted = {}
   local subject = self.subject
   local lastsp, lastep, lastannot
@@ -675,4 +675,4 @@ function Tokenizer:get_matches()
   return sorted
 end
 
-return { Tokenizer = Tokenizer }
+return { InlineParser = InlineParser }
