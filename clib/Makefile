@@ -53,7 +53,7 @@ djot_combined.lua: $(LUA) $(MODULES)
 	$(LUA) combine.lua $(MODULES) > $@
 
 djot_combined.luac: djot_combined.lua
-	luac -o $@ $<
+	lua -e 'io.stdout:write(string.dump(loadfile("$<")))' > $@
 
 djot_combined.inc: djot_combined.luac
 	echo "unsigned char djot_combined_luac[] = {" > $@
