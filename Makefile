@@ -9,7 +9,7 @@ VIMDIR?=~/.vim
 TIMEOUT=perl -e 'alarm shift; exec @ARGV'
 TEMPFILE := $(shell mktemp)
 
-all: test doc/syntax.html
+all: test doc/syntax.html doc/djot.1
 
 test: $(ROCKSPEC)
 	luarocks test
@@ -58,6 +58,13 @@ check:
 
 doc/syntax.html: doc/syntax.md
 	pandoc --lua-filter doc/code-examples.lua $< -t html -o $@ -s --css doc/syntax.css --self-contained --wrap=preserve --toc --section-divs -Vpagetitle="Djot syntax reference"
+
+doc/djot.1: doc/djot.md
+	pandoc \
+	  --metadata title="DJOT(1)" \
+	  --metadata author="" \
+	  --variable footer="djot $(VERSION)" \
+	  $< -s -o $@
 
 # luarocks packaging
 

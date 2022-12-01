@@ -60,7 +60,7 @@ Filters are small Lua programs that modify the parsed document
 prior to rendering.  Here is an example of a filter that
 capitalizes all the content text in a document:
 
-```lua
+```
 return {
   str = function(e)
      e.text = e.text:upper()
@@ -70,7 +70,9 @@ return {
 
 Save this as `caps.lua` use tell djot to use it using
 
-   djot --filter caps input.djot
+```
+djot --filter caps input.djot
+```
 
 Note that djot will search your LUA_PATH for the filter if
 it is not found in the working directory, so you can in
@@ -80,7 +82,7 @@ Here's a filter that prints a list of all the URLs you
 link to in a document.  This filter doesn't alter the
 document at all; it just prints the list to stderr.
 
-```lua
+```
 return {
   link = function(el)
     io.stderr:write(el.destination .. "\n")
@@ -93,20 +95,55 @@ functions to like-tagged nodes, so you will want to get familiar
 with how djot's AST is designed. The easiest way to do this is
 to use `djot --ast`.
 
-Normally a "bottom-up" traversal is done, with child nodes being
-modified before their parents.  If you want a "top-down"
-traversal instead, add `traversal = "topdown"` to your filter:
+By default filters do a bottom-up traversal; that is, the
+filter for a node is run after its children have been processed.
+It is possible to do a top-down travel, though, and even
+to run separate actions on entering a node (before processing the
+children) and on exiting (after processing the children). To do
+this, associate the node's tag with a table containing `enter` and/or
+`exit` functions.  The following filter will capitalize text
+that is nested inside emphasis, but not other text:
 
+```
+local capitalize = 0
 return {
-  traversal = "topdown",
-  str = function(e)
-     e.text = e.text:upper()
+   emph = {
+     enter = function(e)
+       capitalize = capitalize + 1
+     end,
+     exit = function(e)
+       capitalize = capitalize - 1
+     end,
+   },
+   str = function(e)
+     if capitalize > 0 then
+       e.text = e.text:upper()
+      end
    end
 }
+```
 
-TODO check.
+For a top-down traversal, you'd just use the `enter` functions.
+If the tag is associated directly with a function, as in the
+first example above, it is treated as an `exit' function.
 
+It is possible to inhibit traversal into the children of a node,
+by having the `enter` function return the value true (or any truish
+value, say `"stop"`).  This can be used, for example, to prevent
+the contents of a footnote from being processed:
 
+```
+return {
+ footnote = {
+   enter = function(e)
+     return true
+   end
+  }
+}
+```
+
+A single filter may return a table with multiple tables, which will be
+applied sequentially.
 
 # AUTHORS
 
