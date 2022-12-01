@@ -1,8 +1,11 @@
 CLIB=../clib
 PLAYGROUND=playground
 
-all: $(PLAYGROUND)/djot.js $(PLAYGROUND)/styles.css
+all: $(PLAYGROUND)/djot.js $(PLAYGROUND)/styles.css djot.1.html
 .PHONY: all
+
+djot.1.html: ../doc/djot.md
+	pandoc $< -s -o $@
 
 # also creates djot.wasm
 $(PLAYGROUND)/djot.js:
@@ -15,7 +18,7 @@ server:
 .PHONY: server
 
 upload:
-	rsync -a --delete index.html playground website:djot.net/
+	rsync -a --delete index.html playground djot.1.html website:djot.net/
 .PHONY: upload
 
 clean:
