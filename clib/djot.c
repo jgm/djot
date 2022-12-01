@@ -6,8 +6,7 @@
 #include <djot.h>
 
 #include "djot_combined.inc"
-/* unsigned char djot_combined_luac[] */
-/* size_t djot_combined_luac_len */
+/* unsigned char djot_combined_lua[] */
 
 void djot_report_error(lua_State *L) {
   if(!L) {
@@ -24,13 +23,7 @@ lua_State *djot_open() {
   }
   luaL_openlibs(L);               /* opens Lua libraries */
 
-  if (luaL_loadbuffer(L, (const char*)djot_combined_luac,
-			  djot_combined_luac_len,
-			  "djot_combined_luac") != LUA_OK) {
-    djot_report_error(L);
-    return NULL;
-  }
-  if (lua_pcall(L, 0, LUA_MULTRET, 0) != LUA_OK) {
+  if (luaL_dostring(L, (const char*)djot_combined_lua) != LUA_OK) {
     djot_report_error(L);
     return NULL;
   }
