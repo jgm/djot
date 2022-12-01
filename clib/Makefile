@@ -56,10 +56,10 @@ djot_combined.luac: djot_combined.lua $(LUASRC)/lua
 	$(LUASRC)/luac -o $@ $<
 
 djot_combined.inc: djot_combined.luac
-	(echo "unsigned char djot_combined_luac[] = {" && \
-	cat $< | xxd -i && \
-	echo "};" && \
-	echo "size_t djot_combined_luac_len = $(shell wc -c $< | awk '{print $$1}');") > $@
+	echo "unsigned char djot_combined_luac[] = {" > $@
+	cat $< | xxd -i >> $@
+	echo "};" >> $@
+	echo "size_t djot_combined_luac_len = $(shell wc -c $< | awk '{print $$1}');" >> $@
 
 djot_main.inc: ../bin/main.lua
 	echo "unsigned char djot_main_lua[] = {" > $@
