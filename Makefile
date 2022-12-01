@@ -1,7 +1,7 @@
 VERSION=$(shell grep "version =" djot.lua | sed -e 's/.*"\([^"]*\).*"/\1/')
 REVISION=1
 ROCKSPEC=djot-$(VERSION)-$(REVISION).rockspec
-MODULES=djot/attributes.lua djot/inline.lua djot/block.lua djot/ast.lua djot/emoji.lua djot/html.lua djot/filter.lua djot.lua
+MODULES=djot.lua djot/attributes.lua djot/inline.lua djot/block.lua djot/ast.lua djot/emoji.lua djot/html.lua djot/filter.lua
 SOURCES=$(MODULES) bin/main.lua
 TESTSOURCES=test.lua pathological_tests.lua
 BUNDLE=djot
@@ -68,6 +68,9 @@ install: $(ROCKSPEC)
 rock: $(ROCKSPEC)
 	luarocks --local make $(ROCKSPEC)
 .PHONY: rock
+
+doc/api.html: $(MODULES)
+	ldoc -o api -d doc -v -p djot -t "Lua API" -f markdown $(MODULES)
 
 vim:
 	cp editors/vim/syntax/djot.vim $(VIMDIR)/syntax/
