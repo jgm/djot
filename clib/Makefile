@@ -49,7 +49,7 @@ djot.o: djot.c djot_combined.inc $(LUASRC)
 $(LUASRC)/lua: $(LUASRC)
 	make -C $(LUASRC) $(PLAT)
 
-djot_combined.lua: $(LUA) $(MODULES)
+djot_combined.lua: $(LUA) $(MODULES) dumbParser.lua
 	$(LUA) combine.lua $(MODULES) > $@
 
 djot_combined.inc: djot_combined.lua
@@ -62,6 +62,9 @@ djot_main.inc: ../bin/main.lua
 	(cat $< && printf "\0") | xxd -i >> $@
 	echo "};" >> $@
 
+dumbParser.lua:
+	curl -L https://github.com/ReFreezed/DumbLuaParser/releases/download/2.3.0/dumbParser.lua > $@
+
 wasm: djot.js
 .PHONY: wasm
 
@@ -72,5 +75,5 @@ djot.js: djot.c djot_combined.inc $(LUAOBJS)
 clean:
 	rm -rf djot_combined.lua djot_combined.inc *.o test
 distclean: clean
-	-rm -rf $(LUASRC) djot.js djot.wasm
+	-rm -rf $(LUASRC) djot.js djot.wasm dumbParser.lua
 .PHONY: clean
