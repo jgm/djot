@@ -13,7 +13,6 @@ if not utf8 then -- if not lua 5.3 or higher...
   end
 end
 local unpack = unpack or table.unpack
-local emoji -- require this later, only if emoji encountered
 
 local find, lower, sub, rep, format =
   string.find, string.lower, string.sub, string.rep, string.format
@@ -848,9 +847,6 @@ local function to_ast(parser, sourcepos)
         node.s = sub(subject, startpos + 2, endpos - 1)
       elseif tag == "emoji" then
         node.alias = sub(subject, startpos + 1, endpos - 1)
-        emoji = require("djot.emoji")
-        local found = emoji[node.alias]
-        node.s = found
       elseif tag == "raw_format" then
         local tip = containers[#containers]
         local prevnode = has_children(tip) and tip.c[#tip.c]

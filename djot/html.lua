@@ -7,6 +7,7 @@ local insert_attribute, copy_attributes =
   ast.insert_attribute, ast.copy_attributes
 local format = string.format
 local find, gsub = string.find, string.gsub
+local emoji -- only use if there are emojis
 
 -- Produce a copy of a table.
 local function copy(tbl)
@@ -521,7 +522,11 @@ function Renderer:en_dash()
 end
 
 function Renderer:emoji(node)
-  self.out(node.s or (":" .. node.alias .. ":"))
+  if not emoji then
+    emoji = require("djot.emoji")
+  end
+  local s = emoji[node.alias]
+  self.out(s or (":" .. node.alias .. ":"))
 end
 
 function Renderer:math(node)
