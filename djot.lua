@@ -96,9 +96,9 @@ local function parse_and_render_events(input, warn)
   for startpos, endpos, annotation in parse_events(input, warn) do
     idx = idx + 1
     if idx == 1 then
-      handle:write("[ ")
+      handle:write("[")
     else
-      handle:write(", ")
+      handle:write(",")
     end
     handle:write(render_event(startpos, endpos, annotation) .. "\n")
   end

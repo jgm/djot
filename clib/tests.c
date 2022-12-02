@@ -35,12 +35,12 @@ int main (void) {
   out = djot_parse_and_render_events(L, "hi *there*\n");
   if (!out) error(L);
   asserteq(out,
-"[ [\"+para\",1,1]\n\
-, [\"str\",1,3]\n\
-, [\"+strong\",4,4]\n\
-, [\"str\",5,9]\n\
-, [\"-strong\",10,10]\n\
-, [\"-para\",11,11]\n\
+"[[\"+para\",1,1]\n\
+,[\"str\",1,3]\n\
+,[\"+strong\",4,4]\n\
+,[\"str\",5,9]\n\
+,[\"-strong\",10,10]\n\
+,[\"-para\",11,11]\n\
 ]\n");
 
   ok = djot_parse(L, "hi *there*\n", true);
