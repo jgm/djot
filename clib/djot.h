@@ -43,4 +43,8 @@ char *djot_render_ast_pretty(lua_State *L);
  * human-readable tree. NULL is returned on error. */
 char *djot_parse_and_render_events(lua_State *L, char *input);
 
+/* Load a filter from a string and apply it to the AST in global 'doc'.
+ * Return 1 on success, 0 on error. */
+int djot_apply_filter(lua_State *L, char *filter);
+
 #endif

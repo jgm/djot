@@ -55,6 +55,26 @@ int main (void) {
   asserteq(out,
 "{\"tag\":\"doc\",\"children\":[{\"tag\":\"para\",\"pos\":[\"1:1:1\",\"1:11:11\"],\"children\":[{\"tag\":\"str\",\"text\":\"hi \",\"pos\":[\"1:1:1\",\"1:3:3\"]},{\"tag\":\"strong\",\"pos\":[\"1:4:4\",\"1:10:10\"],\"children\":[{\"tag\":\"str\",\"text\":\"there\",\"pos\":[\"1:5:5\",\"1:9:9\"]}]}]}],\"references\":[],\"footnotes\":[]}\n");
 
+  char *capsfilter = "return {\n\
+str = function(e)\n\
+   e.text = e.text:upper()\n\
+end,\n\
+emph = function(e)\n\
+  local res = mknode('strong')\n\
+  res.c = e.c\n\
+  render(res, io.stdout)\n\
+  e = nil\n\
+  e = res\n\
+end\n\
+}\n";
+
+  assert(djot_apply_filter(L, capsfilter) == 1);
+  out = djot_render_html(L);
+  if (!out) error(L);
+  asserteq(out,
+"<p data-startpos=\"1:1:1\" data-endpos=\"1:11:11\">HI <strong data-startpos=\"1:4:4\" data-endpos=\"1:10:10\">THERE</strong></p>\n");
+
+
   /* When you're finished, close the djot library */
   djot_close(L);
 

@@ -90,6 +90,34 @@ char *djot_render_ast_pretty(lua_State *L) {
   return (char *)lua_tostring(L, -1);
 }
 
+/* Load a filter from a string and apply it to the AST in global 'doc'.
+ * Return 1 on success, 0 on error. */
+int djot_apply_filter(lua_State *L, char *filter) {
+  lua_getglobal(L, "djot");
+  lua_getfield(L, -1, "filter");
+  lua_getfield(L, -1, "load_filter");
+  lua_pushstring(L, filter);
+  if (lua_pcall(L, 1, 1, 0) != LUA_OK) {
+    return 0;
+  }
+  // Now we should have the loaded filter on top of stack, or nil and an error
+  if lua_isnil(L, -1) {
+    lua_pop(L, 1); // pop the nil, leaving the message
+    lua_error(L);
+    return 0;
+  }
+  // If we're here, top of stack should be the compiled filter
+  lua_getglobal(L, "djot");
+  lua_getfield(L, -1, "filter");
+  lua_getfield(L, -1, "apply_filter");
+  lua_getglobal(L, "doc");
+  lua_pushvalue(L, -5); /* push the compiled filter to top of stack */
+  if (lua_pcall(L, 2, 1, 0) != LUA_OK) {
+    return 0;
+  }
+  return 1;
+}
+
 /* Parse input and render the events as a JSON array.
  * NULL is returned on error. */
 char *djot_parse_and_render_events(lua_State *L, char *input) {
