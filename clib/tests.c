@@ -32,15 +32,15 @@ int main (void) {
     return -1;
   }
 
-  out = djot_render_matches(L, "hi *there*\n", true);
+  out = djot_parse_and_render_events(L, "hi *there*\n");
   if (!out) error(L);
   asserteq(out,
-"[[\"+para\",[1,1]]\n\
-,[\"str\",[1,3]]\n\
-,[\"+strong\",[4,4]]\n\
-,[\"str\",[5,9]]\n\
-,[\"-strong\",[10,10]]\n\
-,[\"-para\",[11,11]]\n\
+"[ [\"+para\",1,1]\n\
+, [\"str\",1,3]\n\
+, [\"+strong\",4,4]\n\
+, [\"str\",5,9]\n\
+, [\"-strong\",10,10]\n\
+, [\"-para\",11,11]\n\
 ]\n");
 
   ok = djot_parse(L, "hi *there*\n", true);
@@ -50,8 +50,7 @@ int main (void) {
   asserteq(out,
 "<p data-startpos=\"1:1:1\" data-endpos=\"1:11:11\">hi <strong data-startpos=\"1:4:4\" data-endpos=\"1:10:10\">there</strong></p>\n");
 
-  /* Now use functions like djot_to_ast_json */
-  out = djot_render_ast(L, true);
+  out = djot_render_ast_json(L);
   if (!out) error(L);
   asserteq(out,
 "{\"tag\":\"doc\",\"children\":[{\"tag\":\"para\",\"pos\":[\"1:1:1\",\"1:11:11\"],\"children\":[{\"tag\":\"str\",\"text\":\"hi \",\"pos\":[\"1:1:1\",\"1:3:3\"]},{\"tag\":\"strong\",\"pos\":[\"1:4:4\",\"1:10:10\"],\"children\":[{\"tag\":\"str\",\"text\":\"there\",\"pos\":[\"1:5:5\",\"1:9:9\"]}]}]}],\"references\":[],\"footnotes\":[]}\n");

@@ -30,15 +30,17 @@ int djot_parse(lua_State *L, char *input, bool sourcepos);
  * or NULL on error. */
 char *djot_render_html(lua_State *L);
 
-/* Render the AST of the document in the global 'doc'.
- * If 'as_json' is true, use JSON, otherwise, produce a compact
- * human-readable tree. NULL is returned on error. */
-char *djot_render_ast(lua_State *L, bool as_json);
+/* Render the AST of the document in the global 'doc' as JSON.
+ * NULL is returned on error. */
+char *djot_render_ast_json(lua_State *L);
+
+/* Render the AST of the document in the global 'doc' as JSON.
+ * NULL is returned on error. */
+char *djot_render_ast_pretty(lua_State *L);
 
 /* Tokenize input and render the matches.
  * If 'as_json' is true, use JSON, otherwise, produce a compact
  * human-readable tree. NULL is returned on error. */
-char *djot_render_matches(lua_State *L, char *input, bool as_json);
-
+char *djot_parse_and_render_events(lua_State *L, char *input);
 
 #endif
