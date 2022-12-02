@@ -1,7 +1,6 @@
 -- run tests
 package.path = "./?.lua;" .. package.path
 local djot = require("djot")
-local filter = require("djot.filter")
 
 local testcases = {
   "attributes.test",
@@ -79,11 +78,11 @@ function Tests:do_test(test)
   else
     local doc = djot.parse(test.input, sourcepos)
     for _,filt in ipairs(test.filters) do
-      local f, err = filter.load_filter(filt)
+      local f, err = djot.filter.load_filter(filt)
       if not f then
         error(err)
       end
-      filter.apply_filter(doc, f)
+      djot.filter.apply_filter(doc, f)
     end
     if test.options:match("a") then
       actual = actual .. djot.render_ast_pretty(doc)

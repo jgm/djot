@@ -107,7 +107,7 @@ local function parse_and_render_events(input, warn)
 end
 
 --- @export
-return {
+local G = {
   parse = parse,
   parse_events = parse_events,
   parse_and_render_events = parse_and_render_events,
@@ -117,3 +117,12 @@ return {
   render_event = render_event,
   version = "0.2.0"
 }
+
+-- Lazily load submodules, e.g. djot.filter
+setmetatable(G,{ __index = function(t,name)
+                             local mod = require("djot." .. name)
+                             rawset(t,name,mod)
+                             return t[name]
+                            end })
+
+return G

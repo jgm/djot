@@ -1,5 +1,4 @@
 local djot = require("djot")
-local filter = require("djot.filter")
 
 local help = [[
 djot [opts] [file*]
@@ -109,9 +108,9 @@ else
 
   if opts.filters then
     for _,fp in ipairs(opts.filters) do
-      local filt, err = filter.require_filter(fp)
+      local filt, err = djot.filter.require_filter(fp)
       if filt then
-         filter.apply_filter(ast, filt)
+         djot.filter.apply_filter(ast, filt)
       else
         io.stderr:write("Error loading filter " .. fp .. ":\n" .. err .. "\n")
       end
