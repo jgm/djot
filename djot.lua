@@ -71,7 +71,7 @@ local function parse(input, sourcepos, warn)
   return Doc:new(parser, sourcepos)
 end
 
-local function parse_events(input)
+local function parse_events(input, warn)
   return Parser:new(input):events()
 end
 
