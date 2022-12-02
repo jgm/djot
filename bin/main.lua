@@ -111,7 +111,7 @@ else
     for _,fp in ipairs(opts.filters) do
       local filt, err = filter.require_filter(fp)
       if filt then
-         djot.apply_filter(ast, filt)
+         filter.apply_filter(ast, filt)
       else
         io.stderr:write("Error loading filter " .. fp .. ":\n" .. err .. "\n")
       end

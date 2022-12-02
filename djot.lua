@@ -115,10 +115,5 @@ return {
   render_ast_pretty = render_ast_pretty,
   render_ast_json = render_ast_json,
   render_event = render_event,
-  apply_filter = filter.apply_filter,
-  new_node = ast.new_node,
-  add_child = ast.add_child,
-  new_attributes = ast.new_attributes,
-  insert_attribute = ast.insert_attribute,
   version = "0.2.0"
 }
