@@ -11,16 +11,22 @@ Module['onRuntimeInitialized'] = () => {
     return djot_parse(djot.state, s, sourcepos);
   }
 
-  const djot_render_ast =
-      Module.cwrap("djot_render_ast", "string" ,["number", "boolean"]);
+  const djot_render_ast_pretty =
+      Module.cwrap("djot_render_ast_pretty", "string" ,["number"]);
+  const djot_render_ast_json =
+      Module.cwrap("djot_render_ast_json", "string" ,["number"]);
   djot.render_ast = (as_json) => {
-    return djot_render_ast(djot.state, as_json);
+    if (as_json) {
+      return djot_render_ast_json(djot.state, as_json);
+    } else {
+      return djot_render_ast_pretty(djot.state, as_json);
+    }
   }
 
-  const djot_render_matches =
-      Module.cwrap("djot_render_matches", "string" ,["number", "string", "boolean"]);
-  djot.render_matches = (s, as_json) => {
-    return djot_render_matches(djot.state, s, as_json);
+  const djot_parse_and_render_events =
+      Module.cwrap("djot_parse_and_render_events", "string" ,["number", "string"]);
+  djot.parse_and_render_events = (s) => {
+    return djot_parse_and_render_events(djot.state, s);
   }
 
   const djot_render_html =
@@ -102,12 +108,9 @@ function render() {
   } else if (mode == "ast") {
     result.innerText =
       djot.render_ast(false);
-  } else if (mode == "matchesjson") {
+  } else if (mode == "events") {
     result.innerText =
-      djot.render_matches(text, true);
-  } else if (mode == "matches") {
-    result.innerText =
-      djot.render_matches(text, false);
+      djot.parse_and_render_events(text);
   } else if (mode == "html") {
     result.innerText = djot.render_html();
   } else if (mode == "preview") {
