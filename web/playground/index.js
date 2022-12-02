@@ -23,6 +23,12 @@ Module['onRuntimeInitialized'] = () => {
     }
   }
 
+  const djot_apply_filter =
+      Module.cwrap("djot_apply_filter", "number" ,["number", "string"]);
+  djot.apply_filter = (filter) => {
+    return djot_apply_filter(djot.state, filter);
+  }
+
   const djot_parse_and_render_events =
       Module.cwrap("djot_parse_and_render_events", "string" ,["number", "string"]);
   djot.parse_and_render_events = (s) => {
