@@ -1,4 +1,6 @@
--- support filters that walk the AST and transform a
+--- @module djot.filter
+
+-- Support filters that walk the AST and transform a
 -- document between parsing and rendering, like pandoc Lua filters.
 
 -- example: This filter uppercases all str elements.
@@ -103,6 +105,9 @@ local function traverse(node, filterpart)
   return node
 end
 
+--- Apply a filter to a document.
+--- @param node document (AST)
+--- @param filter the filter to apply
 local function apply_filter(node, filter)
   for _,filterpart in ipairs(filter) do
     traverse(node, filterpart)
@@ -159,6 +164,7 @@ local function load_filter(s)
   end
 end
 
+--- @export
 return {
   apply_filter = apply_filter,
   require_filter = require_filter,

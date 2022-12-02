@@ -101,17 +101,17 @@ end
 
 if opts.matches then
 
-  djot.render_matches(inp, io.stdout, opts.json, warn)
+  io.stdout:write(djot.parse_and_render_events(inp, warn))
 
 else
 
-  local doc = djot.parse(inp, opts.sourcepos, warn)
+  local ast = djot.parse(inp, opts.sourcepos, warn)
 
   if opts.filters then
     for _,fp in ipairs(opts.filters) do
       local filt, err = filter.require_filter(fp)
       if filt then
-         doc:apply_filter(filt)
+         djot.apply_filter(ast, filt)
       else
         io.stderr:write("Error loading filter " .. fp .. ":\n" .. err .. "\n")
       end
@@ -119,9 +119,13 @@ else
   end
 
   if opts.ast then
-    doc:render_ast(io.stdout, opts.json)
+    if opts.json then
+      io.stdout:write(djot.render_ast_json(ast))
+    else
+      io.stdout:write(djot.render_ast_pretty(ast))
+    end
   else
-    doc:render_html(io.stdout, opts.json)
+    io.stdout:write(djot.render_html(ast))
   end
 
 end

@@ -76,8 +76,11 @@ rock: $(ROCKSPEC)
 	luarocks --local make $(ROCKSPEC)
 .PHONY: rock
 
-doc/api.html: $(MODULES)
-	ldoc -o api -d doc -v -p djot -t "Lua API" -f markdown $(MODULES)
+doc/api:
+	-mkdir $@
+
+doc/api/index.html: $(MODULES) doc/api
+	ldoc .
 
 vim:
 	cp editors/vim/syntax/djot.vim $(VIMDIR)/syntax/

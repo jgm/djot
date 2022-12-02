@@ -75,7 +75,7 @@ function Tests:do_test(test)
   end
   local actual = ""
   if test.options:match("m") then
-    actual = actual .. djot.render_matches(test.input)
+    actual = actual .. djot.parse_and_render_events(test.input)
   else
     local doc = djot.parse(test.input, sourcepos)
     for _,filt in ipairs(test.filters) do
@@ -83,12 +83,12 @@ function Tests:do_test(test)
       if not f then
         error(err)
       end
-      doc:apply_filter(f)
+      djot.apply_filter(doc, f)
     end
     if test.options:match("a") then
-      actual = actual .. doc:render_ast()
+      actual = actual .. djot.render_ast_pretty(doc)
     else -- match 'h' or empty
-      actual = actual .. doc:render_html()
+      actual = actual .. djot.render_html(doc)
     end
   end
   if self.accept then

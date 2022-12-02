@@ -22,13 +22,14 @@ Issue #106:
 
 |`|x
 .
-blankline 1-1
-+para 2-2
-str 2-2
-+verbatim 3-3
-str 4-5
--verbatim 5-5
--para 6-6
+[ ["blankline",1,1]
+, ["+para",2,2]
+, ["str",2,2]
+, ["+verbatim",3,3]
+, ["str",4,5]
+, ["-verbatim",5,5]
+, ["-para",6,6]
+]
 ```
 
 Issue #127:

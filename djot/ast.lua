@@ -888,7 +888,7 @@ local function to_ast(parser, sourcepos)
   doc.references = references
   doc.footnotes = footnotes
 
-  return doc, sourceposmap
+  return doc
 end
 
 local function render_node(node, handle, indent)
