@@ -1,10 +1,12 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <assert.h>
 #include "djot.h"
 
 int failed = 0;
 int num = 0;
+int result;
 
 static void asserteq(char *actual, char *expected) {
   num = num + 1;
@@ -18,7 +20,7 @@ static void asserteq(char *actual, char *expected) {
 
 static int error(lua_State *L) {
   djot_report_error(L);
-  return -1;
+  exit(1);
 }
 
 int main (void) {
@@ -29,7 +31,7 @@ int main (void) {
   lua_State *L = djot_open();
   if (!L) {
     fprintf(stderr, "djot_open returned NULL.\n");
-    return -1;
+    exit(1);
   }
 
   out = djot_parse_and_render_events(L, "hi *there*\n");
@@ -61,12 +63,15 @@ str = function(e)\n\
 end\n\
 }\n";
 
-  assert(djot_apply_filter(L, capsfilter) == 1);
-  out = djot_render_html(L);
-  if (!out) error(L);
-  asserteq(out,
+  result = djot_apply_filter(L, capsfilter);
+  if (!result) {
+    error(L);
+  } else {
+    out = djot_render_html(L);
+    if (!out) error(L);
+    asserteq(out,
 "<p data-startpos=\"1:1:1\" data-endpos=\"1:11:11\">HI <strong data-startpos=\"1:4:4\" data-endpos=\"1:10:10\">THERE</strong></p>\n");
-
+  }
 
   /* When you're finished, close the djot library */
   djot_close(L);
