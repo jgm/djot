@@ -25,6 +25,13 @@
         <div id="filter-modal" class="modal">
           <div class="modal-content">
             <span id="filter-close" class="close">&times;</span>
+            <select id="filter-examples">
+              <option value="" disabled selected>Create your own or select an example</option>
+              <option>empty_filter</option>
+              <option>capitalize_text</option>
+              <option>capitalize_emph</option>
+            </select>
+
             <p id="filter-error"></p>
             <textarea id="filter" style="width:90%; height: 90%">return {
 }</textarea>

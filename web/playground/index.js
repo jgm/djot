@@ -1,6 +1,39 @@
 var djot = {};
 var initialized = false;
 
+var filterExamples =
+  { "capitalize_text":
+`-- This filter capitalizes regular text, leaving code and URLs unaffected
+return {
+  str = function(el)
+    el.text = el.text:upper()
+  end
+}`
+  , "empty_filter":
+`return {
+}`
+  , "capitalize_emph":
+`-- This filter capitalizes the contents of emph
+-- nodes instead of italicizing them.
+local capitalize = 0
+return {
+   emph = {
+     enter = function(e)
+       capitalize = capitalize + 1
+     end,
+     exit = function(e)
+       capitalize = capitalize - 1
+       e.tag = "span"
+     end,
+   },
+   str = function(e)
+     if capitalize > 0 then
+       e.text = e.text:upper()
+      end
+   end
+}`
+  };
+
 Module['onRuntimeInitialized'] = () => {
   const djot_open = Module.cwrap("djot_open", "number", []);
   const djot_close = Module.cwrap("djot_open", null, ["number"]);
@@ -51,6 +84,11 @@ Module['onRuntimeInitialized'] = () => {
   input.onscroll = syncScroll;
   document.getElementById("mode").onchange = render;
   document.getElementById("sourcepos").onchange = parse_and_render;
+
+  document.getElementById("filter-examples").onchange = (e) => {
+    let examp = filterExamples[e.target.value];
+    document.getElementById("filter").value = examp;
+  }
 
   /* filter modal */
   var modal = document.getElementById("filter-modal");
