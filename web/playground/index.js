@@ -32,6 +32,20 @@ return {
       end
    end
 }`
+  , "multiple_filters":
+`-- This filter includes two sub-filters, run in sequence
+return {
+  { -- first filter changes (TM) to trademark symbol
+    str = function(e)
+      e.text = e.text:gsub("%(TM%)", "™")
+    end
+  },
+  { -- second filter changes '[]' to '()' in text
+    str = function(e)
+      e.text = e.text:gsub("%(","["):gsub("%)","]")
+    end
+  }
+}`
   };
 
 Module['onRuntimeInitialized'] = () => {
