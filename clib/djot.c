@@ -16,6 +16,14 @@ void djot_report_error(lua_State *L) {
   }
 }
 
+const char *djot_get_error(lua_State *L) {
+  if(!L) {
+    return "lua_State is NULL\n";
+  } else {
+    return lua_tostring(L, -1);
+  }
+}
+
 lua_State *djot_open() {
   lua_State *L = luaL_newstate(); /* create Lua state */
   if (L == NULL) {

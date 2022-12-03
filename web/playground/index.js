@@ -23,10 +23,14 @@ Module['onRuntimeInitialized'] = () => {
     }
   }
 
+  const djot_get_error = Module.cwrap("djot_get_error", "string" ,["number"]);
+
   const djot_apply_filter =
       Module.cwrap("djot_apply_filter", "number" ,["number", "string"]);
   djot.apply_filter = (filter) => {
-    return djot_apply_filter(djot.state, filter);
+    if (!djot_apply_filter(djot.state, filter)) {
+      alert(djot_get_error(djot.state));
+    }
   }
 
   const djot_parse_and_render_events =
@@ -94,8 +98,13 @@ const debounce = (func, delay) => {
 function parse_and_render() {
   const text = document.getElementById("input").value;
   const sourcepos = document.getElementById("sourcepos").checked;
+  const filter = document.getElementById("filter").value;
   if (djot.parse(text, sourcepos)) {
-    render();
+    if (djot.apply_filter(filter)) {
+      render();
+    } else {
+      alert("Could not apply filter!");
+    }
   } else {
     console.log("djot.parse failed.");
   }

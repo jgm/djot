@@ -70,7 +70,7 @@ wasm: djot.js
 
 # This also creates djot.wasm
 djot.js: djot.c djot_combined.inc $(LUAOBJS)
-	emcc -g0 -sALLOW_MEMORY_GROWTH -Oz -sFILESYSTEM=0 -s 'EXPORTED_RUNTIME_METHODS=["cwrap"]' -s 'EXPORTED_FUNCTIONS=["_djot_open", "_djot_report_error", "_djot_close", "_djot_parse", "_djot_render_ast_pretty", "_djot_render_ast_json", "_djot_parse_and_render_events", "_djot_render_html", "_djot_apply_filter"]'  -I $(LUASRC) -I . $(LUASRCS) -o $@ $<
+	emcc -g0 -sALLOW_MEMORY_GROWTH -Oz -sFILESYSTEM=0 -s 'EXPORTED_RUNTIME_METHODS=["cwrap"]' -s 'EXPORTED_FUNCTIONS=["_djot_open", "_djot_report_error", "_djot_close", "_djot_parse", "_djot_render_ast_pretty", "_djot_render_ast_json", "_djot_parse_and_render_events", "_djot_render_html", "_djot_apply_filter", "_djot_get_error"]'  -I $(LUASRC) -I . $(LUASRCS) -o $@ $<
 
 clean:
 	rm -rf djot_combined.lua djot_combined.inc *.o test

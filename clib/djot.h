@@ -19,6 +19,11 @@ void djot_close(lua_State *L);
  * a pointer returns NULL. */
 void djot_report_error(lua_State *L);
 
+/* Return string version of error on top of Lua stack.
+* This should be run immediately if a function that is supposed to return
+* a pointer returns NULL. */
+const char *djot_get_error(lua_State *L);
+
 /* Parse input (optionally including source positions) and return a
  * thread with the parsed document in the global 'doc'. The
  * subordinate functions djot_render_html, djot_render_ast,
