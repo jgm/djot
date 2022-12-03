@@ -58,13 +58,6 @@ int main (void) {
   char *capsfilter = "return {\n\
 str = function(e)\n\
    e.text = e.text:upper()\n\
-end,\n\
-emph = function(e)\n\
-  local res = mknode('strong')\n\
-  res.c = e.c\n\
-  render(res, io.stdout)\n\
-  e = nil\n\
-  e = res\n\
 end\n\
 }\n";
 
