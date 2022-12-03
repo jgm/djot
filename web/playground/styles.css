@@ -365,3 +365,9 @@ main {
 	color: #555;
 	font-size: 88%;
 }
+.doclink {
+        color: blue;
+        text-decoration: underline;
+        margin-left: 1em;
+        margin-right: 1em;
+}
