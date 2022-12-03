@@ -20,14 +20,14 @@
             Playground
             (<a href="https://htmlpreview.github.io/?https://github.com/jgm/djot/blob/master/doc/syntax.html">syntax reference</a>)
           </h1>
-          <label class="btn" for="modal-filter">filter</label>
+          <span id="filter-open">filter</span>
         </div>
-        <input class="modal-state" id="modal-filter" type="checkbox" />
-        <div class="modal">
-          <label class="modal__bg" for="modal-filter"></label>
-          <div class="modal__inner">
-            <label class="modal__close" for="modal-filter"></label>
-            <textarea id="filter" style="width:90%; height: 90%">the filter</textarea>
+        <div id="filter-modal" class="modal">
+          <div class="modal-content">
+            <span id="filter-close" class="close">&times;</span>
+            <p id="filter-error"></p>
+            <textarea id="filter" style="width:90%; height: 90%">return {
+}</textarea>
           </div>
         </div>
         <textarea id="input" autofocus placeholder="Type some djot here..."></textarea>

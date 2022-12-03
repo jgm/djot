@@ -109,9 +109,7 @@ int djot_apply_filter(lua_State *L, char *filter) {
     return 0;
   }
   // Now we should have the loaded filter on top of stack, or nil and an error
-  if lua_isnil(L, -1) {
-    lua_pop(L, 1); // pop the nil, leaving the message
-    lua_error(L);
+  if lua_isnil(L, -2) {
     return 0;
   }
   // If we're here, top of stack should be the compiled filter

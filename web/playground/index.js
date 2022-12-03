@@ -29,8 +29,10 @@ Module['onRuntimeInitialized'] = () => {
       Module.cwrap("djot_apply_filter", "number" ,["number", "string"]);
   djot.apply_filter = (filter) => {
     if (!djot_apply_filter(djot.state, filter)) {
-      alert(djot_get_error(djot.state));
+      let err = djot_get_error(djot.state);
+      return err;
     }
+    return null;
   }
 
   const djot_parse_and_render_events =
@@ -49,6 +51,29 @@ Module['onRuntimeInitialized'] = () => {
   input.onscroll = syncScroll;
   document.getElementById("mode").onchange = render;
   document.getElementById("sourcepos").onchange = parse_and_render;
+
+  /* filter modal */
+  var modal = document.getElementById("filter-modal");
+  // Get the button that opens the modal
+  var btn = document.getElementById("filter-open");
+  // Get the <span> element that closes the modal
+  var span = document.getElementById("filter-close");
+  // When the user clicks on the button, open the modal
+  btn.onclick = function() {
+    modal.style.display = "block";
+  }
+  // When the user clicks on <span> (x), close the modal
+  span.onclick = function() {
+    modal.style.display = "none";
+    parse_and_render();
+  }
+  // When the user clicks anywhere outside of the modal, close it
+  window.onclick = function(event) {
+    if (event.target == modal) {
+      modal.style.display = "none";
+      parse_and_render();
+    }
+  }
   parse_and_render();
 }
 
@@ -100,10 +125,19 @@ function parse_and_render() {
   const sourcepos = document.getElementById("sourcepos").checked;
   const filter = document.getElementById("filter").value;
   if (djot.parse(text, sourcepos)) {
-    if (djot.apply_filter(filter)) {
-      render();
+    if (filter && filter != "") {
+      let err = djot.apply_filter(filter);
+      if (err == null) {
+        document.getElementById("filter-error").innerText = "";
+        render();
+      } else {
+        document.getElementById("filter-error").innerText = err;
+        /* open filter so they can edit some more and see error message */
+        document.getElementById("filter-modal").style.display = "block";
+        filter.style.display = "block";
+      }
     } else {
-      alert("Could not apply filter!");
+      render();
     }
   } else {
     console.log("djot.parse failed.");
