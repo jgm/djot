@@ -176,6 +176,7 @@ function parse_and_render() {
   const text = document.getElementById("input").value;
   const sourcepos = document.getElementById("sourcepos").checked;
   const filter = document.getElementById("filter").value;
+  var startTime = new Date().getTime();
   if (djot.parse(text, sourcepos)) {
     if (filter && filter != "") {
       let err = djot.apply_filter(filter);
@@ -194,6 +195,10 @@ function parse_and_render() {
   } else {
     console.log("djot.parse failed.");
   }
+  var endTime = new Date().getTime();
+  var elapsedTime = endTime - startTime;
+  document.getElementById("elapsed-time").innerText = elapsedTime;
+  document.getElementById("timing").style.visibility = "visible";
 }
 
 function render() {
