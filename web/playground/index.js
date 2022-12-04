@@ -209,6 +209,7 @@ function parse_and_render() {
   var endTime = new Date().getTime();
   var elapsedTime = endTime - startTime;
   document.getElementById("elapsed-time").innerText = elapsedTime;
+  document.getElementById("kbps").innerText = ((text.length / elapsedTime)).toFixed(1);
   document.getElementById("timing").style.visibility = "visible";
 }
 
