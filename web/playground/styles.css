@@ -316,8 +316,9 @@ main {
 	margin: 8% auto; /* 8% from the top and centered */
 	padding: 20px;
 	border: 1px solid #888;
+	border-radius: .25rem;
 	width: 70%; /* Could be more or less, depending on screen size */
-	height: 70%;
+	height: 80%;
 }
 
 .modal-content textarea {
@@ -330,6 +331,7 @@ main {
 	font-family: ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace;
 	width: 100%;
 	height: auto;
+        margin-bottom: 1rem;
 	border-radius: .25rem;
 	border-width: 1px;
 	--tw-border-opacity: 1;
@@ -341,8 +343,9 @@ main {
 .close {
 	color: #aaa;
 	float: right;
-	font-size: 28px;
+	font-size: 36px;
 	font-weight: bold;
+        padding: 4px;
 }
 
 .close:hover,

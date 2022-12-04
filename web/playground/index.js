@@ -45,6 +45,17 @@ return {
       e.text = e.text:gsub("%(","["):gsub("%)","]")
     end
   }
+}`,
+  "letter_enumerated_lists_to_roman":
+`-- Changes letter-enumerated lists to roman-numbered
+return {
+  list = function(e)
+    if e.list_style == 'a.' then
+      e.list_style = 'i.'
+    elseif e.list_style == 'A.' then
+      e.list_style = 'I.'
+    end
+  end
 }`
   };
 
