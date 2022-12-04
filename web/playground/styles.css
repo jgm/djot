@@ -367,6 +367,7 @@ main {
 #timing {
 	color: #555;
 	font-size: 88%;
+        margin: 0 auto;
 }
 .doclink {
         color: blue;
