@@ -436,6 +436,11 @@ local function to_ast(parser, sourcepos)
     -- see if there are any blank lines between blocks in a list item.
     local blanklines = 0
     -- we don't care about blank lines at very end of list
+    if is_last_item then
+      while tags[endidx] == "blankline" or tags[endidx] == "-list_item" do
+        endidx = endidx - 1
+      end
+    end
     for i=startidx, endidx do
       local tag = tags[i]
       if tag == "blankline" then
