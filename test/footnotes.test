@@ -12,8 +12,8 @@ test[^a] and another[^foo_bar].
 
 another ref to the first note[^a].
 .
-<p>test<a href="#fn1" role="doc-noteref"><sup>1</sup></a> and another<a href="#fn2" role="doc-noteref"><sup>2</sup></a>.</p>
-<p>another ref to the first note<a href="#fn1" role="doc-noteref"><sup>1</sup></a>.</p>
+<p>test<a id="fnref1" href="#fn1" role="doc-noteref"><sup>1</sup></a> and another<a id="fnref2" href="#fn2" role="doc-noteref"><sup>2</sup></a>.</p>
+<p>another ref to the first note<a id="fnref1" href="#fn1" role="doc-noteref"><sup>1</sup></a>.</p>
 <section role="doc-endnotes">
 <hr>
 <ol>
@@ -37,7 +37,7 @@ test[^nonexistent]
 
   more
 .
-<p>test<a href="#fn1" role="doc-noteref"><sup>1</sup></a></p>
+<p>test<a id="fnref1" href="#fn1" role="doc-noteref"><sup>1</sup></a></p>
 <section role="doc-endnotes">
 <hr>
 <ol>

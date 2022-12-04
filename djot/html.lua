@@ -161,10 +161,13 @@ function Renderer:doc(node)
     end
     self.out('<section role="doc-endnotes">\n<hr>\n<ol>\n')
     for i=1,#ordered_footnotes do
-      self.out(format('<li id="fn%d">\n', i))
-      self:add_backlink(ordered_footnotes[i],i)
-      self:render_children(ordered_footnotes[i])
-      self.out('</li>\n')
+      local note = ordered_footnotes[i]
+      if note then
+        self.out(format('<li id="fn%d">\n', i))
+        self:add_backlink(note,i)
+        self:render_children(note)
+        self.out('</li>\n')
+      end
     end
     self.out('</ol>\n</section>\n')
   end
@@ -348,8 +351,7 @@ function Renderer:footnote_reference(node)
     self.footnote_index[label] = index
     self.next_footnote_index = self.next_footnote_index + 1
   end
-  self.out(format('<a href="#fn%d" role="doc-noteref"><sup>%d</sup></a>',
-              index, index))
+  self.out(format('<a id="fnref%d" href="#fn%d" role="doc-noteref"><sup>%d</sup></a>', index, index, index))
 end
 
 function Renderer:raw_inline(node)
