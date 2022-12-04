@@ -382,9 +382,20 @@ the heading level.  The following text is parsed as inline content.
 ## A level _two_ heading!
 ```
 
-The heading text may spill over onto following lines.
+The heading text may spill over onto following lines, which may
+also be preceeded by the same number of `#` characters (but
+these can also be left off).
+
 The heading ends when a blank line (or the end of the document
 or enclosing container) is encountered.
+
+```
+# A heading that
+# takes up
+# three lines
+
+A paragraph, finally
+```
 
 ```
 # A heading that
@@ -392,14 +403,6 @@ takes up
 three lines
 
 A paragraph, finally.
-```
-
-Any number of trailing `#` characters may be included as
-a cosmetic decoration; they will not be included in the heading's
-content:
-
-```
-### Heading ###
 ```
 
 ### Block quote

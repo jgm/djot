@@ -97,6 +97,22 @@ in djot you must write
 
 There are no Setext-style (underlined) headings, only ATX- (`#`) style.
 
+Heading content can extend over several lines, which may or may
+not be preceded by `#` characters:
+
+```
+## This is a single
+## level-2 heading
+
+### This is a single
+level-3 heading
+```
+
+As a result, headings must always have a blank line following.
+
+Trailing `#` characters in a heading are read as part of the
+content and not ignored.
+
 #### Code blocks
 
 There are no indented code blocks, only fenced with ` ``` `.

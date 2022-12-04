@@ -361,8 +361,8 @@ emphasis, while <code>_}</code> behaves like <code>_</code> but can <em>only</em
 _}not emphasized{_</code></pre>
 </div>
 <div class="html">
-<pre><code>&lt;p&gt;&lt;em&gt;Emphasized&lt;/em&gt;&lt;/p&gt;
-&lt;p&gt;_}not emphasized{_&lt;/p&gt;
+<pre><code>&lt;p&gt;&lt;em&gt;Emphasized&lt;/em&gt;
+_}not emphasized{_&lt;/p&gt;
 </code></pre>
 </div>
 </div>
@@ -935,13 +935,39 @@ the heading level. The following text is parsed as inline content.</p>
 <pre><code>## A level _two_ heading!</code></pre>
 </div>
 <div class="html">
-<pre><code>&lt;h2 id=&quot;A-level-two-heading&quot;&gt;A level &lt;em&gt;two&lt;/em&gt; heading!&lt;/h2&gt;
+<pre><code>&lt;section id=&quot;A-level-two-heading&quot;&gt;
+&lt;h2&gt;A level &lt;em&gt;two&lt;/em&gt; heading!&lt;/h2&gt;
+&lt;/section&gt;
 </code></pre>
 </div>
 </div>
-<p>The heading text may spill over onto following lines.
-The heading ends when a blank line (or the end of the document
+<p>The heading text may spill over onto following lines, which may
+also be preceeded by the same number of <code>#</code> characters (but
+these can also be left off).</p>
+<p>The heading ends when a blank line (or the end of the document
 or enclosing container) is encountered.</p>
+<div class="example">
+<div class="djot">
+<pre><code># A heading that
+# takes up
+# three lines
+
+A paragraph, finally</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;section id=&quot;A-heading-that&quot;&gt;
+&lt;h1&gt;A heading that&lt;/h1&gt;
+&lt;/section&gt;
+&lt;section id=&quot;takes-up&quot;&gt;
+&lt;h1&gt;takes up&lt;/h1&gt;
+&lt;/section&gt;
+&lt;section id=&quot;three-lines&quot;&gt;
+&lt;h1&gt;three lines&lt;/h1&gt;
+&lt;p&gt;A paragraph, finally&lt;/p&gt;
+&lt;/section&gt;
+</code></pre>
+</div>
+</div>
 <div class="example">
 <div class="djot">
 <pre><code># A heading that
@@ -951,22 +977,12 @@ three lines
 A paragraph, finally.</code></pre>
 </div>
 <div class="html">
-<pre><code>&lt;h1 id=&quot;A-heading-that-takes-up-three-lines&quot;&gt;A heading that
+<pre><code>&lt;section id=&quot;A-heading-that-takes-up-three-lines&quot;&gt;
+&lt;h1&gt;A heading that
 takes up
 three lines&lt;/h1&gt;
 &lt;p&gt;A paragraph, finally.&lt;/p&gt;
-</code></pre>
-</div>
-</div>
-<p>Any number of trailing <code>#</code> characters may be included as
-a cosmetic decoration; they will not be included in the heading’s
-content:</p>
-<div class="example">
-<div class="djot">
-<pre><code>### Heading ###</code></pre>
-</div>
-<div class="html">
-<pre><code>&lt;h3 id=&quot;Heading&quot;&gt;Heading&lt;/h3&gt;
+&lt;/section&gt;
 </code></pre>
 </div>
 </div>
@@ -1520,8 +1536,7 @@ verbatim spans; these do not count as cell separators:</p>
 <div class="html">
 <pre><code>&lt;table&gt;
 &lt;tr&gt;
-&lt;td&gt;just two \&lt;/td&gt;
-&lt;td&gt;&lt;code&gt;|&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;just two | &lt;code&gt;|&lt;/code&gt;&lt;/td&gt;
 &lt;td&gt;cells in this table&lt;/td&gt;
 &lt;/tr&gt;
 &lt;/table&gt;
@@ -1681,7 +1696,9 @@ adding a numerical suffix.</p>
 <pre><code>## My heading + auto-identifier</code></pre>
 </div>
 <div class="html">
-<pre><code>&lt;h2 id=&quot;My-heading-auto-identifier&quot;&gt;My heading + auto-identifier&lt;/h2&gt;
+<pre><code>&lt;section id=&quot;My-heading-auto-identifier&quot;&gt;
+&lt;h2&gt;My heading + auto-identifier&lt;/h2&gt;
+&lt;/section&gt;
 </code></pre>
 </div>
 </div>
@@ -1701,7 +1718,9 @@ document, one can simply use a reference link:</p>
 <div class="html">
 <pre><code>&lt;p&gt;See the &lt;a href=&quot;#Epilogue&quot;&gt;Epilogue&lt;/a&gt;.&lt;/p&gt;
 &lt;hr&gt;
-&lt;h1 id=&quot;Epilogue&quot;&gt;Epilogue&lt;/h1&gt;
+&lt;section id=&quot;Epilogue&quot;&gt;
+&lt;h1&gt;Epilogue&lt;/h1&gt;
+&lt;/section&gt;
 </code></pre>
 </div>
 </div>

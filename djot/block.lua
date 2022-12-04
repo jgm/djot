@@ -406,8 +406,14 @@ function Parser:specs()
 
     { name = "heading",
       content = "inline",
-      continue = function(_container)
-        return false
+      continue = function(container)
+        local sp, ep = self:find("^%#+%s")
+        if sp and ep and container.level == ep - sp then
+          self.pos = ep
+          return true
+        else
+          return false
+        end
       end,
       open = function(spec)
         local sp, ep = self:find("^#+")
@@ -424,24 +430,7 @@ function Parser:specs()
         self:get_inline_matches()
         local last = self.matches[#self.matches] or self.pos - 1
         local sp, ep, annot = unpack(last)
-        -- handle final ###
-        local endheadingpos = ep
-        local endheadingendpos = ep
-        if annot == "str" then
-          local endheadingstart, _, hashes =
-            find(sub(self.subject, sp, ep), "%s+(#+)$")
-          if hashes then
-            endheadingpos = endheadingpos - #hashes
-            if endheadingstart == 1 then
-              -- remove final str match
-              self.matches[#self.matches] = nil
-            else
-              self.matches[#self.matches] =
-              {sp, sp + (endheadingstart - 2), "str"}
-            end
-          end
-        end
-        self:add_match(endheadingpos, endheadingendpos, "-heading")
+        self:add_match(ep, ep, "-heading")
         self.containers[#self.containers] = nil
       end
     },
