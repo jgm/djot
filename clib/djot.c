@@ -45,8 +45,8 @@ void djot_close(lua_State *L) {
   lua_close(L);
 }
 
-/* Parse input (optionally including source positions) and return a
- * thread with the parsed document in the global 'doc'. The
+/* Parse input (optionally including source positions) and add
+ * a global 'doc' with the parsed AST. The
  * subordinate functions djot_render_html, djot_render_ast,
  * djot_render_matches, djot_apply_filter can then be used to manipulate
  * or render the content. Returns 1 on success, 0 on error. */
