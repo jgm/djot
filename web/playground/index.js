@@ -70,7 +70,7 @@ Module['onRuntimeInitialized'] = () => {
       Module.cwrap("djot_parse", null, ["number", "string", "boolean"]);
   djot.parse = (s, sourcepos) => {
       let res = djot_parse(djot.state, s, sourcepos);
-      if (res == 0) {
+      if (res === 0) {
         return "djot.parse error:\n" + djot_get_error(djot.state);
       } else {
         return res;
@@ -84,14 +84,14 @@ Module['onRuntimeInitialized'] = () => {
   djot.render_ast = (as_json) => {
     if (as_json) {
       let res = djot_render_ast_json(djot.state, as_json);
-      if (res == 0) {
+      if (res === 0) {
         return "djot.render_ast error:\n" + djot_get_error(djot.state);
       } else {
         return res;
       }
     } else {
       let res = djot_render_ast_pretty(djot.state, as_json);
-      if (res == 0) {
+      if (res === 0) {
         return "djot.render_ast error:\n" + djot_get_error(djot.state);
       } else {
         return res;
@@ -113,7 +113,7 @@ Module['onRuntimeInitialized'] = () => {
       Module.cwrap("djot_parse_and_render_events", "string" ,["number", "string"]);
   djot.parse_and_render_events = (s) => {
     let res = djot_parse_and_render_events(djot.state, s);
-    if (res == 0) {
+    if (res === 0) {
       return "djot.parse_and_render_events error:\n" + djot_get_error(djot.state)
     } else {
       return res;
@@ -124,7 +124,7 @@ Module['onRuntimeInitialized'] = () => {
       Module.cwrap("djot_render_html", "string" ,["number"]);
   djot.render_html = () => {
     let res = djot_render_html(djot.state);
-    if (res == 0) {
+    if (res === 0) {
       return "djot.render_html error:\n" + djot_get_error(djot.state);
     } else {
       return res;
