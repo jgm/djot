@@ -376,8 +376,7 @@ To alter the AST with a filter:
 ``` lua
 local src = "return { str = function(e) e.text = e.text:upper() end }"
 local filter = djot.filter.load_filter(src)
-djot.apply_filter(doc, filter)
-djot.render_ast(doc)
+djot.filter.apply_filter(doc, filter)
 ```
 
 For a streaming parser:
