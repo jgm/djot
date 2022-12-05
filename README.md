@@ -354,49 +354,37 @@ If you just want to parse some input and produce HTML:
 local djot = require("djot")
 local input = "This is *djot*"
 local doc = djot.parse(input)
-local html = doc:render_html()
+local html = djot.render_html(doc)
 ```
 
 The AST is available as a Lua table, `doc.ast`.
 
-To render the AST to stdout:
+To render the AST:
 
 ``` lua
-doc:render_ast(io.stdout)
+local rendered = djot.render_ast_pretty(doc)
 ```
 
-Or put the rendered AST in a string:
+Or as JSON:
 
 ``` lua
-local rendered = doc:render_ast()
-```
-
-Or make it JSON:
-
-``` lua
-local rendered = doc:render_ast(nil, true)
+local rendered = djot.render_ast_json(doc)
 ```
 
 To alter the AST with a filter:
 
 ``` lua
 local src = "return { str = function(e) e.text = e.text:upper() end }"
-local filter = dostring(src)
-doc:apply_filter(filter)
-doc:render_ast()
+local filter = djot.filter.load_filter(src)
+djot.apply_filter(doc, filter)
+djot.render_ast(doc)
 ```
 
-To see the tokenizer's output:
+For a streaming parser:
 
 ``` lua
-djot.render_matches("This is *djot*", io.stdout, true)
-```
-
-Or to use the tokenizer directly:
-
-``` lua
-for x in d.tokenize("*hello there*") do
-  print(table.unpack(x))
+for startpos, endpos, annotation in djot.parse_events("*hello there*") do
+  print(startpos, endpos, annotation)
 end
 ```
 
