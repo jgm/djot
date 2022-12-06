@@ -1,0 +1,369 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>djot</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+<li><a href="#Fields">Fields</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><strong>djot</strong></li>
+  <li><a href="../modules/djot.ast.html">djot.ast</a></li>
+  <li><a href="../modules/djot.filter.html">djot.filter</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>djot</code></h1>
+<p>
+
+</p>
+<p> Parse and render djot light markup format. See https://djot.net.</p>
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">local djot = require(&quot;djot&quot;)
+local input = &quot;This is *djot*&quot;
+local doc = djot.parse(input)
+-- render as HTML:
+print(djot.render_html(doc))
+
+-- render as AST:
+print(djot.render_ast_pretty(doc))
+
+-- or in JSON:
+print(djot.render_ast_json(doc))
+
+-- alter the AST with a filter:
+local src = &quot;return { str = function(e) e.text = e.text:upper() end }&quot;
+-- subordinate modules like filter can be accessed as fields
+-- and are lazily loaded.
+local filter = djot.filter.load_filter(src)
+djot.filter.apply_filter(doc, filter)
+
+-- streaming parser:
+for startpos, endpos, annotation in djot.parse_events(&quot;*hello there*&quot;) do
+  print(startpos, endpos, annotation)
+end
+</pre>
+    </ul>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#parse">parse (input, sourcepos, warn)</a></td>
+	<td class="summary">Parse a djot text and construct an abstract syntax tree (AST)
+ representing the document.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#parse_events">parse_events (input, warn)</a></td>
+	<td class="summary">Parses a djot text and returns an iterator over events, consisting
+ of a start position (bytes), and an position (bytes), and an
+ annotation.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#render_ast_pretty">render_ast_pretty (doc)</a></td>
+	<td class="summary">Render a document's AST in human-readable form.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#render_ast_json">render_ast_json (doc)</a></td>
+	<td class="summary">Render a document's AST in JSON.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#render_html">render_html (doc)</a></td>
+	<td class="summary">Render a document as HTML.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#render_event">render_event (startpos, endpos, annotation)</a></td>
+	<td class="summary">Render an event as a JSON array.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#parse_and_render_events">parse_and_render_events (input, warn)</a></td>
+	<td class="summary">Parse a document and render as a JSON array of events.</td>
+	</tr>
+</table>
+<h2><a href="#Fields">Fields</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#version">version</a></td>
+	<td class="summary">djot version (string)</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "parse"></a>
+    <strong>parse (input, sourcepos, warn)</strong>
+    </dt>
+    <dd>
+    Parse a djot text and construct an abstract syntax tree (AST)
+ representing the document.
+ object with <code>pos</code> and <code>message</code> fields.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">input</span>
+         input string
+        </li>
+        <li><span class="parameter">sourcepos</span>
+         if true, source positions are included in the AST
+        </li>
+        <li><span class="parameter">warn</span>
+         function that processes a warning, accepting a warning
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        AST
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "parse_events"></a>
+    <strong>parse_events (input, warn)</strong>
+    </dt>
+    <dd>
+
+<p>Parses a djot text and returns an iterator over events, consisting
+ of a start position (bytes), and an position (bytes), and an
+ annotation.
+ object with <code>pos</code> and <code>message</code> fields.</p>
+
+<pre><code> for startpos, endpos, annotation in djot.parse_events("hello *world") do
+ ...
+ end
+</code></pre>
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">input</span>
+         input string
+        </li>
+        <li><span class="parameter">warn</span>
+         function that processes a warning, accepting a warning
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+         an iterator over events.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "render_ast_pretty"></a>
+    <strong>render_ast_pretty (doc)</strong>
+    </dt>
+    <dd>
+    Render a document's AST in human-readable form.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">doc</span>
+         the AST
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        rendered AST (string)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "render_ast_json"></a>
+    <strong>render_ast_json (doc)</strong>
+    </dt>
+    <dd>
+    Render a document's AST in JSON.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">doc</span>
+         the AST
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        rendered AST (JSON string)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "render_html"></a>
+    <strong>render_html (doc)</strong>
+    </dt>
+    <dd>
+    Render a document as HTML.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">doc</span>
+         the AST
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        rendered document (HTML string)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "render_event"></a>
+    <strong>render_event (startpos, endpos, annotation)</strong>
+    </dt>
+    <dd>
+    Render an event as a JSON array.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">startpos</span>
+         starting byte position
+        </li>
+        <li><span class="parameter">endpos</span>
+         ending byte position
+        </li>
+        <li><span class="parameter">annotation</span>
+         annotation of event
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        rendered event (JSON string)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "parse_and_render_events"></a>
+    <strong>parse_and_render_events (input, warn)</strong>
+    </dt>
+    <dd>
+    Parse a document and render as a JSON array of events.
+ an object with fields 'message' and 'pos'
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">input</span>
+         the djot document (string)
+        </li>
+        <li><span class="parameter">warn</span>
+         function that emits warnings, taking as argumnet
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        rendered events (JSON string)
+    </ol>
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Fields"></a>Fields</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "version"></a>
+    <strong>version</strong>
+    </dt>
+    <dd>
+    djot version (string)
+
+
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2022-12-05 21:34:13 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

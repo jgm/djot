@@ -9,7 +9,7 @@ VIMDIR?=~/.vim
 TIMEOUT=perl -e 'alarm shift; exec @ARGV'
 TEMPFILE := $(shell mktemp)
 
-all: test doc/syntax.html doc/djot.1
+all: test doc/syntax.html doc/djot.1 doc/api/index.html
 
 test: $(ROCKSPEC)
 	luarocks test
@@ -79,7 +79,7 @@ rock: $(ROCKSPEC)
 doc/api:
 	-mkdir $@
 
-doc/api/index.html: $(MODULES) doc/api
+doc/api/index.html: djot.lua djot/ast.lua djot/filter.lua doc/api
 	ldoc .
 
 vim:
