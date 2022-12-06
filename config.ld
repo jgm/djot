@@ -4,3 +4,4 @@ file = {'djot.lua', 'djot'}
 dir = 'doc/api'
 format = 'markdown'
 not_luadoc = true
+template = '.'

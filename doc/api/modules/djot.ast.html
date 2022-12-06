@@ -1,8 +1,8 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <title>Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
@@ -16,109 +16,54 @@
 	<div id="product_description"></div>
 </div> <!-- id="product" -->
 
-
 <div id="main">
 
 
 <!-- Menu -->
 
-<div id="navigation">
-<br/>
-<h1>djot</h1>
 
+
+<div id="navigation">
+<h1>djot</h1>
 <ul>
   <li><a href="../index.html">Index</a></li>
 </ul>
 
-<h2>Contents</h2>
+<hr/>
 <ul>
-<li><a href="#Functions">Functions</a></li>
-</ul>
-
-
-<h2>Modules</h2>
-<ul class="nowrap">
-  <li><a href="../modules/djot.html">djot</a></li>
-  <li><strong>djot.ast</strong></li>
-  <li><a href="../modules/djot.filter.html">djot.filter</a></li>
+    <li><a href="#new_node">new_node&nbsp;(tag)</a></li>
+    <li><a href="#add_child">add_child&nbsp;(node, child)</a></li>
+    <li><a href="#has_children">has_children&nbsp;(node)</a></li>
+    <li><a href="#new_attributes">new_attributes&nbsp;(tbl)</a></li>
+    <li><a href="#insert_attribute">insert_attribute&nbsp;(attr, key, val)</a></li>
+    <li><a href="#copy_attributes">copy_attributes&nbsp;(target, source)</a></li>
+    <li><a href="#to_ast">to_ast&nbsp;(parser, sourcepos)</a></li>
+    <li><a href="#render">render&nbsp;(doc, handle)</a></li>
 </ul>
 
 </div>
 
 <div id="content">
 
+
 <h1>Module <code>djot.ast</code></h1>
+
 <p>
 
 </p>
 <p> Construct an AST for a djot document.</p>
 
-
-<h2><a href="#Functions">Functions</a></h2>
-<table class="function_list">
-	<tr>
-	<td class="name" nowrap><a href="#new_node">new_node (tag)</a></td>
-	<td class="summary">Create a new AST node.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#add_child">add_child (node, child)</a></td>
-	<td class="summary">Add <code>child</code> as a child of <code>node</code>.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#has_children">has_children (node)</a></td>
-	<td class="summary">Returns true if <code>node</code> has children.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#new_attributes">new_attributes (tbl)</a></td>
-	<td class="summary">Returns an attributes object.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#insert_attribute">insert_attribute (attr, key, val)</a></td>
-	<td class="summary">Insert an attribute into an attributes object.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#copy_attributes">copy_attributes (target, source)</a></td>
-	<td class="summary">Copy attributes from <code>source</code> to <code>target</code>.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#to_ast">to_ast (parser, sourcepos)</a></td>
-	<td class="summary">Create an abstract syntax tree based on an event
- stream and references.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#render">render (doc, handle)</a></td>
-	<td class="summary">Render an AST in human-readable form, with indentation
- showing the hierarchy.</td>
-	</tr>
-</table>
-
 <br/>
 <br/>
-
-
-    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
 
     <dl class="function">
     <dt>
     <a name = "new_node"></a>
-    <strong>new_node (tag)</strong>
+    <strong>new_node&nbsp;(tag)</strong>
     </dt>
     <dd>
     Create a new AST node.
 
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">tag</span>
-         (string) tag for the node
-        </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-        node (table)
-    </ol>
 
 
 
@@ -126,21 +71,10 @@
 </dd>
     <dt>
     <a name = "add_child"></a>
-    <strong>add_child (node, child)</strong>
+    <strong>add_child&nbsp;(node, child)</strong>
     </dt>
     <dd>
     Add <code>child</code> as a child of <code>node</code>.
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">node</span>
-         parent node
-        </li>
-        <li><span class="parameter">child</span>
-         child node
-        </li>
-    </ul>
 
 
 
@@ -149,24 +83,11 @@
 </dd>
     <dt>
     <a name = "has_children"></a>
-    <strong>has_children (node)</strong>
+    <strong>has_children&nbsp;(node)</strong>
     </dt>
     <dd>
     Returns true if <code>node</code> has children.
 
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">node</span>
-         node to check
-        </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-        true if node has children
-    </ol>
 
 
 
@@ -174,50 +95,20 @@
 </dd>
     <dt>
     <a name = "new_attributes"></a>
-    <strong>new_attributes (tbl)</strong>
+    <strong>new_attributes&nbsp;(tbl)</strong>
     </dt>
     <dd>
     Returns an attributes object.
- deterministic order of iteration)
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">tbl</span>
-         table of attributes and values
-        </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-        attributes object (table including special metatable for
-    </ol>
-
-
+     deterministic order of iteration)
 
 
 </dd>
     <dt>
     <a name = "insert_attribute"></a>
-    <strong>insert_attribute (attr, key, val)</strong>
+    <strong>insert_attribute&nbsp;(attr, key, val)</strong>
     </dt>
     <dd>
     Insert an attribute into an attributes object.
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">attr</span>
-         attributes object
-        </li>
-        <li><span class="parameter">key</span>
-         (string) key of new attribute
-        </li>
-        <li><span class="parameter">val</span>
-         (string) value of new attribute
-        </li>
-    </ul>
 
 
 
@@ -226,21 +117,10 @@
 </dd>
     <dt>
     <a name = "copy_attributes"></a>
-    <strong>copy_attributes (target, source)</strong>
+    <strong>copy_attributes&nbsp;(target, source)</strong>
     </dt>
     <dd>
     Copy attributes from <code>source</code> to <code>target</code>.
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">target</span>
-         attributes object
-        </li>
-        <li><span class="parameter">source</span>
-         table associating keys and values
-        </li>
-    </ul>
 
 
 
@@ -249,28 +129,12 @@
 </dd>
     <dt>
     <a name = "to_ast"></a>
-    <strong>to_ast (parser, sourcepos)</strong>
+    <strong>to_ast&nbsp;(parser, sourcepos)</strong>
     </dt>
     <dd>
     Create an abstract syntax tree based on an event
  stream and references.
 
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">parser</span>
-         djot streaming parser
-        </li>
-        <li><span class="parameter">sourcepos</span>
-         if true, include source positions
-        </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-        table representing the AST
-    </ol>
 
 
 
@@ -278,28 +142,12 @@
 </dd>
     <dt>
     <a name = "render"></a>
-    <strong>render (doc, handle)</strong>
+    <strong>render&nbsp;(doc, handle)</strong>
     </dt>
     <dd>
     Render an AST in human-readable form, with indentation
  showing the hierarchy.
 
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">doc</span>
-         (table) djot AST
-        </li>
-        <li><span class="parameter">handle</span>
-         handle to which to write content
-        </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-        result of flushing handle
-    </ol>
 
 
 
@@ -311,9 +159,8 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2022-12-05 21:34:13 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
 </html>
+

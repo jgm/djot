@@ -1,8 +1,8 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <title>Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
@@ -16,38 +16,33 @@
 	<div id="product_description"></div>
 </div> <!-- id="product" -->
 
-
 <div id="main">
 
 
 <!-- Menu -->
 
-<div id="navigation">
-<br/>
-<h1>djot</h1>
 
+
+<div id="navigation">
+<h1>djot</h1>
 <ul>
   <li><a href="../index.html">Index</a></li>
 </ul>
 
-<h2>Contents</h2>
+<hr/>
 <ul>
-<li><a href="#Functions">Functions</a></li>
-</ul>
-
-
-<h2>Modules</h2>
-<ul class="nowrap">
-  <li><a href="../modules/djot.html">djot</a></li>
-  <li><a href="../modules/djot.ast.html">djot.ast</a></li>
-  <li><strong>djot.filter</strong></li>
+    <li><a href="#apply_filter">apply_filter&nbsp;(node, filter)</a></li>
+    <li><a href="#require_filter">require_filter&nbsp;(fp)</a></li>
+    <li><a href="#load_filter">load_filter&nbsp;(s)</a></li>
 </ul>
 
 </div>
 
 <div id="content">
 
+
 <h1>Module <code>djot.filter</code></h1>
+
 <p>
 
 </p>
@@ -56,14 +51,12 @@
 
 <p> This filter uppercases all str elements.</p>
 
-
-<pre>
-<span class="keyword">return</span> {
-  str = <span class="keyword">function</span>(e)
-    e.text = e.text:upper()
-   <span class="keyword">end</span>
-}
-</pre>
+<pre><code> return {
+   str = function(e)
+     e.text = e.text:upper()
+    end
+ }
+</code></pre>
 
 <p> A filter may define functions for as many different tag types
  as it likes.  traverse will walk the AST and apply matching
@@ -71,17 +64,13 @@
 
 <p> To load a filter:</p>
 
-
-<pre>
-<span class="keyword">local</span> filter = require_filter(path)
-</pre>
+<pre><code> local filter = require_filter(path)
+</code></pre>
 
 <p> or</p>
 
-
-<pre>
-<span class="keyword">local</span> filter = load_filter(<span class="global">string</span>)
-</pre>
+<pre><code> local filter = load_filter(string)
+</code></pre>
 
 <p> By default filters do a bottom-up traversal; that is, the
  filter for a node is run after its children have been processed.
@@ -92,25 +81,23 @@
  <code>exit</code> functions.  The following filter will capitalize text
  that is nested inside emphasis, but not other text:</p>
 
-
-<pre>
-<span class="keyword">local</span> capitalize = <span class="number">0</span>
-<span class="keyword">return</span> {
-   emph = {
-     enter = <span class="keyword">function</span>(e)
-       capitalize = capitalize + <span class="number">1</span>
-     <span class="keyword">end</span>,
-     exit = <span class="keyword">function</span>(e)
-       capitalize = capitalize - <span class="number">1</span>
-     <span class="keyword">end</span>,
-   },
-   str = <span class="keyword">function</span>(e)
-     <span class="keyword">if</span> capitalize &gt; <span class="number">0</span> <span class="keyword">then</span>
-       e.text = e.text:upper()
-      <span class="keyword">end</span>
-   <span class="keyword">end</span>
-}
-</pre>
+<pre><code> local capitalize = 0
+ return {
+    emph = {
+      enter = function(e)
+        capitalize = capitalize + 1
+      end,
+      exit = function(e)
+        capitalize = capitalize - 1
+      end,
+    },
+    str = function(e)
+      if capitalize &gt; 0 then
+        e.text = e.text:upper()
+       end
+    end
+ }
+</code></pre>
 
 <p> For a top-down traversal, you'd just use the <code>enter</code> functions.
  If the tag is associated directly with a function, as in the
@@ -121,62 +108,28 @@
  value, say <code>&apos;stop&apos;</code>).  This can be used, for example, to prevent
  the contents of a footnote from being processed:</p>
 
-
-<pre>
-<span class="keyword">return</span> {
-  footnote = {
-    enter = <span class="keyword">function</span>(e)
-      <span class="keyword">return</span> <span class="keyword">true</span>
-    <span class="keyword">end</span>
-   }
-}
-</pre>
+<pre><code> return {
+   footnote = {
+     enter = function(e)
+       return true
+     end
+    }
+ }
+</code></pre>
 
 <p> A single filter may return a table with multiple tables, which will be
  applied sequentially.</p>
 
-
-<h2><a href="#Functions">Functions</a></h2>
-<table class="function_list">
-	<tr>
-	<td class="name" nowrap><a href="#apply_filter">apply_filter (node, filter)</a></td>
-	<td class="summary">Apply a filter to a document.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#require_filter">require_filter (fp)</a></td>
-	<td class="summary">Returns a table containing the filter defined in <code>fp</code>.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#load_filter">load_filter (s)</a></td>
-	<td class="summary">Load filter from a string, which should have the
- form `return { ...</td>
-	</tr>
-</table>
-
 <br/>
 <br/>
-
-
-    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
 
     <dl class="function">
     <dt>
     <a name = "apply_filter"></a>
-    <strong>apply_filter (node, filter)</strong>
+    <strong>apply_filter&nbsp;(node, filter)</strong>
     </dt>
     <dd>
     Apply a filter to a document.
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">node</span>
-         document (AST)
-        </li>
-        <li><span class="parameter">filter</span>
-         the filter to apply
-        </li>
-    </ul>
 
 
 
@@ -185,56 +138,25 @@
 </dd>
     <dt>
     <a name = "require_filter"></a>
-    <strong>require_filter (fp)</strong>
+    <strong>require_filter&nbsp;(fp)</strong>
     </dt>
     <dd>
     Returns a table containing the filter defined in <code>fp</code>.
- <code>fp</code> will be sought using <a href="https://www.lua.org/manual/5.1/manual.html#pdf-require">require</a>, so it may occur anywhere
+     <code>fp</code> will be sought using <a href="https://www.lua.org/manual/5.1/manual.html#pdf-require">require</a>, so it may occur anywhere
  on the <code>LUA_PATH</code>, or in the working directory. On error,
  returns nil and an error message.
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">fp</span>
-         path of file containing filter
-        </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-        the compiled filter, or nil and and error message
-    </ol>
-
-
 
 
 </dd>
     <dt>
     <a name = "load_filter"></a>
-    <strong>load_filter (s)</strong>
+    <strong>load_filter&nbsp;(s)</strong>
     </dt>
     <dd>
     Load filter from a string, which should have the
- form <code>return { ...  }</code>.  On error, return nil and an
+ form `return { ...
+     }`.  On error, return nil and an
  error message.
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">s</span>
-         string containing the filter
-        </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-        the compiled filter, or nil and and error message
-    </ol>
-
-
 
 
 </dd>
@@ -244,9 +166,8 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2022-12-05 21:34:13 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
 </html>
+
