@@ -178,9 +178,6 @@ handlers[SCANNING_QUOTED_VALUE] = function(self, pos)
     return SCANNING
   elseif c == "\\" then
     return SCANNING_ESCAPED
-  elseif c == "\n" then
-    self:add_match(self.begin + 1, self.lastpos, "value")
-    return SCANNING_QUOTED_VALUE
   else
     return SCANNING_QUOTED_VALUE
   end

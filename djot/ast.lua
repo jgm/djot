@@ -250,6 +250,7 @@ end
 --- @param key (string) key of new attribute
 --- @param val (string) value of new attribute
 local function insert_attribute(attr, key, val)
+  val = val:gsub("%s+", " ") -- normalize spaces
   if key == "class" then
     if attr.class then
       attr.class = attr.class .. " " .. val

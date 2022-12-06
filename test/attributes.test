@@ -263,3 +263,19 @@ text{a=x
 <p>{a=x
 # non-heading</p>
 ```
+
+``` a
+{
+ attr="long
+ value
+ spanning
+ multiple
+ lines"
+ }
+> a
+.
+doc
+  blockquote attr="long value spanning multiple lines"
+    para
+      str text="a"
+```
