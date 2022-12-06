@@ -1,3 +1,6 @@
+--- @module djot.ast
+--- Construct an AST for a djot document.
+
 if not utf8 then -- if not lua 5.3 or higher...
   -- this is needed for the __pairs metamethod, used below
   -- The following code is derived from the compat53 rock:
@@ -203,12 +206,14 @@ mt.__pairs = sortedpairs(function(a,b)
   end, function(k) return displaykeys[k] or k end)
 
 
+--- TODO
 local function new_node(tag)
   local node = { t = tag, c = nil }
   setmetatable(node, mt)
   return node
 end
 
+--- TODO
 local function add_child(node, child)
   if (not node.c) then
     node.c = {child}
@@ -217,10 +222,12 @@ local function add_child(node, child)
   end
 end
 
+--- TODO
 local function has_children(node)
   return (node.c and #node.c > 0)
 end
 
+--- TODO
 local function new_attributes(tbl)
   local attr = tbl or {}
   -- ensure deterministic order of iteration
@@ -229,6 +236,7 @@ local function new_attributes(tbl)
   return attr
 end
 
+--- TODO
 local function insert_attribute(attr, key, val)
   if key == "class" then
     if attr.class then
@@ -241,6 +249,7 @@ local function insert_attribute(attr, key, val)
   end
 end
 
+--- TODO
 local function copy_attributes(target, source)
   if source then
     for k,v in pairs(source) do
@@ -337,9 +346,11 @@ local function add_sections(ast)
 end
 
 
--- create an abstract syntax tree based on an event
--- stream and references. returns the ast and the
--- source position map.
+--- Create an abstract syntax tree based on an event
+--- stream and references.
+--- @param parser djot streaming parser
+--- @param sourcepos if true, include source positions
+--- @return table representing the AST
 local function to_ast(parser, sourcepos)
   local subject = parser.subject
   local warn = parser.warn
@@ -934,6 +945,7 @@ local function render_node(node, handle, indent)
   end
 end
 
+--- TODO
 local function render(doc, handle)
   render_node(doc, handle, 0)
   if next(doc.references) ~= nil then
@@ -952,10 +964,12 @@ local function render(doc, handle)
   end
 end
 
+--- @export
 return { to_ast = to_ast,
          render = render,
          insert_attribute = insert_attribute,
          copy_attributes = copy_attributes,
          new_attributes = new_attributes,
          new_node = new_node,
-         add_child = add_child }
+         add_child = add_child,
+         has_children = has_children }

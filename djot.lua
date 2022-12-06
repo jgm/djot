@@ -16,6 +16,8 @@
 ---
 --- -- alter the AST with a filter:
 --- local src = "return { str = function(e) e.text = e.text:upper() end }"
+--- -- subordinate modules like filter can be accessed as fields
+--- -- and are lazily loaded.
 --- local filter = djot.filter.load_filter(src)
 --- djot.filter.apply_filter(doc, filter)
 ---
@@ -131,6 +133,9 @@ local function parse_and_render_events(input, warn)
   return handle:flush()
 end
 
+--- djot version (string)
+local version = "0.2.0"
+
 --- @export
 local G = {
   parse = parse,
@@ -140,7 +145,7 @@ local G = {
   render_ast_pretty = render_ast_pretty,
   render_ast_json = render_ast_json,
   render_event = render_event,
-  version = "0.2.0"
+  version = version
 }
 
 -- Lazily load submodules, e.g. djot.filter
