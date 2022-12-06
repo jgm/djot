@@ -609,7 +609,9 @@ The contents of a div are interpreted as block-level content.
 
 A pipe table consists of a sequence of *rows*. Each row starts and ends
 with a pipe character (`|`) and contains one or more *cells* separated
-by pipe characters.
+by pipe characters:
+
+    | 1 | 2 |
 
 A *separator line* is a row in which every cell consists of a sequence
 of one of more `-` characters, optional prefixed and/or suffixed by a
@@ -619,6 +621,11 @@ When a separator line is encountered, the previous row is treated as a
 header, and alignments on that row and any subsequent rows are
 determined by the separator line (until a new header is found). The
 separator line itself does not contribute a row to the parsed table.
+
+    | fruit  | price |
+    |--------|------:|
+    | apple  |     4 |
+    | banana |    10 |
 
 Column alignments are determined by the separator line in the following
 way:

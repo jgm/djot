@@ -744,7 +744,7 @@ Pythagoras proved
 [^foo]: And here is the note.</code></pre>
 </div>
 <div class="html">
-<pre><code>&lt;p&gt;Here is the reference.&lt;a href=&quot;#fn1&quot; role=&quot;doc-noteref&quot;&gt;&lt;sup&gt;1&lt;/sup&gt;&lt;/a&gt;&lt;/p&gt;
+<pre><code>&lt;p&gt;Here is the reference.&lt;a id=&quot;fnref1&quot; href=&quot;#fn1&quot; role=&quot;doc-noteref&quot;&gt;&lt;sup&gt;1&lt;/sup&gt;&lt;/a&gt;&lt;/p&gt;
 &lt;section role=&quot;doc-endnotes&quot;&gt;
 &lt;hr&gt;
 &lt;ol&gt;
@@ -955,14 +955,10 @@ or enclosing container) is encountered.</p>
 A paragraph, finally</code></pre>
 </div>
 <div class="html">
-<pre><code>&lt;section id=&quot;A-heading-that&quot;&gt;
-&lt;h1&gt;A heading that&lt;/h1&gt;
-&lt;/section&gt;
-&lt;section id=&quot;takes-up&quot;&gt;
-&lt;h1&gt;takes up&lt;/h1&gt;
-&lt;/section&gt;
-&lt;section id=&quot;three-lines&quot;&gt;
-&lt;h1&gt;three lines&lt;/h1&gt;
+<pre><code>&lt;section id=&quot;A-heading-that-takes-up-three-lines&quot;&gt;
+&lt;h1&gt;A heading that
+takes up
+three lines&lt;/h1&gt;
 &lt;p&gt;A paragraph, finally&lt;/p&gt;
 &lt;/section&gt;
 </code></pre>
@@ -1458,7 +1454,21 @@ And here is another.
 <h3>Pipe table</h3>
 <p>A pipe table consists of a sequence of <em>rows</em>. Each row starts and ends
 with a pipe character (<code>|</code>) and contains one or more <em>cells</em> separated
-by pipe characters.</p>
+by pipe characters:</p>
+<div class="example">
+<div class="djot">
+<pre><code>| 1 | 2 |</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;table&gt;
+&lt;tr&gt;
+&lt;td&gt;1&lt;/td&gt;
+&lt;td&gt;2&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+</code></pre>
+</div>
+</div>
 <p>A <em>separator line</em> is a row in which every cell consists of a sequence
 of one of more <code>-</code> characters, optional prefixed and/or suffixed by a
 <code>:</code> character.</p>
@@ -1466,6 +1476,31 @@ of one of more <code>-</code> characters, optional prefixed and/or suffixed by a
 header, and alignments on that row and any subsequent rows are
 determined by the separator line (until a new header is found). The
 separator line itself does not contribute a row to the parsed table.</p>
+<div class="example">
+<div class="djot">
+<pre><code>| fruit  | price |
+|--------|------:|
+| apple  |     4 |
+| banana |    10 |</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;table&gt;
+&lt;tr&gt;
+&lt;th&gt;fruit&lt;/th&gt;
+&lt;th style=&quot;text-align: right;&quot;&gt;price&lt;/th&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;apple&lt;/td&gt;
+&lt;td style=&quot;text-align: right;&quot;&gt;4&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;banana&lt;/td&gt;
+&lt;td style=&quot;text-align: right;&quot;&gt;10&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+</code></pre>
+</div>
+</div>
 <p>Column alignments are determined by the separator line in the following
 way:</p>
 <ul>
@@ -1612,7 +1647,7 @@ block-level content.</p>
   &gt; a block quote in the note.</code></pre>
 </div>
 <div class="html">
-<pre><code>&lt;p&gt;Here&amp;rsquo;s the reference.&lt;a href=&quot;#fn1&quot; role=&quot;doc-noteref&quot;&gt;&lt;sup&gt;1&lt;/sup&gt;&lt;/a&gt;&lt;/p&gt;
+<pre><code>&lt;p&gt;Here&amp;rsquo;s the reference.&lt;a id=&quot;fnref1&quot; href=&quot;#fn1&quot; role=&quot;doc-noteref&quot;&gt;&lt;sup&gt;1&lt;/sup&gt;&lt;/a&gt;&lt;/p&gt;
 &lt;section role=&quot;doc-endnotes&quot;&gt;
 &lt;hr&gt;
 &lt;ol&gt;
@@ -1643,7 +1678,7 @@ with two paragraphs.
 be indented, at least in the first line.</code></pre>
 </div>
 <div class="html">
-<pre><code>&lt;p&gt;Here&amp;rsquo;s the reference.&lt;a href=&quot;#fn1&quot; role=&quot;doc-noteref&quot;&gt;&lt;sup&gt;1&lt;/sup&gt;&lt;/a&gt;&lt;/p&gt;
+<pre><code>&lt;p&gt;Here&amp;rsquo;s the reference.&lt;a id=&quot;fnref1&quot; href=&quot;#fn1&quot; role=&quot;doc-noteref&quot;&gt;&lt;sup&gt;1&lt;/sup&gt;&lt;/a&gt;&lt;/p&gt;
 &lt;section role=&quot;doc-endnotes&quot;&gt;
 &lt;hr&gt;
 &lt;ol&gt;
