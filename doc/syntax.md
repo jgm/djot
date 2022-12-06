@@ -614,7 +614,7 @@ by pipe characters:
     | 1 | 2 |
 
 A *separator line* is a row in which every cell consists of a sequence
-of one of more `-` characters, optional prefixed and/or suffixed by a
+of one of more `-` characters, optionally prefixed and/or suffixed by a
 `:` character.
 
 When a separator line is encountered, the previous row is treated as a
