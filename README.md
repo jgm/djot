@@ -41,7 +41,8 @@ djot documents can be converted to any format pandoc supports.
 To use these, just put them in your working directory and use
 `pandoc -f djot-reader.lua` to convert from djot, and `pandoc -t
 djot-writer.lua` to convert to djot. (You'll need pandoc version
-2.18 or higher.)
+2.18 or higher, and you'll need the djot library to be installed
+in your `LUA_PATH`; see [Installing](#installing), below..)
 
 ## Rationale
 
@@ -409,6 +410,11 @@ interpreter and the necessary scripts.
 
 `make test` will run the tests, and `make testall` will also
 run some tests of pathological cases.
+
+## File extension
+
+The extension `.dj` may be used to indicate that the contents
+of a file are djot-formatted text.
 
 ## License
 
