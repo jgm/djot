@@ -1,4 +1,29 @@
 --- @module djot
+--- Parse and render djot light markup format. See https://djot.net.
+---
+--- @usage
+--- local djot = require("djot")
+--- local input = "This is *djot*"
+--- local doc = djot.parse(input)
+--- -- render as HTML:
+--- print(djot.render_html(doc))
+---
+--- -- render as AST:
+--- print(djot.render_ast_pretty(doc))
+---
+--- -- or in JSON:
+--- print(djot.render_ast_json(doc))
+---
+--- -- alter the AST with a filter:
+--- local src = "return { str = function(e) e.text = e.text:upper() end }"
+--- local filter = djot.filter.load_filter(src)
+--- djot.filter.apply_filter(doc, filter)
+---
+--- -- streaming parser:
+--- for startpos, endpos, annotation in djot.parse_events("*hello there*") do
+---   print(startpos, endpos, annotation)
+--- end
+
 local unpack = unpack or table.unpack
 local Parser = require("djot.block").Parser
 local ast = require("djot.ast")
