@@ -540,8 +540,9 @@ less space between items.
 ### Code block
 
 A code block starts with a line of three or more consecutive backticks,
-optionally followed by whitespace and a language specifier, but nothing
-else. It ends with a line of backticks equal or greater in length to the
+optionally followed by a language specifier, but nothing else. (The language
+specifier may optionally be preceded and/or followed by whitespace.)
+The code block ends with a line of backticks equal or greater in length to the
 opening backtick “fence,” or the end of the document or enclosing block,
 if no such line is encountered. Its contents are interpreted as verbatim
 text. If the contents contain a line of backticks, be sure to select a
