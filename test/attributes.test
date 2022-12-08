@@ -52,9 +52,15 @@ hi\{key="abc{#hi}"
 ```
 
 ```
-hi{key="\{#hi"}
+hi{key="\"#hi"}
 .
-<p><span key="{#hi">hi</span></p>
+<p><span key="&quot;#hi">hi</span></p>
+```
+
+```
+hi{key="hi\"#hi"}
+.
+<p><span key="hi&quot;#hi">hi</span></p>
 ```
 
 Line break:
