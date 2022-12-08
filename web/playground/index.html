@@ -12,25 +12,44 @@
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
-    <main class="absolute inset-4 flex gap-4">
-      <div class="w-1/2 flex flex-col gap-2">
-        <h1>
-          <a class="font-bold hover:text-sky-700" href="https://github.com/jgm/djot">Djot</a>
-          Playground
-          (<a href="https://htmlpreview.github.io/?https://github.com/jgm/djot/blob/master/doc/syntax.html">syntax reference</a>)
-        </h1>
+    <main>
+      <div id="leftpane" class="pane">
+        <div style="display:flex; flex-direction:row; justify-content:space-between;">
+          <h1>
+            <a id="titletext" href="https://github.com/jgm/djot">Djot</a>
+            Playground
+            (<a href="https://htmlpreview.github.io/?https://github.com/jgm/djot/blob/master/doc/syntax.html">syntax reference</a>)
+          </h1>
+          <span id="filter-open">filter</span>
+        </div>
+        <div id="filter-modal" class="modal">
+          <div class="modal-content">
+            <span id="filter-close" class="close">&times;</span>
+            <select id="filter-examples">
+              <option value="" disabled selected>Create your own or select an example</option>
+              <option>empty_filter</option>
+              <option>capitalize_text</option>
+              <option>capitalize_emph</option>
+              <option>multiple_filters</option>
+              <option>letter_enumerated_lists_to_roman</option>
+            </select>
+            <a class="doclink" href="https://github.com/jgm/djot/blob/main/doc/djot.md#filters">documentation</a>
 
-        <textarea id="input" autofocus class="whitespace-pre overflow-scroll font-mono inset-0 w-full h-full rounded border border-slate-400 p-4" placeholder="Type some djot here..."></textarea>
+            <p id="filter-error"></p>
+            <textarea id="filter" style="width:90%; height: 90%">return {
+}</textarea>
+          </div>
+        </div>
+        <textarea id="input" autofocus placeholder="Type some djot here..."></textarea>
       </div>
-      <div class="w-1/2 flex flex-col gap-2">
-        <div class="flex flex-row flex-wrap gap-5">
+      <div id="rightpane" class="pane">
+        <div class="controls">
           <select id="mode">
             <option value="preview">Preview</option>
             <option value="html">HTML</option>
             <option value="ast">AST</option>
             <option value="astjson">AST (JSON)</option>
-            <option value="matches">Matches</option>
-            <option value="matchesjson">Matches (JSON)</option>
+            <option value="events">Events (JSON)</option>
           </select>
           &nbsp;
           <label>
@@ -38,10 +57,11 @@
             Source positions
           </label>
         </div>
-        <div class="w-full h-full rounded border border-slate-400 inset-0">
-          <iframe id="preview" class="w-full h-full p-4" sandbox="allow-same-origin allow-scripts" src="preview.html" frameborder="0"></iframe>
-          <pre id="result" class="whitespace-pre-wrap overflow-scroll w-full h-full p-4"></pre>
+        <div id="resultpane">
+          <iframe id="preview" sandbox="allow-same-origin allow-scripts" src="preview.html" frameborder="0"></iframe>
+          <pre id="result"></pre>
         </div>
+        <div id="timing">Parsed &amp; rendered in <span id="elapsed-time"></span> ms (<span id="kbps"></span> KB/s)</div>
       </div>
     </main>
   </body>

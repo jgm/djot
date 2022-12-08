@@ -1,8 +1,6 @@
 local find, sub = string.find, string.sub
-local match = require("djot.match")
-local make_match = match.make_match
 
--- tokenizer for attributes
+-- Parser for attributes
 -- attributes { id = "foo", class = "bar baz",
 --              key1 = "val1", key2 = "val2" }
 -- syntax:
@@ -32,7 +30,7 @@ local FAIL = 9
 local DONE = 10
 local START = 11
 
-local AttributeTokenizer = {}
+local AttributeParser = {}
 
 local handlers = {}
 
@@ -180,20 +178,16 @@ handlers[SCANNING_QUOTED_VALUE] = function(self, pos)
     return SCANNING
   elseif c == "\\" then
     return SCANNING_ESCAPED
-  elseif c == "\n" then
-    self:add_match(self.begin + 1, self.lastpos, "value")
-    return SCANNING_QUOTED_VALUE
   else
     return SCANNING_QUOTED_VALUE
   end
 end
 
-function AttributeTokenizer:new(subject)
+function AttributeParser:new(subject)
   local state = {
     subject = subject,
     state = START,
     begin = nil,
-    failed = nil,
     lastpos = nil,
     matches = {}
     }
@@ -202,21 +196,21 @@ function AttributeTokenizer:new(subject)
   return state
 end
 
-function AttributeTokenizer:add_match(sp, ep, tag)
-  self.matches[#self.matches + 1] = make_match(sp, ep, tag)
+function AttributeParser:add_match(sp, ep, tag)
+  self.matches[#self.matches + 1] = {sp, ep, tag}
 end
 
-function AttributeTokenizer:get_matches()
+function AttributeParser:get_matches()
   return self.matches
 end
 
--- Feed tokenizer a slice of text from the subject, between
+-- Feed parser a slice of text from the subject, between
 -- startpos and endpos inclusive.  Return status, position,
 -- where status is either "done" (position should point to
 -- final '}'), "fail" (position should point to first character
--- that could not be tokenized), or "continue" (position should
+-- that could not be parsed), or "continue" (position should
 -- point to last character parsed).
-function AttributeTokenizer:feed(startpos, endpos)
+function AttributeParser:feed(startpos, endpos)
   local pos = startpos
   while pos <= endpos do
     self.state = handlers[self.state](self, pos)
@@ -235,12 +229,12 @@ end
 
 --[[
 local test = function()
-  local tokenizer = AttributeTokenizer:new("{a=b #ident\n.class\nkey=val1\n .class key2=\"val two \\\" ok\" x")
-  local x,y,z = tokenizer:feed(1,56)
-  print(require'inspect'(tokenizer:get_matches{}))
+  local parser = AttributeParser:new("{a=b #ident\n.class\nkey=val1\n .class key2=\"val two \\\" ok\" x")
+  local x,y,z = parser:feed(1,56)
+  print(require'inspect'(parser:get_matches{}))
 end
 
 test()
 --]]
 
-return { AttributeTokenizer = AttributeTokenizer }
+return { AttributeParser = AttributeParser }

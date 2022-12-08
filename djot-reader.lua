@@ -460,5 +460,5 @@ end
 
 function Reader(input)
   local doc = djot.parse(tostring(input))
-  return Renderer:render_node(doc.ast)
+  return Renderer:render_node(doc)
 end

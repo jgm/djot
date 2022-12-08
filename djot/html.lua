@@ -1,12 +1,13 @@
 local ast = require("djot.ast")
-local mknode = ast.mknode
-local mkattributes = ast.mkattributes
+local new_node = ast.new_node
+local new_attributes = ast.new_attributes
 local add_child = ast.add_child
 local unpack = unpack or table.unpack
 local insert_attribute, copy_attributes =
   ast.insert_attribute, ast.copy_attributes
 local format = string.format
 local find, gsub = string.find, string.gsub
+local emoji -- only use if there are emojis
 
 -- Produce a copy of a table.
 local function copy(tbl)
@@ -133,16 +134,16 @@ function Renderer:render_tag(tag, node)
 end
 
 function Renderer:add_backlink(nodes, i)
-  local backlink = mknode("link")
+  local backlink = new_node("link")
   backlink.destination = "#fnref" .. tostring(i)
-  backlink.attr = ast.mkattributes({role = "doc-backlink"})
-  local arrow = mknode("str")
+  backlink.attr = ast.new_attributes({role = "doc-backlink"})
+  local arrow = new_node("str")
   arrow.s = "↩︎︎"
   add_child(backlink, arrow)
   if nodes.c[#nodes.c].t == "para" then
     add_child(nodes.c[#nodes.c], backlink)
   else
-    local para = mknode("para")
+    local para = new_node("para")
     add_child(para, backlink)
     add_child(nodes, para)
   end
@@ -160,10 +161,13 @@ function Renderer:doc(node)
     end
     self.out('<section role="doc-endnotes">\n<hr>\n<ol>\n')
     for i=1,#ordered_footnotes do
-      self.out(format('<li id="fn%d">\n', i))
-      self:add_backlink(ordered_footnotes[i],i)
-      self:render_children(ordered_footnotes[i])
-      self.out('</li>\n')
+      local note = ordered_footnotes[i]
+      if note then
+        self.out(format('<li id="fn%d">\n', i))
+        self:add_backlink(note,i)
+        self:render_children(note)
+        self.out('</li>\n')
+      end
     end
     self.out('</ol>\n</section>\n')
   end
@@ -347,8 +351,7 @@ function Renderer:footnote_reference(node)
     self.footnote_index[label] = index
     self.next_footnote_index = self.next_footnote_index + 1
   end
-  self.out(format('<a href="#fn%d" role="doc-noteref"><sup>%d</sup></a>',
-              index, index))
+  self.out(format('<a id="fnref%d" href="#fn%d" role="doc-noteref"><sup>%d</sup></a>', index, index, index))
 end
 
 function Renderer:raw_inline(node)
@@ -387,7 +390,7 @@ function Renderer:verbatim(node)
 end
 
 function Renderer:link(node)
-  local attrs = mkattributes{}
+  local attrs = new_attributes{}
   if node.reference then
     local ref = self.references[node.reference]
     if ref then
@@ -411,7 +414,7 @@ Renderer.url = Renderer.link
 Renderer.email = Renderer.link
 
 function Renderer:image(node)
-  local attrs = mkattributes{}
+  local attrs = new_attributes{}
   local alt_text = to_text(node)
   if #alt_text > 0 then
     insert_attribute(attrs, "alt", to_text(node))
@@ -521,7 +524,11 @@ function Renderer:en_dash()
 end
 
 function Renderer:emoji(node)
-  self.out(node.s or (":" .. node.alias .. ":"))
+  if not emoji then
+    emoji = require("djot.emoji")
+  end
+  local s = emoji[node.alias]
+  self.out(s or (":" .. node.alias .. ":"))
 end
 
 function Renderer:math(node)

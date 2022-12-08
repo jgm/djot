@@ -1,0 +1,166 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+<div id="main">
+
+
+<!-- Menu -->
+
+
+
+<div id="navigation">
+<h1>djot</h1>
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<hr/>
+<ul>
+    <li><a href="#new_node">new_node&nbsp;(tag)</a></li>
+    <li><a href="#add_child">add_child&nbsp;(node, child)</a></li>
+    <li><a href="#has_children">has_children&nbsp;(node)</a></li>
+    <li><a href="#new_attributes">new_attributes&nbsp;(tbl)</a></li>
+    <li><a href="#insert_attribute">insert_attribute&nbsp;(attr, key, val)</a></li>
+    <li><a href="#copy_attributes">copy_attributes&nbsp;(target, source)</a></li>
+    <li><a href="#to_ast">to_ast&nbsp;(parser, sourcepos)</a></li>
+    <li><a href="#render">render&nbsp;(doc, handle)</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+
+<h1>Module <code>djot.ast</code></h1>
+
+<p>
+
+</p>
+<p> Construct an AST for a djot document.</p>
+
+<br/>
+<br/>
+
+    <dl class="function">
+    <dt>
+    <a name = "new_node"></a>
+    <strong>new_node&nbsp;(tag)</strong>
+    </dt>
+    <dd>
+    Create a new AST node.
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "add_child"></a>
+    <strong>add_child&nbsp;(node, child)</strong>
+    </dt>
+    <dd>
+    Add <code>child</code> as a child of <code>node</code>.
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "has_children"></a>
+    <strong>has_children&nbsp;(node)</strong>
+    </dt>
+    <dd>
+    Returns true if <code>node</code> has children.
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "new_attributes"></a>
+    <strong>new_attributes&nbsp;(tbl)</strong>
+    </dt>
+    <dd>
+    Returns an attributes object.
+     deterministic order of iteration)
+
+
+</dd>
+    <dt>
+    <a name = "insert_attribute"></a>
+    <strong>insert_attribute&nbsp;(attr, key, val)</strong>
+    </dt>
+    <dd>
+    Insert an attribute into an attributes object.
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "copy_attributes"></a>
+    <strong>copy_attributes&nbsp;(target, source)</strong>
+    </dt>
+    <dd>
+    Copy attributes from <code>source</code> to <code>target</code>.
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "to_ast"></a>
+    <strong>to_ast&nbsp;(parser, sourcepos)</strong>
+    </dt>
+    <dd>
+    Create an abstract syntax tree based on an event
+ stream and references.
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "render"></a>
+    <strong>render&nbsp;(doc, handle)</strong>
+    </dt>
+    <dd>
+    Render an AST in human-readable form, with indentation
+ showing the hierarchy.
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
+

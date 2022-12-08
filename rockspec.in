@@ -26,7 +26,6 @@ build = {
    type = "builtin",
    modules = {
          ["djot"]                 = "djot.lua",
-         ["djot.match"]           = "djot/match.lua",
          ["djot.attributes"]      = "djot/attributes.lua",
          ["djot.inline"]          = "djot/inline.lua",
          ["djot.block"]           = "djot/block.lua",

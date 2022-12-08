@@ -1,0 +1,173 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+<div id="main">
+
+
+<!-- Menu -->
+
+
+
+<div id="navigation">
+<h1>djot</h1>
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<hr/>
+<ul>
+    <li><a href="#apply_filter">apply_filter&nbsp;(node, filter)</a></li>
+    <li><a href="#require_filter">require_filter&nbsp;(fp)</a></li>
+    <li><a href="#load_filter">load_filter&nbsp;(s)</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+
+<h1>Module <code>djot.filter</code></h1>
+
+<p>
+
+</p>
+<p> Support filters that walk the AST and transform a
+ document between parsing and rendering, like pandoc Lua filters.</p>
+
+<p> This filter uppercases all str elements.</p>
+
+<pre><code> return {
+   str = function(e)
+     e.text = e.text:upper()
+    end
+ }
+</code></pre>
+
+<p> A filter may define functions for as many different tag types
+ as it likes.  traverse will walk the AST and apply matching
+ functions to each node.</p>
+
+<p> To load a filter:</p>
+
+<pre><code> local filter = require_filter(path)
+</code></pre>
+
+<p> or</p>
+
+<pre><code> local filter = load_filter(string)
+</code></pre>
+
+<p> By default filters do a bottom-up traversal; that is, the
+ filter for a node is run after its children have been processed.
+ It is possible to do a top-down travel, though, and even
+ to run separate actions on entering a node (before processing the
+ children) and on exiting (after processing the children). To do
+ this, associate the node's tag with a table containing <code>enter</code> and/or
+ <code>exit</code> functions.  The following filter will capitalize text
+ that is nested inside emphasis, but not other text:</p>
+
+<pre><code> local capitalize = 0
+ return {
+    emph = {
+      enter = function(e)
+        capitalize = capitalize + 1
+      end,
+      exit = function(e)
+        capitalize = capitalize - 1
+      end,
+    },
+    str = function(e)
+      if capitalize &gt; 0 then
+        e.text = e.text:upper()
+       end
+    end
+ }
+</code></pre>
+
+<p> For a top-down traversal, you'd just use the <code>enter</code> functions.
+ If the tag is associated directly with a function, as in the
+ first example above, it is treated as an <code>exit</code> function.</p>
+
+<p> It is possible to inhibit traversal into the children of a node,
+ by having the <code>enter</code> function return the value true (or any truish
+ value, say <code>&apos;stop&apos;</code>).  This can be used, for example, to prevent
+ the contents of a footnote from being processed:</p>
+
+<pre><code> return {
+   footnote = {
+     enter = function(e)
+       return true
+     end
+    }
+ }
+</code></pre>
+
+<p> A single filter may return a table with multiple tables, which will be
+ applied sequentially.</p>
+
+<br/>
+<br/>
+
+    <dl class="function">
+    <dt>
+    <a name = "apply_filter"></a>
+    <strong>apply_filter&nbsp;(node, filter)</strong>
+    </dt>
+    <dd>
+    Apply a filter to a document.
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "require_filter"></a>
+    <strong>require_filter&nbsp;(fp)</strong>
+    </dt>
+    <dd>
+    Returns a table containing the filter defined in <code>fp</code>.
+     <code>fp</code> will be sought using <a href="https://www.lua.org/manual/5.1/manual.html#pdf-require">require</a>, so it may occur anywhere
+ on the <code>LUA_PATH</code>, or in the working directory. On error,
+ returns nil and an error message.
+
+
+</dd>
+    <dt>
+    <a name = "load_filter"></a>
+    <strong>load_filter&nbsp;(s)</strong>
+    </dt>
+    <dd>
+    Load filter from a string, which should have the
+ form `return { ...
+     }`.  On error, return nil and an
+ error message.
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
+

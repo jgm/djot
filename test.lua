@@ -1,5 +1,6 @@
 -- run tests
 package.path = "./?.lua;" .. package.path
+local djot = require("djot")
 
 local testcases = {
   "attributes.test",
@@ -10,6 +11,7 @@ local testcases = {
   "emphasis.test",
   "escapes.test",
   "fenced_divs.test",
+  "filters.test",
   "footnotes.test",
   "headings.test",
   "insert_delete_mark.test",
@@ -21,14 +23,13 @@ local testcases = {
   "regression.test",
   "smart.test",
   "spans.test",
+  "sourcepos.test",
   "super_subscript.test",
   "tables.test",
   "task_lists.test",
   "thematic_breaks.test",
   "verbatim.test"
 }
-
-local djot = require("./djot")
 
 local opts = {}
 local i=1
@@ -39,6 +40,8 @@ while i <= #arg do
       opts.verbose = true
     elseif thisarg == "-p" then
       opts.pattern = true
+    elseif thisarg == "--accept" then
+      opts.accept = true
     end
   elseif opts.pattern == true then
     opts.pattern = thisarg
@@ -53,6 +56,7 @@ function Tests:new()
     passed = 0,
     failed = 0,
     errors = 0,
+    accept = opts.accept,
     verbose = opts.verbose
   }
   setmetatable(contents, Tests)
@@ -60,78 +64,153 @@ function Tests:new()
   return contents
 end
 
-function Tests:do_test(file, linenum, renderer, inp, out)
-  local doc = djot.parse(inp)
-  local actual
+function Tests:do_test(test)
   if self.verbose then
-    io.write(string.format("Testing %s at linen %d\n", file, linenum))
+    io.write(string.format("Testing %s at linen %d\n", test.file, test.linenum))
   end
-  if renderer == "[html]" then
-    actual = doc:render_html()
-  elseif renderer == "[matches]" then
-    actual = doc:render_matches()
-  elseif renderer == "[ast]" then
-    actual = doc:render_ast()
+  local sourcepos = false
+  if test.options:match("p") then
+    sourcepos = true
   end
-  if actual == out then
+  local actual = ""
+  if test.options:match("m") then
+    actual = actual .. djot.parse_and_render_events(test.input)
+  else
+    local doc = djot.parse(test.input, sourcepos)
+    for _,filt in ipairs(test.filters) do
+      local f, err = djot.filter.load_filter(filt)
+      if not f then
+        error(err)
+      end
+      djot.filter.apply_filter(doc, f)
+    end
+    if test.options:match("a") then
+      actual = actual .. djot.render_ast_pretty(doc)
+    else -- match 'h' or empty
+      actual = actual .. djot.render_html(doc)
+    end
+  end
+  if self.accept then
+    test.output = actual
+  end
+  if actual == test.output then
     self.passed = self.passed + 1
     return true
   else
-    io.write(string.format("FAILED at %s line %d\n", file, linenum))
-    io.write(string.format("--- INPUT -------------------------------------\n%s--- EXPECTED ----------------------------------\n%s--- GOT ---------------------------------------\n%s-----------------------------------------------\n\n", inp, out, actual))
+    io.write(string.format("FAILED at %s line %d\n", test.file, test.linenum))
+    io.write(string.format("--- INPUT -------------------------------------\n%s--- EXPECTED ----------------------------------\n%s--- GOT ---------------------------------------\n%s-----------------------------------------------\n\n", test.input, test.output, actual))
     self.failed = self.failed + 1
-    return false, inp, out
+    return false
   end
 end
 
-function Tests:do_tests(file)
+local function read_tests(file)
   local f = io.open("test/" .. file,"r")
   assert(f ~= nil, "File " .. file .. " cannot be read")
   local line
   local linenum = 0
-  while true do
-    local inp = ""
-    local out = ""
-    line = f:read()
-    linenum = linenum + 1
-    while line and not line:match("^```") do
+  return function()
+    while true do
+      local inp = ""
+      local out = ""
+      line = f:read()
+      local pretext = {}
+      linenum = linenum + 1
+      while line and not line:match("^```") do
+        pretext[#pretext + 1] = line
+        line = f:read()
+        linenum = linenum + 1
+      end
+      local testlinenum = linenum
+      if not line then
+        break
+      end
+      local ticks, options = line:match("^(`+)%s*(.*)")
+
+      -- parse input
       line = f:read()
       linenum = linenum + 1
-    end
-    local testlinenum = linenum
-    if not line then
-      break
-    end
-    local ticks, modifier = line:match("^(`+)%s*(%S*)")
-    local renderer = "[html]"
-    if modifier and #modifier > 0 then
-      renderer = modifier
-    end
-    line = f:read()
-    linenum = linenum + 1
-    while not line:match("^%.$") do
-      inp = inp .. line .. "\n"
+      while not line:match("^[%.%!]$") do
+        inp = inp .. line .. "\n"
+        line = f:read()
+        linenum = linenum + 1
+      end
+
+      local filters = {}
+      while line == "!" do -- parse filter
+        line = f:read()
+        linenum = linenum + 1
+        local filt = ""
+        while not line:match("^[%.%!]$") do
+          filt = filt .. line .. "\n"
+          line = f:read()
+          linenum = linenum + 1
+        end
+        table.insert(filters, filt)
+      end
+
+      -- parse output
       line = f:read()
       linenum = linenum + 1
-    end
-    line = f:read()
-    linenum = linenum + 1
-    while not line:match("^" .. ticks) do
-      out = out .. line .. "\n"
-      line = f:read()
-      linenum = linenum + 1
-    end
-    local ok, err = pcall(function()
-          self:do_test(file, testlinenum, renderer, inp, out)
-        end)
-    if not ok then
-      io.stderr:write(string.format("Error running test %s line %d:\n%s\n",
-                                    file, linenum, err))
-      self.errors = self.errors + 1
+      while not line:match("^" .. ticks) do
+        out = out .. line .. "\n"
+        line = f:read()
+        linenum = linenum + 1
+      end
+
+      return { file = file,
+               linenum = testlinenum,
+               pretext = table.concat(pretext, "\n"),
+               options = options,
+               filters = filters,
+               input = inp,
+               output = out }
     end
   end
 end
 
+function Tests:do_tests(file)
+  local tests = {}
+  for test in read_tests(file) do
+    tests[#tests + 1] = test
+    local ok, err = pcall(function()
+          self:do_test(test)
+        end)
+    if not ok then
+      io.stderr:write(string.format("Error running test %s line %d:\n%s\n",
+                                    test.file, test.linenum, err))
+      self.errors = self.errors + 1
+    end
+  end
+  if self.accept then -- rewrite file
+    local fh = io.open("test/" .. file, "w")
+    for idx,test in ipairs(tests) do
+      local numticks = 3
+      string.gsub(test.input .. test.output, "(````*)",
+                 function(x)
+                   if #x >= numticks then
+                     numticks = #x + 1
+                   end
+                  end)
+      local ticks = string.rep("`", numticks)
+      local pretext = test.pretext
+      if #pretext > 0 or idx > 1 then
+        pretext = pretext .. "\n"
+      end
+
+      fh:write(string.format("%s%s%s\n%s",
+        pretext,
+        ticks,
+        (test.options == "" and "") or " " .. test.options,
+        test.input))
+      for _,f in ipairs(test.filters) do
+        fh:write(string.format("!\n%s", f))
+      end
+      fh:write(string.format(".\n%s%s\n", test.output, ticks))
+    end
+    fh:close()
+  end
+end
 
 local tests = Tests:new()
 local starttime = os.clock()
@@ -147,5 +226,5 @@ io.write(string.format("%d tests completed in %0.3f s\n",
 io.write(string.format("PASSED: %4d\n", tests.passed))
 io.write(string.format("FAILED: %4d\n", tests.failed))
 io.write(string.format("ERRORS: %4d\n", tests.errors))
-os.exit(tests.failed)
+os.exit(tests.failed + tests.errors)
 

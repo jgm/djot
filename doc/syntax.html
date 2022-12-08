@@ -164,11 +164,11 @@ text-align: center;
 }
 section.level1 {
 max-width: 44em;
-position: relative; 
+position: relative;
 order: 1;
 max-width: 48em;
 min-width: 300px;
-padding-bottom: 60em; 
+padding-bottom: 60em;
 }
 #TOC {
 order: 2;
@@ -361,8 +361,8 @@ emphasis, while <code>_}</code> behaves like <code>_</code> but can <em>only</em
 _}not emphasized{_</code></pre>
 </div>
 <div class="html">
-<pre><code>&lt;p&gt;&lt;em&gt;Emphasized&lt;/em&gt;&lt;/p&gt;
-&lt;p&gt;_}not emphasized{_&lt;/p&gt;
+<pre><code>&lt;p&gt;&lt;em&gt;Emphasized&lt;/em&gt;
+_}not emphasized{_&lt;/p&gt;
 </code></pre>
 </div>
 </div>
@@ -744,7 +744,7 @@ Pythagoras proved
 [^foo]: And here is the note.</code></pre>
 </div>
 <div class="html">
-<pre><code>&lt;p&gt;Here is the reference.&lt;a href=&quot;#fn1&quot; role=&quot;doc-noteref&quot;&gt;&lt;sup&gt;1&lt;/sup&gt;&lt;/a&gt;&lt;/p&gt;
+<pre><code>&lt;p&gt;Here is the reference.&lt;a id=&quot;fnref1&quot; href=&quot;#fn1&quot; role=&quot;doc-noteref&quot;&gt;&lt;sup&gt;1&lt;/sup&gt;&lt;/a&gt;&lt;/p&gt;
 &lt;section role=&quot;doc-endnotes&quot;&gt;
 &lt;hr&gt;
 &lt;ol&gt;
@@ -935,13 +935,35 @@ the heading level. The following text is parsed as inline content.</p>
 <pre><code>## A level _two_ heading!</code></pre>
 </div>
 <div class="html">
-<pre><code>&lt;h2 id=&quot;A-level-two-heading&quot;&gt;A level &lt;em&gt;two&lt;/em&gt; heading!&lt;/h2&gt;
+<pre><code>&lt;section id=&quot;A-level-two-heading&quot;&gt;
+&lt;h2&gt;A level &lt;em&gt;two&lt;/em&gt; heading!&lt;/h2&gt;
+&lt;/section&gt;
 </code></pre>
 </div>
 </div>
-<p>The heading text may spill over onto following lines.
-The heading ends when a blank line (or the end of the document
+<p>The heading text may spill over onto following lines, which may
+also be preceeded by the same number of <code>#</code> characters (but
+these can also be left off).</p>
+<p>The heading ends when a blank line (or the end of the document
 or enclosing container) is encountered.</p>
+<div class="example">
+<div class="djot">
+<pre><code># A heading that
+# takes up
+# three lines
+
+A paragraph, finally</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;section id=&quot;A-heading-that-takes-up-three-lines&quot;&gt;
+&lt;h1&gt;A heading that
+takes up
+three lines&lt;/h1&gt;
+&lt;p&gt;A paragraph, finally&lt;/p&gt;
+&lt;/section&gt;
+</code></pre>
+</div>
+</div>
 <div class="example">
 <div class="djot">
 <pre><code># A heading that
@@ -951,22 +973,12 @@ three lines
 A paragraph, finally.</code></pre>
 </div>
 <div class="html">
-<pre><code>&lt;h1 id=&quot;A-heading-that-takes-up-three-lines&quot;&gt;A heading that
+<pre><code>&lt;section id=&quot;A-heading-that-takes-up-three-lines&quot;&gt;
+&lt;h1&gt;A heading that
 takes up
 three lines&lt;/h1&gt;
 &lt;p&gt;A paragraph, finally.&lt;/p&gt;
-</code></pre>
-</div>
-</div>
-<p>Any number of trailing <code>#</code> characters may be included as
-a cosmetic decoration; they will not be included in the heading’s
-content:</p>
-<div class="example">
-<div class="djot">
-<pre><code>### Heading ###</code></pre>
-</div>
-<div class="html">
-<pre><code>&lt;h3 id=&quot;Heading&quot;&gt;Heading&lt;/h3&gt;
+&lt;/section&gt;
 </code></pre>
 </div>
 </div>
@@ -1321,8 +1333,9 @@ less space between items.</p>
 <section id="code-block" class="level3">
 <h3>Code block</h3>
 <p>A code block starts with a line of three or more consecutive backticks,
-optionally followed by whitespace and a language specifier, but nothing
-else. It ends with a line of backticks equal or greater in length to the
+optionally followed by a language specifier, but nothing else. (The language
+specifier may optionally be preceded and/or followed by whitespace.)
+The code block ends with a line of backticks equal or greater in length to the
 opening backtick “fence,” or the end of the document or enclosing block,
 if no such line is encountered. Its contents are interpreted as verbatim
 text. If the contents contain a line of backticks, be sure to select a
@@ -1442,14 +1455,53 @@ And here is another.
 <h3>Pipe table</h3>
 <p>A pipe table consists of a sequence of <em>rows</em>. Each row starts and ends
 with a pipe character (<code>|</code>) and contains one or more <em>cells</em> separated
-by pipe characters.</p>
+by pipe characters:</p>
+<div class="example">
+<div class="djot">
+<pre><code>| 1 | 2 |</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;table&gt;
+&lt;tr&gt;
+&lt;td&gt;1&lt;/td&gt;
+&lt;td&gt;2&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+</code></pre>
+</div>
+</div>
 <p>A <em>separator line</em> is a row in which every cell consists of a sequence
-of one of more <code>-</code> characters, optional prefixed and/or suffixed by a
+of one of more <code>-</code> characters, optionally prefixed and/or suffixed by a
 <code>:</code> character.</p>
 <p>When a separator line is encountered, the previous row is treated as a
 header, and alignments on that row and any subsequent rows are
 determined by the separator line (until a new header is found). The
 separator line itself does not contribute a row to the parsed table.</p>
+<div class="example">
+<div class="djot">
+<pre><code>| fruit  | price |
+|--------|------:|
+| apple  |     4 |
+| banana |    10 |</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;table&gt;
+&lt;tr&gt;
+&lt;th&gt;fruit&lt;/th&gt;
+&lt;th style=&quot;text-align: right;&quot;&gt;price&lt;/th&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;apple&lt;/td&gt;
+&lt;td style=&quot;text-align: right;&quot;&gt;4&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;banana&lt;/td&gt;
+&lt;td style=&quot;text-align: right;&quot;&gt;10&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+</code></pre>
+</div>
+</div>
 <p>Column alignments are determined by the separator line in the following
 way:</p>
 <ul>
@@ -1520,8 +1572,7 @@ verbatim spans; these do not count as cell separators:</p>
 <div class="html">
 <pre><code>&lt;table&gt;
 &lt;tr&gt;
-&lt;td&gt;just two \&lt;/td&gt;
-&lt;td&gt;&lt;code&gt;|&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;just two | &lt;code&gt;|&lt;/code&gt;&lt;/td&gt;
 &lt;td&gt;cells in this table&lt;/td&gt;
 &lt;/tr&gt;
 &lt;/table&gt;
@@ -1597,7 +1648,7 @@ block-level content.</p>
   &gt; a block quote in the note.</code></pre>
 </div>
 <div class="html">
-<pre><code>&lt;p&gt;Here&amp;rsquo;s the reference.&lt;a href=&quot;#fn1&quot; role=&quot;doc-noteref&quot;&gt;&lt;sup&gt;1&lt;/sup&gt;&lt;/a&gt;&lt;/p&gt;
+<pre><code>&lt;p&gt;Here&amp;rsquo;s the reference.&lt;a id=&quot;fnref1&quot; href=&quot;#fn1&quot; role=&quot;doc-noteref&quot;&gt;&lt;sup&gt;1&lt;/sup&gt;&lt;/a&gt;&lt;/p&gt;
 &lt;section role=&quot;doc-endnotes&quot;&gt;
 &lt;hr&gt;
 &lt;ol&gt;
@@ -1628,7 +1679,7 @@ with two paragraphs.
 be indented, at least in the first line.</code></pre>
 </div>
 <div class="html">
-<pre><code>&lt;p&gt;Here&amp;rsquo;s the reference.&lt;a href=&quot;#fn1&quot; role=&quot;doc-noteref&quot;&gt;&lt;sup&gt;1&lt;/sup&gt;&lt;/a&gt;&lt;/p&gt;
+<pre><code>&lt;p&gt;Here&amp;rsquo;s the reference.&lt;a id=&quot;fnref1&quot; href=&quot;#fn1&quot; role=&quot;doc-noteref&quot;&gt;&lt;sup&gt;1&lt;/sup&gt;&lt;/a&gt;&lt;/p&gt;
 &lt;section role=&quot;doc-endnotes&quot;&gt;
 &lt;hr&gt;
 &lt;ol&gt;
@@ -1681,7 +1732,9 @@ adding a numerical suffix.</p>
 <pre><code>## My heading + auto-identifier</code></pre>
 </div>
 <div class="html">
-<pre><code>&lt;h2 id=&quot;My-heading-auto-identifier&quot;&gt;My heading + auto-identifier&lt;/h2&gt;
+<pre><code>&lt;section id=&quot;My-heading-auto-identifier&quot;&gt;
+&lt;h2&gt;My heading + auto-identifier&lt;/h2&gt;
+&lt;/section&gt;
 </code></pre>
 </div>
 </div>
@@ -1701,7 +1754,9 @@ document, one can simply use a reference link:</p>
 <div class="html">
 <pre><code>&lt;p&gt;See the &lt;a href=&quot;#Epilogue&quot;&gt;Epilogue&lt;/a&gt;.&lt;/p&gt;
 &lt;hr&gt;
-&lt;h1 id=&quot;Epilogue&quot;&gt;Epilogue&lt;/h1&gt;
+&lt;section id=&quot;Epilogue&quot;&gt;
+&lt;h1&gt;Epilogue&lt;/h1&gt;
+&lt;/section&gt;
 </code></pre>
 </div>
 </div>

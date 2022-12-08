@@ -1,7 +1,7 @@
 local djot = require("djot")
 
 function renderdjot(txt)
-  return djot.parse(txt):render_html()
+  return djot.render_html(djot.parse(txt))
 end
 
 function CodeBlock(el)

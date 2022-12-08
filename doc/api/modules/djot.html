@@ -1,0 +1,173 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+<div id="main">
+
+
+<!-- Menu -->
+
+
+
+<div id="navigation">
+<h1>djot</h1>
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<hr/>
+<ul>
+    <li><a href="#parse">parse&nbsp;(input, sourcepos, warn)</a></li>
+    <li><a href="#parse_events">parse_events&nbsp;(input, warn)</a></li>
+    <li><a href="#render_ast_pretty">render_ast_pretty&nbsp;(doc)</a></li>
+    <li><a href="#render_ast_json">render_ast_json&nbsp;(doc)</a></li>
+    <li><a href="#render_html">render_html&nbsp;(doc)</a></li>
+    <li><a href="#render_event">render_event&nbsp;(startpos, endpos, annotation)</a></li>
+    <li><a href="#parse_and_render_events">parse_and_render_events&nbsp;(input, warn)</a></li>
+    <li><a href="#version">version</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+
+<h1>Module <code>djot</code></h1>
+
+<p>
+
+</p>
+<p> Parse and render djot light markup format. See https://djot.net.</p>
+
+<br/>
+<br/>
+
+    <dl class="function">
+    <dt>
+    <a name = "parse"></a>
+    <strong>parse&nbsp;(input, sourcepos, warn)</strong>
+    </dt>
+    <dd>
+    Parse a djot text and construct an abstract syntax tree (AST)
+ representing the document.
+     object with <code>pos</code> and <code>message</code> fields.
+
+
+</dd>
+    <dt>
+    <a name = "parse_events"></a>
+    <strong>parse_events&nbsp;(input, warn)</strong>
+    </dt>
+    <dd>
+    Parses a djot text and returns an iterator over events, consisting
+ of a start position (bytes), and an position (bytes), and an
+ annotation.
+
+
+<p> object with <code>pos</code> and <code>message</code> fields.</p>
+
+<pre><code> for startpos, endpos, annotation in djot.parse_events("hello *world") do
+ ...
+ end
+</code></pre>
+
+
+
+</dd>
+    <dt>
+    <a name = "render_ast_pretty"></a>
+    <strong>render_ast_pretty&nbsp;(doc)</strong>
+    </dt>
+    <dd>
+    Render a document's AST in human-readable form.
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "render_ast_json"></a>
+    <strong>render_ast_json&nbsp;(doc)</strong>
+    </dt>
+    <dd>
+    Render a document's AST in JSON.
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "render_html"></a>
+    <strong>render_html&nbsp;(doc)</strong>
+    </dt>
+    <dd>
+    Render a document as HTML.
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "render_event"></a>
+    <strong>render_event&nbsp;(startpos, endpos, annotation)</strong>
+    </dt>
+    <dd>
+    Render an event as a JSON array.
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "parse_and_render_events"></a>
+    <strong>parse_and_render_events&nbsp;(input, warn)</strong>
+    </dt>
+    <dd>
+    Parse a document and render as a JSON array of events.
+     an object with fields 'message' and 'pos'
+
+
+</dd>
+</dl>
+    <dl class="function">
+    <dt>
+    <a name = "version"></a>
+    <strong>version</strong>
+    </dt>
+    <dd>
+    djot version (string)
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
+

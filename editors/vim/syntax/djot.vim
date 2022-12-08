@@ -8,6 +8,7 @@ if exists("b:current_syntax")
 endif
 
 syn match heading '^##* .*$'
+syn match blockquote '^\s*>\%(\s\|$\)'
 
 syn region math matchgroup=delimiter skip='[^`]{1,}' start='[$][$]\?\z(``*\)' end='\z1\|^\s*$'
 syn region codespan matchgroup=delimiter skip='[^`]{1,}' start='\z(``*\)' end='\z1\|^\s*$'
@@ -78,6 +79,7 @@ hi def link delimiter Ignore
 hi def link escape Ignore
 hi def link openbrace Ignore
 hi def link closebrace Ignore
+hi def link blockquote Comment
 
 let b:current_syntax = "djot"
 

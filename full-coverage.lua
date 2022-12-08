@@ -1,3 +1,4 @@
+package.path = "./?.lua;" .. package.path
 -- Full coverage test
 --
 -- This test is similar to fuzz.lua, but, rather than generating
@@ -6,7 +7,7 @@
 local djot = require("djot")
 local to_html = function(s)
   local doc = djot.parse(s)
-  return doc:render_html()
+  return djot.render_html(doc)
 end
 
 local function combinations(alpha, n)

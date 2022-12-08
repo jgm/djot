@@ -1,7 +1,7 @@
-VERSION=$(shell grep "version =" djot.lua | sed -e 's/.*"\([^"]*\).*"/\1/')
+VERSION=$(shell grep "version = \"" djot.lua | sed -e 's/.*"\([^"]*\).*"/\1/')
 REVISION=1
 ROCKSPEC=djot-$(VERSION)-$(REVISION).rockspec
-MODULES=djot/match.lua djot/attributes.lua djot/inline.lua djot/block.lua djot/ast.lua djot/emoji.lua djot/html.lua djot/filter.lua djot.lua
+MODULES=djot.lua djot/attributes.lua djot/inline.lua djot/block.lua djot/ast.lua djot/emoji.lua djot/html.lua djot/filter.lua
 SOURCES=$(MODULES) bin/main.lua
 TESTSOURCES=test.lua pathological_tests.lua
 BUNDLE=djot
@@ -9,7 +9,7 @@ VIMDIR?=~/.vim
 TIMEOUT=perl -e 'alarm shift; exec @ARGV'
 TEMPFILE := $(shell mktemp)
 
-all: test doc/syntax.html
+all: test doc/syntax.html doc/djot.1 doc/api/index.html
 
 test: $(ROCKSPEC)
 	luarocks test
@@ -59,6 +59,13 @@ check:
 doc/syntax.html: doc/syntax.md
 	pandoc --lua-filter doc/code-examples.lua $< -t html -o $@ -s --css doc/syntax.css --self-contained --wrap=preserve --toc --section-divs -Vpagetitle="Djot syntax reference"
 
+doc/djot.1: doc/djot.md
+	pandoc \
+	  --metadata title="DJOT(1)" \
+	  --metadata author="" \
+	  --variable footer="djot $(VERSION)" \
+	  $< -s -o $@
+
 # luarocks packaging
 
 install: $(ROCKSPEC)
@@ -68,6 +75,12 @@ install: $(ROCKSPEC)
 rock: $(ROCKSPEC)
 	luarocks --local make $(ROCKSPEC)
 .PHONY: rock
+
+doc/api:
+	-mkdir $@
+
+doc/api/index.html: djot.lua djot/ast.lua djot/filter.lua doc/api
+	ldoc .
 
 vim:
 	cp editors/vim/syntax/djot.vim $(VIMDIR)/syntax/

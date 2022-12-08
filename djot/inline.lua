@@ -1,9 +1,6 @@
 -- this allows the code to work with both lua and luajit:
 local unpack = unpack or table.unpack
-local match = require("djot.match")
 local attributes = require("djot.attributes")
-local make_match, unpack_match, matches_pattern =
-  match.make_match, match.unpack_match, match.matches_pattern
 local find, byte = string.find, string.byte
 
 -- allow up to 3 captures...
@@ -23,9 +20,9 @@ end
 -- opener. We can then change the annotation of the match at
 -- that location to '+emphasis' or whatever.
 
-local Tokenizer = {}
+local InlineParser = {}
 
-function Tokenizer:new(subject, warn)
+function InlineParser:new(subject, warn)
   local state =
     { warn = warn or function() end, -- function to issue warnings
       subject = subject, -- text to parse
@@ -37,7 +34,7 @@ function Tokenizer:new(subject, warn)
       firstpos = 0, -- position of first slice
       lastpos = 0,  -- position of last slice
       allow_attributes = true, -- allow parsing of attributes
-      attribute_tokenizer = nil,  -- attribute parser
+      attribute_parser = nil,  -- attribute parser
       attribute_start = nil,  -- start of potential attribute
       attribute_slices = nil, -- slices we've tried to parse as attributes
     }
@@ -46,11 +43,11 @@ function Tokenizer:new(subject, warn)
   return state
 end
 
-function Tokenizer:add_match(startpos, endpos, annotation)
-  self.matches[startpos] = make_match(startpos, endpos, annotation)
+function InlineParser:add_match(startpos, endpos, annotation)
+  self.matches[startpos] = {startpos, endpos, annotation}
 end
 
-function Tokenizer:add_opener(name, ...)
+function InlineParser:add_opener(name, ...)
   -- 1 = start position,
   -- 2 = end position,
   -- 3 = annotation,
@@ -81,7 +78,7 @@ function Tokenizer:add_opener(name, ...)
   table.insert(self.openers[name], {...})
 end
 
-function Tokenizer:clear_openers(startpos, endpos)
+function InlineParser:clear_openers(startpos, endpos)
   -- remove other openers in between the matches
   for _,v in pairs(self.openers) do
     local i = #v
@@ -101,21 +98,28 @@ function Tokenizer:clear_openers(startpos, endpos)
   end
 end
 
-function Tokenizer:str_matches(startpos, endpos)
+function InlineParser:str_matches(startpos, endpos)
   for i = startpos, endpos do
     local m = self.matches[i]
     if m then
-      local sp, ep, annot = unpack_match(m)
+      local sp, ep, annot = unpack(m)
       if annot ~= "str" and annot ~= "escape" then
-        self.matches[i] = make_match(sp, ep, "str")
+        self.matches[i] = {sp, ep, "str"}
       end
     end
   end
 end
 
-function Tokenizer.between_matched(c, annotation, defaultmatch, opentest)
+local function matches_pattern(match, patt)
+  if match then
+    return string.find(match[3], patt)
+  end
+end
+
+
+function InlineParser.between_matched(c, annotation, defaultmatch, opentest)
   return function(self, pos, endpos)
-    local defaultmatch = defaultmatch or "str"
+    defaultmatch = defaultmatch or "str"
     local subject = self.subject
     local can_open = find(subject, "^%S", pos + 1)
     local can_close = find(subject, "^%S", pos - 1)
@@ -206,7 +210,7 @@ function Tokenizer.between_matched(c, annotation, defaultmatch, opentest)
   end
 end
 
-Tokenizer.matchers = {
+InlineParser.matchers = {
     -- 96 = `
     [96] = function(self, pos, endpos)
       local subject = self.subject
@@ -240,7 +244,7 @@ Tokenizer.matchers = {
       if endchar then
         -- see if there were preceding spaces
         if #self.matches > 0 then
-          local sp, ep, annot = unpack_match(self.matches[#self.matches])
+          local sp, ep, annot = unpack(self.matches[#self.matches])
           if annot == "str" then
             while subject:byte(ep) == 32 or subject:byte(ep) == 9 do
               ep = ep -1
@@ -294,10 +298,10 @@ Tokenizer.matchers = {
     end,
 
     -- 126 = ~
-    [126] = Tokenizer.between_matched('~', 'subscript'),
+    [126] = InlineParser.between_matched('~', 'subscript'),
 
     -- 94 = ^
-    [94] = Tokenizer.between_matched('^', 'superscript'),
+    [94] = InlineParser.between_matched('^', 'superscript'),
 
     -- 91 = [
     [91] = function(self, pos, endpos)
@@ -397,10 +401,10 @@ Tokenizer.matchers = {
     end,
 
     -- 95 = _
-    [95] = Tokenizer.between_matched('_', 'emph'),
+    [95] = InlineParser.between_matched('_', 'emph'),
 
     -- 42 = *
-    [42] = Tokenizer.between_matched('*', 'strong'),
+    [42] = InlineParser.between_matched('*', 'strong'),
 
     -- 123 = {
     [123] = function(self, pos, endpos)
@@ -408,7 +412,7 @@ Tokenizer.matchers = {
         self:add_match(pos, pos, "open_marker")
         return pos + 1
       elseif self.allow_attributes then
-        self.attribute_tokenizer = attributes.AttributeTokenizer:new(self.subject)
+        self.attribute_parser = attributes.AttributeParser:new(self.subject)
         self.attribute_start = pos
         self.attribute_slices = {}
         return pos
@@ -431,28 +435,28 @@ Tokenizer.matchers = {
     end,
 
     -- 43 = +
-    [43] = Tokenizer.between_matched("+", "insert", "str",
+    [43] = InlineParser.between_matched("+", "insert", "str",
                            function(self, pos)
                              return find(self.subject, "^%{", pos - 1) or
                                     find(self.subject, "^%}", pos + 1)
                            end),
 
     -- 61 = =
-    [61] = Tokenizer.between_matched("=", "mark", "str",
+    [61] = InlineParser.between_matched("=", "mark", "str",
                            function(self, pos)
                              return find(self.subject, "^%{", pos - 1) or
                                     find(self.subject, "^%}", pos + 1)
                            end),
 
     -- 39 = '
-    [39] = Tokenizer.between_matched("'", "single_quoted", "right_single_quote",
+    [39] = InlineParser.between_matched("'", "single_quoted", "right_single_quote",
                            function(self, pos) -- test to open
                              return pos == 1 or
                                find(self.subject, "^[%s\"'-([]", pos - 1)
                              end),
 
     -- 34 = "
-    [34] = Tokenizer.between_matched('"', "double_quoted", "left_double_quote"),
+    [34] = InlineParser.between_matched('"', "double_quoted", "left_double_quote"),
 
     -- 45 = -
     [45] = function(self, pos, endpos)
@@ -460,7 +464,7 @@ Tokenizer.matchers = {
       local nextpos
       if byte(subject, pos - 1) == 123 or
          byte(subject, pos + 1) == 125 then -- (123 = { 125 = })
-        nextpos = Tokenizer.between_matched("-", "delete", "str",
+        nextpos = InlineParser.between_matched("-", "delete", "str",
                            function(slf, p)
                              return find(slf.subject, "^%{", p - 1) or
                                     find(slf.subject, "^%}", p + 1)
@@ -518,19 +522,19 @@ Tokenizer.matchers = {
     end
   }
 
-function Tokenizer:single_char(pos)
+function InlineParser:single_char(pos)
   self:add_match(pos, pos, "str")
   return pos + 1
 end
 
 -- Reparse attribute_slices that we tried to parse as an attribute
-function Tokenizer:reparse_attributes()
+function InlineParser:reparse_attributes()
   local slices = self.attribute_slices
   if not slices then
     return
   end
   self.allow_attributes = false
-  self.attribute_tokenizer = nil
+  self.attribute_parser = nil
   self.attribute_start = nil
   if slices then
     for i=1,#slices do
@@ -542,7 +546,7 @@ function Tokenizer:reparse_attributes()
 end
 
 -- Feed a slice to the parser, updating state.
-function Tokenizer:feed(spos, endpos)
+function InlineParser:feed(spos, endpos)
   local special = "[][\\`{}_*()!<>~^:=+$\r\n'\".-]"
   local subject = self.subject
   local matchers = self.matchers
@@ -555,25 +559,25 @@ function Tokenizer:feed(spos, endpos)
   end
   pos = spos
   while pos <= endpos do
-    if self.attribute_tokenizer then
+    if self.attribute_parser then
       local sp = pos
       local ep2 = bounded_find(subject, special, pos, endpos)
       if not ep2 or ep2 > endpos then
         ep2 = endpos
       end
-      local status, ep = self.attribute_tokenizer:feed(sp, ep2)
+      local status, ep = self.attribute_parser:feed(sp, ep2)
       if status == "done" then
         local attribute_start = self.attribute_start
         -- add attribute matches
         self:add_match(attribute_start, attribute_start, "+attributes")
         self:add_match(ep, ep, "-attributes")
-        local attr_matches = self.attribute_tokenizer:get_matches()
+        local attr_matches = self.attribute_parser:get_matches()
         -- add attribute matches
         for i=1,#attr_matches do
-          self:add_match(unpack_match(attr_matches[i]))
+          self:add_match(unpack(attr_matches[i]))
         end
         -- restore state to prior to adding attribute parser:
-        self.attribute_tokenizer = nil
+        self.attribute_parser = nil
         self.attribute_start = nil
         self.attribute_slices = nil
         pos = ep + 1
@@ -645,23 +649,23 @@ function Tokenizer:feed(spos, endpos)
 end
 
   -- Return true if we're parsing verbatim content.
-function Tokenizer:in_verbatim()
+function InlineParser:in_verbatim()
   return self.verbatim > 0
 end
 
-function Tokenizer:get_matches()
+function InlineParser:get_matches()
   local sorted = {}
   local subject = self.subject
   local lastsp, lastep, lastannot
-  if self.attribute_tokenizer then -- we're still in an attribute parse
+  if self.attribute_parser then -- we're still in an attribute parse
     self:reparse_attributes()
   end
   for i=self.firstpos, self.lastpos do
     if self.matches[i] then
-      local sp, ep, annot = unpack_match(self.matches[i])
+      local sp, ep, annot = unpack(self.matches[i])
       if annot == "str" and lastannot == "str" and lastep + 1 == sp then
           -- consolidate adjacent strs
-        sorted[#sorted] = make_match(lastsp, ep, annot)
+        sorted[#sorted] = {lastsp, ep, annot}
         lastsp, lastep, lastannot = lastsp, ep, annot
       else
         sorted[#sorted + 1] = self.matches[i]
@@ -671,7 +675,7 @@ function Tokenizer:get_matches()
   end
   if #sorted > 0 then
     local last = sorted[#sorted]
-    local startpos, endpos, annot = unpack_match(last)
+    local startpos, endpos, annot = unpack(last)
     -- remove final softbreak
     if annot == "softbreak" then
       sorted[#sorted] = nil
@@ -679,22 +683,21 @@ function Tokenizer:get_matches()
       if not last then
         return sorted
       end
-      startpos, endpos, annot = unpack_match(last)
+      startpos, endpos, annot = unpack(last)
     end
     -- remove trailing spaces
     if annot == "str" and byte(subject, endpos) == 32 then
       while endpos > startpos and byte(subject, endpos) == 32 do
         endpos = endpos - 1
       end
-      sorted[#sorted] = make_match(startpos, endpos, annot)
+      sorted[#sorted] = {startpos, endpos, annot}
     end
     if self.verbatim > 0 then -- unclosed verbatim
       self.warn({ message = "Unclosed verbatim", pos = endpos })
-      sorted[#sorted + 1] = make_match(endpos, endpos,
-                                       "-" .. self.verbatim_type)
+      sorted[#sorted + 1] = {endpos, endpos, "-" .. self.verbatim_type}
     end
   end
   return sorted
 end
 
-return { Tokenizer = Tokenizer }
+return { InlineParser = InlineParser }

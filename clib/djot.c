@@ -16,6 +16,14 @@ void djot_report_error(lua_State *L) {
   }
 }
 
+const char *djot_get_error(lua_State *L) {
+  if(!L) {
+    return "lua_State is NULL\n";
+  } else {
+    return lua_tostring(L, -1);
+  }
+}
+
 lua_State *djot_open() {
   lua_State *L = luaL_newstate(); /* create Lua state */
   if (L == NULL) {
@@ -37,8 +45,8 @@ void djot_close(lua_State *L) {
   lua_close(L);
 }
 
-/* Parse input (optionally including source positions) and return a
- * thread with the parsed document in the global 'doc'. The
+/* Parse input (optionally including source positions) and add
+ * a global 'doc' with the parsed AST. The
  * subordinate functions djot_render_html, djot_render_ast,
  * djot_render_matches, djot_apply_filter can then be used to manipulate
  * or render the content. Returns 1 on success, 0 on error. */
@@ -57,41 +65,72 @@ int djot_parse(lua_State *L, char *input, bool sourcepos) {
 /* Render the document in the global 'doc' as HTML, returning a string,
  * or NULL on error. */
 char *djot_render_html(lua_State *L) {
-  lua_getglobal(L, "doc");
+  lua_getglobal(L, "djot");
   lua_getfield(L, -1, "render_html");
   lua_getglobal(L, "doc");
-  lua_pushnil(L);
-  if (lua_pcall(L, 2, 1, 0) != LUA_OK) {
+  if (lua_pcall(L, 1, 1, 0) != LUA_OK) {
     return NULL;
   }
   return (char *)lua_tostring(L, -1);
 }
 
-/* Render the AST of the document in the global 'doc'.
- * If 'as_json' is true, use JSON, otherwise, produce a compact
- * human-readable tree. NULL is returned on error. */
-char *djot_render_ast(lua_State *L, bool as_json) {
-  lua_getglobal(L, "doc");
-  lua_getfield(L, -1, "render_ast");
-  lua_getglobal(L, "doc");
-  lua_pushnil(L);
-  lua_pushboolean(L, as_json);
-  if (lua_pcall(L, 3, 1, 0) != LUA_OK) {
-    return NULL;
-  }
-  return (char *)lua_tostring(L, -1);
-}
-
-/* Tokenize input and render the matches.
- * If 'as_json' is true, use JSON, otherwise, produce a compact
- * human-readable tree. NULL is returned on error. */
-char *djot_render_matches(lua_State *L, char *input, bool as_json) {
+/* Render the AST of the document in the global 'doc' as JSON.
+ * NULL is returned on error. */
+char *djot_render_ast_json(lua_State *L) {
   lua_getglobal(L, "djot");
-  lua_getfield(L, -1, "render_matches");
+  lua_getfield(L, -1, "render_ast_json");
+  lua_getglobal(L, "doc");
+  if (lua_pcall(L, 1, 1, 0) != LUA_OK) {
+    return NULL;
+  }
+  return (char *)lua_tostring(L, -1);
+}
+
+/* Render the AST of the document in the global 'doc' as JSON.
+ * NULL is returned on error. */
+char *djot_render_ast_pretty(lua_State *L) {
+  lua_getglobal(L, "djot");
+  lua_getfield(L, -1, "render_ast_pretty");
+  lua_getglobal(L, "doc");
+  if (lua_pcall(L, 1, 1, 0) != LUA_OK) {
+    return NULL;
+  }
+  return (char *)lua_tostring(L, -1);
+}
+
+/* Load a filter from a string and apply it to the AST in global 'doc'.
+ * Return 1 on success, 0 on error. */
+int djot_apply_filter(lua_State *L, char *filter) {
+  lua_getglobal(L, "djot");
+  lua_getfield(L, -1, "filter");
+  lua_getfield(L, -1, "load_filter");
+  lua_pushstring(L, filter);
+  if (lua_pcall(L, 1, 1, 0) != LUA_OK) {
+    return 0;
+  }
+  // Now we should have the loaded filter on top of stack, or nil and an error
+  if lua_isnil(L, -2) {
+    return 0;
+  }
+  // If we're here, top of stack should be the compiled filter
+  lua_getglobal(L, "djot");
+  lua_getfield(L, -1, "filter");
+  lua_getfield(L, -1, "apply_filter");
+  lua_getglobal(L, "doc");
+  lua_pushvalue(L, -5); /* push the compiled filter to top of stack */
+  if (lua_pcall(L, 2, 1, 0) != LUA_OK) {
+    return 0;
+  }
+  return 1;
+}
+
+/* Parse input and render the events as a JSON array.
+ * NULL is returned on error. */
+char *djot_parse_and_render_events(lua_State *L, char *input) {
+  lua_getglobal(L, "djot");
+  lua_getfield(L, -1, "parse_and_render_events");
   lua_pushstring(L, input);
-  lua_pushnil(L);
-  lua_pushboolean(L, as_json);
-  if (lua_pcall(L, 3, 1, 0) != LUA_OK) {
+  if (lua_pcall(L, 1, 1, 0) != LUA_OK) {
     return NULL;
   }
   return (char *)lua_tostring(L, -1);

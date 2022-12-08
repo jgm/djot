@@ -8,6 +8,7 @@
 
 ```
 # Heading
+
 # another
 .
 <section id="Heading">
@@ -15,6 +16,16 @@
 </section>
 <section id="another">
 <h1>another</h1>
+</section>
+```
+
+```
+# Heading
+# continued
+.
+<section id="Heading-continued">
+<h1>Heading
+continued</h1>
 </section>
 ```
 
@@ -61,6 +72,23 @@ lazy</h1>
 ```
 
 ```
+# Heading
+lazy
+# more
+lazy
+
+text
+.
+<section id="Heading-lazy-more-lazy">
+<h1>Heading
+lazy
+more
+lazy</h1>
+<p>text</p>
+</section>
+```
+
+```
 ##Notheading
 .
 <p>##Notheading</p>
@@ -76,14 +104,6 @@ lazy</h1>
 
 ```
 ## heading ##
-.
-<section id="heading">
-<h2>heading</h2>
-</section>
-```
-
-```
-## heading \##
 .
 <section id="heading">
 <h2>heading ##</h2>

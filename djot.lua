@@ -1,12 +1,37 @@
-local block = require("djot.block")
+--- @module djot
+--- Parse and render djot light markup format. See https://djot.net.
+---
+--- @usage
+--- local djot = require("djot")
+--- local input = "This is *djot*"
+--- local doc = djot.parse(input)
+--- -- render as HTML:
+--- print(djot.render_html(doc))
+---
+--- -- render as AST:
+--- print(djot.render_ast_pretty(doc))
+---
+--- -- or in JSON:
+--- print(djot.render_ast_json(doc))
+---
+--- -- alter the AST with a filter:
+--- local src = "return { str = function(e) e.text = e.text:upper() end }"
+--- -- subordinate modules like filter can be accessed as fields
+--- -- and are lazily loaded.
+--- local filter = djot.filter.load_filter(src)
+--- djot.filter.apply_filter(doc, filter)
+---
+--- -- streaming parser:
+--- for startpos, endpos, annotation in djot.parse_events("*hello there*") do
+---   print(startpos, endpos, annotation)
+--- end
+
+local unpack = unpack or table.unpack
+local Parser = require("djot.block").Parser
 local ast = require("djot.ast")
 local html = require("djot.html")
-local match = require("djot.match")
 local json = require("djot.json")
-local traverse = require("djot.filter").traverse
-
-local unpack_match = match.unpack_match
-local format_match = match.format_match
+local filter = require("djot.filter")
 
 local StringHandle = {}
 
@@ -25,146 +50,109 @@ function StringHandle:flush()
   return table.concat(self)
 end
 
-local Tokenizer = block.Tokenizer
-
--- Doc
-local Doc = {}
-
-function Doc:new(tokenizer, sourcepos)
-  local the_ast, sourcepos_map =
-    ast.to_ast(tokenizer, sourcepos)
-  local state = {
-    ast = the_ast,
-    sourcepos_map = sourcepos_map,
-    matches = tokenizer.matches
-  }
-  setmetatable(state, self)
-  self.__index = self
-  return state
-end
-
-function Doc:render_ast(handle, use_json)
-  if not handle then
-    handle = StringHandle:new()
-  end
-  if use_json then
-    handle:write(json.encode(self.ast))
-  else
-    ast.render(self.ast, handle)
-  end
-  if use_json then
-    handle:write("\n")
-  end
-  return handle:flush()
-end
-
-function Doc:render_html(handle)
-  if not handle then
-    handle = StringHandle:new()
-  end
-  local renderer = html.Renderer:new()
-  renderer:render(self.ast, handle)
-  return handle:flush()
-end
-
-function Doc:apply_filter(filter)
-  traverse(self.ast, filter)
-end
-
-function Doc:render_matches(handle, use_json, warn)
-  if not handle then
-    handle = StringHandle:new()
-  end
-  if use_json then
-    handle:write("[")
-  end
-  for idx,match in ipairs(self.matches) do
-    if use_json then
-      local startpos, endpos, annotation = unpack_match(match)
-      if idx > 1 then
-        handle:write(",")
-      end
-      handle:write(json.encode({ annotation, {startpos, endpos} }))
-      handle:write("\n")
-    else
-      handle:write(format_match(match))
-    end
-  end
-  if use_json then
-    handle:write("]\n")
-  end
-
-  return handle:flush()
-end
-
--- function Doc:format_source_pos(bytepos)
---   local pos = self.sourcepos_map[bytepos]
---   if pos then
---     return string.format("line %d, column %d", pos[1], pos[2])
---   else
---     return string.format("byte position %d", bytepos)
---   end
--- end
-
--- function Doc:render_warnings(handle, as_json)
---   if #self.warnings == 0 then
---     return
---   end
---   if as_json then
---     handle:write(json.encode(warnings))
---   else
---     for _,warning in ipairs(self.warnings) do
---       handle:write(string.format("%s at %s\n",
---         warning.message, self:format_source_pos(warning.pos)))
---     end
---   end
---   if as_json then
---     handle:write("\n")
---   end
---   return handle:flush()
--- end
-
+--- Parse a djot text and construct an abstract syntax tree (AST)
+--- representing the document.
+--- @param input input string
+--- @param sourcepos if true, source positions are included in the AST
+--- @param warn function that processes a warning, accepting a warning
+--- object with `pos` and `message` fields.
+--- @return AST
 local function parse(input, sourcepos, warn)
-  local tokenizer = Tokenizer:new(input, warn)
-  return Doc:new(tokenizer, sourcepos)
+  local parser = Parser:new(input, warn)
+  return ast.to_ast(parser, sourcepos)
 end
 
-local function tokenize(input)
-  return Tokenizer:new(input):tokenize()
+--- Parses a djot text and returns an iterator over events, consisting
+--- of a start position (bytes), and an position (bytes), and an
+--- annotation.
+--- @param input input string
+--- @param warn function that processes a warning, accepting a warning
+--- object with `pos` and `message` fields.
+--- @return an iterator over events.
+---
+---     for startpos, endpos, annotation in djot.parse_events("hello *world") do
+---     ...
+---     end
+local function parse_events(input, warn)
+  return Parser:new(input):events()
 end
 
-local function render_matches(input, handle, use_json, warn)
-  if not handle then
-    handle = StringHandle:new()
-  end
-  local tokenizer = Tokenizer:new(input, warn)
-  local idx = 0
-  if use_json then
-    handle:write("[")
-  end
-  for match in tokenizer:tokenize() do
-    idx = idx + 1
-    if use_json then
-      local startpos, endpos, annotation = unpack_match(match)
-      if idx > 1 then
-        handle:write(",")
-      end
-      handle:write(json.encode({ annotation, {startpos, endpos} }))
-      handle:write("\n")
-    else
-      handle:write(format_match(match))
-    end
-  end
-  if use_json then
-    handle:write("]\n")
-  end
-
+--- Render a document's AST in human-readable form.
+--- @param doc the AST
+--- @return rendered AST (string)
+local function render_ast_pretty(doc)
+  local handle = StringHandle:new()
+  ast.render(doc, handle)
   return handle:flush()
 end
 
-return {
+--- Render a document's AST in JSON.
+--- @param doc the AST
+--- @return rendered AST (JSON string)
+local function render_ast_json(doc)
+  return json.encode(doc) .. "\n"
+end
+
+--- Render a document as HTML.
+--- @param doc the AST
+--- @return rendered document (HTML string)
+local function render_html(doc)
+  local handle = StringHandle:new()
+  local renderer = html.Renderer:new()
+  renderer:render(doc, handle)
+  return handle:flush()
+end
+
+--- Render an event as a JSON array.
+--- @param startpos starting byte position
+--- @param endpos ending byte position
+--- @param annotation annotation of event
+--- @return rendered event (JSON string)
+local function render_event(startpos, endpos, annotation)
+  return string.format("[%q,%d,%d]", annotation, startpos, endpos)
+end
+
+--- Parse a document and render as a JSON array of events.
+--- @param input the djot document (string)
+--- @param warn function that emits warnings, taking as argumnet
+--- an object with fields 'message' and 'pos'
+--- @return rendered events (JSON string)
+local function parse_and_render_events(input, warn)
+  local handle = StringHandle:new()
+  local idx = 0
+  for startpos, endpos, annotation in parse_events(input, warn) do
+    idx = idx + 1
+    if idx == 1 then
+      handle:write("[")
+    else
+      handle:write(",")
+    end
+    handle:write(render_event(startpos, endpos, annotation) .. "\n")
+  end
+  handle:write("]\n")
+  return handle:flush()
+end
+
+--- djot version (string)
+local version = "0.2.0"
+
+--- @export
+local G = {
   parse = parse,
-  tokenize = tokenize,
-  render_matches = render_matches,
-  version = "0.2.0"
+  parse_events = parse_events,
+  parse_and_render_events = parse_and_render_events,
+  render_html = render_html,
+  render_ast_pretty = render_ast_pretty,
+  render_ast_json = render_ast_json,
+  render_event = render_event,
+  version = version
 }
+
+-- Lazily load submodules, e.g. djot.filter
+setmetatable(G,{ __index = function(t,name)
+                             local mod = require("djot." .. name)
+                             rawset(t,name,mod)
+                             return t[name]
+                            end })
+
+return G

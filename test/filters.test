@@ -1,0 +1,68 @@
+Capitalize text:
+
+```
+*Hello* world `code`
+!
+return {
+  str = function(e)
+    e.text = e.text:upper()
+  end
+}
+.
+<p><strong>HELLO</strong> WORLD <code>code</code></p>
+```
+
+Capitalize text inside emphasis only:
+
+```
+_Hello *world*_ outside
+!
+local capitalize = 0
+return {
+   emph = {
+     enter = function(e)
+       capitalize = capitalize + 1
+     end,
+     exit = function(e)
+       capitalize = capitalize - 1
+     end,
+   },
+   str = function(e)
+     if capitalize > 0 then
+       e.text = e.text:upper()
+      end
+   end
+}
+.
+<p><em>HELLO <strong>WORLD</strong></em> outside</p>
+```
+
+Capitalize text except in footnotes:
+
+``` a
+Hello[^1].
+
+[^1]: This is a note.
+!
+return {
+  str = function(e)
+    e.text = e.text:upper()
+  end,
+  footnote = {
+    enter = function(e)
+      return true  -- prevent traversing into children
+    end
+  }
+}
+.
+doc
+  para
+    str text="HELLO"
+    footnote_reference text="1"
+    str text="."
+footnotes
+  ["1"] =
+    footnote
+      para
+        str text="This is a note."
+```
