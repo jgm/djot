@@ -198,7 +198,7 @@ able to start using djot without looking at any more
 documentation.
 
 However, we haven't discussed any of the things
-you can do in djot but not Markdown.. See the [syntax
+you can do in djot but not Markdown. See the [syntax
 description](https://htmlpreview.github.io/?https://github.com/jgm/djot/blob/master/doc/syntax.html)
-to find about about the new constructions that are available.
+to find about the new constructions that are available.
 
