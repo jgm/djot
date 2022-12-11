@@ -517,7 +517,7 @@ function InlineParser:reparse_attributes()
     end
   end
   self.allow_attributes = true
-  self.slices = nil
+  self.attribute_slices = nil
 end
 
 -- Feed a slice to the parser, updating state.
