@@ -204,10 +204,11 @@ InlineParser.matchers = {
         if #self.matches > 0 then
           local sp, ep, annot = unpack(self.matches[#self.matches])
           if annot == "str" then
-            while subject:byte(ep) == 32 or subject:byte(ep) == 9 do
+            while ep >= sp and
+                 (subject:byte(ep) == 32 or subject:byte(ep) == 9) do
               ep = ep -1
             end
-            if sp == ep then
+            if ep < sp then
               self.matches[#self.matches] = nil
             else
               self:add_match(sp, ep, "str")
