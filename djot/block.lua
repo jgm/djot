@@ -430,7 +430,7 @@ function Parser:specs()
         self:get_inline_matches()
         local last = self.matches[#self.matches] or self.pos - 1
         local sp, ep, annot = unpack(last)
-        self:add_match(ep, ep, "-heading")
+        self:add_match(ep + 1, ep + 1, "-heading")
         self.containers[#self.containers] = nil
       end
     },
