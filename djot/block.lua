@@ -539,8 +539,8 @@ function Parser:specs()
       content = "cells",
       continue = function(_container)
         local sp, ep = self:find("^|[^\r\n]*|")
-        local eolsp = " *[\r\n]" -- make sure at end of line
-        if sp and eolsp then
+        local eolsp = ep and find(self.subject, "^[ \t]*[\r\n]", ep + 1);
+        if eolsp then
           return self:parse_table_row(sp, ep)
         end
       end,
