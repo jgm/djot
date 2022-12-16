@@ -199,7 +199,9 @@ function Parser:specs()
       end,
       close = function()
         self:get_inline_matches()
-        self:add_match(self.pos - 1, self.pos - 1, "-para")
+        local last = self.matches[#self.matches] or {self.pos, self.pos, ""}
+        local sp, ep, annot = unpack(last)
+        self:add_match(ep + 1, ep + 1, "-para")
         self.containers[#self.containers] = nil
       end
     },
@@ -428,7 +430,7 @@ function Parser:specs()
       end,
       close = function(_container)
         self:get_inline_matches()
-        local last = self.matches[#self.matches] or self.pos - 1
+        local last = self.matches[#self.matches] or {self.pos, self.pos, ""}
         local sp, ep, annot = unpack(last)
         self:add_match(ep + 1, ep + 1, "-heading")
         self.containers[#self.containers] = nil
