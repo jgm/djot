@@ -493,7 +493,7 @@ function Parser:specs()
         if self.containers[#self.containers].name == "code_block" then
           return true -- see #109
         end
-        local sp, ep, equals = self:find("^(::::*)[ \t]*[r\n]")
+        local sp, ep, equals = self:find("^(::::*)[ \t]*[\r\n]")
         if ep and #equals >= container.equals then
           container.end_fence_sp = sp
           container.end_fence_ep = sp + #equals - 1
