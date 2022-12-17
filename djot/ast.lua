@@ -99,12 +99,12 @@ local function roman_to_number(s)
   while i > 0 do
     local c = lower(sub(s,i,i))
     local n = roman_digits[c]
+    assert(n ~= nil, "Encountered bad character in roman numeral " .. s)
     if n < prevdigit then -- e.g. ix
       total = total - n
     else
       total = total + n
     end
-    assert(n ~= nil, "Encountered bad character in roman numeral " .. s)
     prevdigit = n
     i = i - 1
   end
