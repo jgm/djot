@@ -64,17 +64,21 @@ local function make_sourcepos_map(input)
   return sourcepos_map
 end
 
-local function get_string_content(node)
-  local buffer = {}
+local function add_string_content(node, buffer)
   if node.s then
     buffer[#buffer + 1] = node.s
   elseif node.t == "softbreak" then
     buffer[#buffer + 1] = "\n"
   elseif node.c then
     for i=1, #node.c do
-      buffer[#buffer + 1] = get_string_content(node.c[i])
+      add_string_content(node.c[i], buffer)
     end
   end
+end
+
+local function get_string_content(node)
+  local buffer = {};
+  add_string_content(node, buffer)
   return table.concat(buffer)
 end
 
