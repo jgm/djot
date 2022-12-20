@@ -542,7 +542,7 @@ function Renderer:math(node)
   else
     self.out("\\[")
   end
-  self:render_children(node)
+  self.out(self:escape_html(node.s))
   if math_t == "inline" then
     self.out("\\)")
   else

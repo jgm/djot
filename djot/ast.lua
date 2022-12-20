@@ -330,6 +330,18 @@ local function resolve_style(list)
   list.startmarker = nil
 end
 
+local function get_verbatim_content(node)
+  local s = get_string_content(node)
+  -- trim space next to ` at beginning or end
+  if find(s, "^ +`") then
+    s = s:sub(2)
+  end
+  if find(s, "` +$") then
+    s = s:sub(1, #s - 1)
+  end
+  return s
+end
+
 local function add_sections(ast)
   if not has_children(ast) then
     return ast
@@ -770,10 +782,16 @@ local function to_ast(parser, sourcepos)
 
         elseif tag == "inline_math" then
           node.t = "math"
+          node.s = get_verbatim_content(node)
+          node.c = nil
+          node.display = false
           node.attr = new_attributes{class = "math inline"}
 
         elseif tag == "display_math" then
           node.t = "math"
+          node.s = get_verbatim_content(node)
+          node.c = nil
+          node.display = true
           node.attr = new_attributes{class = "math display"}
 
         elseif tag == "imagetext" then
@@ -791,15 +809,7 @@ local function to_ast(parser, sourcepos)
           end
 
         elseif tag == "verbatim" then
-          local s = get_string_content(node)
-          -- trim space next to ` at beginning or end
-          if find(s, "^ +`") then
-            s = s:sub(2)
-          end
-          if find(s, "` +$") then
-            s = s:sub(1, #s - 1)
-          end
-          node.s = s
+          node.s = get_verbatim_content(node)
           node.c = nil
 
         elseif tag == "url" then
