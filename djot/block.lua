@@ -379,15 +379,17 @@ function Parser:specs()
           return false
         end
         local _, ep, rest = self:find("^(%S+)")
-        if ep then
+        if ep and self.starteol == ep + 1 then
           self:add_match(ep - #rest + 1, ep, "reference_value")
           self.pos = ep + 1
+          return true
+        else
+          return false
         end
-        return true
       end,
       open = function(spec)
         local sp, ep, label, rest = self:find("^%[([^]\r\n]*)%]:[ \t]*(%S*)")
-        if sp then
+        if ep and self.starteol == ep + 1 then
           self:add_container(Container:new(spec,
              { key = label,
                indent = self.indent }))

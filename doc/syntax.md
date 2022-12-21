@@ -672,6 +672,7 @@ A reference link definition consists of the reference label in square
 brackets, followed by a colon, followed by whitespace (or a newline) and
 the URL. The URL may be split over multiple lines (in which case the
 lines will be concatenated, with any leading or trailing space removed).
+None of the chunks of the URL may contain internal whitespace.
 
     [google]: https://google.com
 
