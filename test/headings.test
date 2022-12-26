@@ -44,7 +44,7 @@ para
 ```
 ##
 .
-<section id="">
+<section id="s-1">
 <h2></h2>
 </section>
 ```
@@ -132,9 +132,9 @@ Paragraph
 # Foo bar
 .
 <p id="Foo-bar">Paragraph</p>
-<section id="Foo-bar1">
+<section id="Foo-bar-1">
 <h1>Foo bar</h1>
-<section id="Foo-bar2">
+<section id="Foo-bar-2">
 <h2>Foo  bar</h2>
 </section>
 </section>

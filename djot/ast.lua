@@ -404,9 +404,12 @@ local function to_ast(parser, sourcepos)
     local i = 0
     local ident = base
     -- generate unique id
-    while identifiers[ident] do
+    while ident == "" or identifiers[ident] do
       i = i + 1
-      ident = base .. tostring(i)
+      if base == "" then
+        base = "s"
+      end
+      ident = base .. "-" .. tostring(i)
     end
     identifiers[ident] = true
     return ident
