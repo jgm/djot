@@ -402,7 +402,7 @@ InlineParser.matchers = {
     [58] = function(self, pos, endpos)
       local sp, ep = bounded_find(self.subject, "^%:[%w_+-]+%:", pos, endpos)
       if sp then
-        self:add_match(sp, ep, "emoji")
+        self:add_match(sp, ep, "symbol")
         return ep + 1
       else
         self:add_match(pos, pos, "str")

@@ -894,7 +894,7 @@ local function to_ast(parser, sourcepos)
         node.s = sub(subject, startpos + 1, endpos - 1)
       elseif tag == "footnote_reference" then
         node.s = sub(subject, startpos + 2, endpos - 1)
-      elseif tag == "emoji" then
+      elseif tag == "symbol" then
         node.alias = sub(subject, startpos + 1, endpos - 1)
       elseif tag == "raw_format" then
         local tip = containers[#containers]

@@ -7,7 +7,7 @@ local testcases = {
   "blockquote.test",
   "code_blocks.test",
   "definition_lists.test",
-  "emoji.test",
+  "symbol.test",
   "emphasis.test",
   "escapes.test",
   "fenced_divs.test",

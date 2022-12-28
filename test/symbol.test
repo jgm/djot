@@ -1,0 +1,18 @@
+``` a
+:+1: :scream:
+.
+doc
+  para
+    symbol alias="+1"
+    str text=" "
+    symbol alias="scream"
+```
+
+``` a
+:ice:scream:
+.
+doc
+  para
+    symbol alias="ice"
+    str text="scream:"
+```
