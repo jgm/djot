@@ -1,7 +1,7 @@
 CLIB=../clib
-PLAYGROUND=playground
+PLAYGROUND=oldplayground
 
-all: $(PLAYGROUND)/djot.js $(PLAYGROUND)/styles.css djot.1.html
+all: djot.1.html
 .PHONY: all
 
 djot.1.html: ../doc/djot.md
@@ -18,7 +18,7 @@ server:
 .PHONY: server
 
 upload:
-	rsync -a --delete index.html playground djot.1.html website:djot.net/
+	rsync -a --delete index.html djot.1.html website:djot.net/
 .PHONY: upload
 
 clean:
