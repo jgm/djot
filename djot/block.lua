@@ -23,8 +23,6 @@ local function get_list_styles(marker)
     return {marker}
   elseif find(marker, "^[+*-] %[[Xx ]%]") then
     return {"X"} -- task list
-  elseif find(marker, "^%[[Xx ]%]") then
-    return {"X"}
   elseif find(marker, "^[(]?%d+[).]") then
     return {(marker:gsub("%d+","1"))}
   -- in ambiguous cases we return two values
@@ -352,7 +350,7 @@ function Parser:specs()
         self:add_container(Container:new(spec, data))
         local annot = "+list_item"
         for i=1,#styles do
-          annot = annot .. "[" .. styles[i] .. "]"
+          annot = annot .. "|" .. styles[i]
         end
         self:add_match(sp, ep - 1, annot)
         self.pos = ep

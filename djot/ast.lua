@@ -462,7 +462,7 @@ local function to_ast(parser, sourcepos)
 
   local block_attributes = nil
   local function add_block_attributes(node)
-    if block_attributes and blocktag[node.t:gsub("%[.*%]","")] then
+    if block_attributes and blocktag[node.t:gsub("%|.*","")] then
       for i=1,#block_attributes do
         insert_attributes_from_nodes(node, block_attributes[i])
       end
@@ -557,11 +557,11 @@ local function to_ast(parser, sourcepos)
       elseif find(tag, "^list_item") then
         node.t = "list_item"
         node.startidx = matchidx -- for tight/loose determination
-        local _, _, style_marker = string.find(tag, "(%[.*)")
+        local _, _, style_marker = string.find(tag, "(%|.*)")
         local styles = {}
         if style_marker then
           local i=1
-          for sty in string.gmatch(style_marker, "%[([^]]*)%]") do
+          for sty in string.gmatch(style_marker, "%|([^%|%]]*)") do
             styles[sty] = i
             i = i + 1
           end
@@ -768,11 +768,11 @@ local function to_ast(parser, sourcepos)
           node.t = "list_item"
           node.endidx = matchidx -- for tight/loose determination
 
-          if node.style_marker == "[:]" then
+          if node.style_marker == "|:" then
             make_definition_list_item(node)
           end
 
-          if node.style_marker == "[X]" and has_children(node) then
+          if node.style_marker == "|X" and has_children(node) then
             if node.c[1].t == "checkbox_checked" then
               node.checkbox = "checked"
               table.remove(node.c, 1)
