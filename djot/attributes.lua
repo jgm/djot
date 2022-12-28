@@ -24,11 +24,13 @@ local SCANNING_KEY = 3
 local SCANNING_VALUE = 4
 local SCANNING_BARE_VALUE = 5
 local SCANNING_QUOTED_VALUE = 6
-local SCANNING_ESCAPED = 7
-local SCANNING_COMMENT = 8
-local FAIL = 9
-local DONE = 10
-local START = 11
+local SCANNING_QUOTED_VALUE_CONTINUATION = 7
+local SCANNING_ESCAPED = 8
+local SCANNING_ESCAPED_IN_CONTINUATION = 9
+local SCANNING_COMMENT = 10
+local FAIL = 11
+local DONE = 12
+local START = 13
 
 local AttributeParser = {}
 
@@ -170,16 +172,44 @@ handlers[SCANNING_ESCAPED] = function(_self, _pos)
   return SCANNING_QUOTED_VALUE
 end
 
+handlers[SCANNING_ESCAPED_IN_CONTINUATION] = function(_self, _pos)
+  return SCANNING_QUOTED_VALUE_CONTINUATION
+end
+
 handlers[SCANNING_QUOTED_VALUE] = function(self, pos)
   local c = sub(self.subject, pos, pos)
   if c == '"' then
     self:add_match(self.begin + 1, self.lastpos, "value")
     self.begin = nil
     return SCANNING
+  elseif c == "\n" then
+    self:add_match(self.begin + 1, self.lastpos, "value")
+    self.begin = nil
+    return SCANNING_QUOTED_VALUE_CONTINUATION
   elseif c == "\\" then
     return SCANNING_ESCAPED
   else
     return SCANNING_QUOTED_VALUE
+  end
+end
+
+handlers[SCANNING_QUOTED_VALUE_CONTINUATION] = function(self, pos)
+  local c = sub(self.subject, pos, pos)
+  if self.begin == nil then
+    self.begin = pos
+  end
+  if c == '"' then
+    self:add_match(self.begin, self.lastpos, "value")
+    self.begin = nil
+    return SCANNING
+  elseif c == "\n" then
+    self:add_match(self.begin, self.lastpos, "value")
+    self.begin = nil
+    return SCANNING_QUOTED_VALUE_CONTINUATION
+  elseif c == "\\" then
+    return SCANNING_ESCAPED_IN_CONTINUATION
+  else
+    return SCANNING_QUOTED_VALUE_CONTINUATION
   end
 end
 

@@ -285,12 +285,13 @@ local function insert_attributes_from_nodes(targetnode, cs)
     if x == "id" or x == "class" then
       insert_attribute(targetnode.attr, x, y)
     elseif x == "key" then
-      local valnode = cs[i + 1]
-      if valnode.t == "value" then
+      local val = {}
+      while cs[i + 1] and cs[i + 1].t == "value" do
+        val[#val + 1] = cs[i + 1].s:gsub("\\(%p)", "%1")
         -- resolve backslash escapes
-        insert_attribute(targetnode.attr, y, valnode.s:gsub("\\(%p)", "%1"))
+        i = i + 1
       end
-      i = i + 1
+      insert_attribute(targetnode.attr, y, table.concat(val,"\n"))
     end
     i = i + 1
   end
