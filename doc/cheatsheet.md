@@ -26,8 +26,6 @@ Leave a blank line between paragraphs.
 **Comments** `{% look like this`\
 `and can span multiple lines %}`.
 
-**Emojis**: `:+1:` → 👍, `:smiley:` → 😃 , etc.
-
 **Thematic break** (horizontal line): `***` or `---` on its own line.
 Can be longer than three characters, and may contain or be indented
 by spaces/tabs.

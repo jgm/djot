@@ -259,7 +259,7 @@ font-size: 78%;
 <li><a href="#footnote-reference" id="toc-footnote-reference">Footnote reference</a></li>
 <li><a href="#line-break" id="toc-line-break">Line break</a></li>
 <li><a href="#comment" id="toc-comment">Comment</a></li>
-<li><a href="#emoji" id="toc-emoji">Emoji</a></li>
+<li><a href="#symbols" id="toc-symbols">Symbols</a></li>
 <li><a href="#raw-inline" id="toc-raw-inline">Raw inline</a></li>
 <li><a href="#span" id="toc-span">Span</a></li>
 <li><a href="#inline-attributes" id="toc-inline-attributes">Inline attributes</a></li>
@@ -804,9 +804,12 @@ multiple lines %} baz.</code></pre>
 </div>
 </div>
 </section>
-<section id="emoji" class="level3">
-<h3>Emoji</h3>
-<p>Emojis may be included by surrounding their aliases with <code>:</code> signs:</p>
+<section id="symbols" class="level3">
+<h3>Symbols</h3>
+<p>Surrounding a word with <code>:</code> signs creates a “symbol,” which by
+default is just rendered literally but may be treated specially
+by a filter. (For example, a filter could convert symbols to
+emojis. But this is not built into djot.)</p>
 <div class="example">
 <div class="djot">
 <pre><code>My reaction is :+1: :smiley:.</code></pre>
