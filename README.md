@@ -23,8 +23,10 @@ There is also a [Cheatsheet](doc/cheatsheet.md) and a
 [Quick Start for Markdown Users](doc/quickstart-for-markdown-users.md)
 that outlines the main differences between djot and Markdown,
 as well as a [Playground](https://djot.net/playground/),
-originally designed by @dtinth,
-that allows experimenting with the current implementation.
+originally designed by @dtinth.
+(Originally this ran the Lua code compiled to WASM, but
+now it uses an experimental [typescript port of
+djot](https://github.com/jgm/djot.js).)
 
 Despite being
 written in an interpreted language, the reference implementation
