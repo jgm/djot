@@ -212,9 +212,11 @@ function Renderer:section(node)
 end
 
 function Renderer:heading(node)
-  self:render_tag("h" .. node.level , node)
+  -- Heading levels higher than 6 are invalid in HTML
+  local level = math.min(node.level, 6)
+  self:render_tag("h" .. level, node)
   self:render_children(node)
-  self.out("</h" .. node.level .. ">\n")
+  self.out("</h" .. level .. ">\n")
 end
 
 function Renderer:thematic_break(node)
