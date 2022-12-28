@@ -3,7 +3,7 @@
  - b
 .
 doc
-  list (1:2:2-4:1:11) list_style="-" tight="true"
+  list (1:2:2-4:1:11) style="-" tight="true"
     list_item (1:2:2-2:2:7)
       para (1:4:4-1:5:5)
         str (1:4:4-1:4:4) text="a"

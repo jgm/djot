@@ -270,7 +270,7 @@ function Renderer:caption(node)
 end
 
 function Renderer:list(node)
-  local sty = node.list_style
+  local sty = node.style
   if sty == "*" or sty == "+" or sty == "-" then
     self:render_tag("ul", node)
     self.out("\n")
@@ -297,7 +297,7 @@ function Renderer:list(node)
     if node.start and node.start > 1 then
       self.out(" start=\"" .. node.start .. "\"")
     end
-    local list_type = gsub(node.list_style, "%p", "")
+    local list_type = gsub(node.style, "%p", "")
     if list_type ~= "1" then
       self.out(" type=\"" .. list_type .. "\"")
     end

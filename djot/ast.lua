@@ -325,9 +325,9 @@ local function resolve_style(list)
       style = {name = k, priority = i}
     end
   end
-  list.list_style = style.name
+  list.style = style.name
   list.styles = nil
-  list.start = get_list_start(list.startmarker, list.list_style)
+  list.start = get_list_start(list.startmarker, list.style)
   list.startmarker = nil
 end
 
