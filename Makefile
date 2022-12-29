@@ -18,6 +18,15 @@ test: $(ROCKSPEC)
 testall: test pathological fuzz
 .PHONY: testall
 
+ci: testall install
+	make -C clib
+	make -C web oldplayground/djot.js
+	pandoc --print-default-data-file MANUAL.txt > m.txt
+	pandoc -t djot-writer.lua m.txt -o m.dj
+	pandoc -f djot-reader.lua m.dj -o m.html
+	rm m.dj m.html
+.PHONY: ci
+
 fuzz:
 	LUA_PATH="./?.lua;$$LUA_PATH" $(TIMEOUT) 90 lua fuzz.lua 500000
 .PHONY: fuzz
