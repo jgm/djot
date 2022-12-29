@@ -440,14 +440,9 @@ function Renderer:en_dash()
   return "–"
 end
 
-function Renderer:emoji(node)
-  emoji = require("djot.emoji")
-  local found = emoji[node.text:sub(2,-2)]
-  if found then
-    return found
-  else
-    return node.text
-  end
+function Renderer:symbol(node)
+  return pandoc.Span(":" .. node.alias .. ":",
+            pandoc.Attr("",{"symbol"},{["alias"] = node.alias}))
 end
 
 function Renderer:math(node)
