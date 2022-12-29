@@ -68,6 +68,7 @@ jobs:
       with:
         luaVersion: ${{ matrix.luaVersion }}
     - uses: leafo/gh-actions-luarocks@v4
+    - uses: mymindstorm/setup-emsdk@v11
     - name: Install luaposix for fuzz test
       run: |
           luarocks install luaposix # for fuzz tests
