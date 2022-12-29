@@ -206,7 +206,7 @@ function Renderer:cell(node)
 end
 
 function Renderer:list(node)
-  local sty = node.list_style
+  local sty = node.style
   if sty == "*" or sty == "+" or sty == "-" then
     return self:with_optional_div(node, pandoc.BulletList)
   elseif sty == "X" then
@@ -220,7 +220,7 @@ function Renderer:list(node)
     if node.start and node.start > 1 then
       start = node.start
     end
-    local list_type = gsub(node.list_style, "%p", "")
+    local list_type = gsub(node.style, "%p", "")
     if list_type == "a" then
       sty = "LowerAlpha"
     elseif list_type == "A" then
@@ -230,7 +230,7 @@ function Renderer:list(node)
     elseif list_type == "I" then
       sty = "UpperRoman"
     end
-    local list_delim = gsub(node.list_style, "%P", "")
+    local list_delim = gsub(node.style, "%P", "")
     if list_delim == ")" then
       delim = "OneParen"
     elseif list_delim == "()" then
