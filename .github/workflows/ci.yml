@@ -29,7 +29,7 @@ jobs:
       run: |
           make testall install
           make -C clib
-          make -C web playground/djot.js
+          make -C web oldplayground/djot.js
 
   windows:
 
