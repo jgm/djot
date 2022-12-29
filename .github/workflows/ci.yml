@@ -17,13 +17,14 @@ jobs:
           - 'luajit'
     steps:
     - uses: actions/checkout@v1
+    - uses: leafo/gh-actions-lua@v9
+      with:
+        luaVersion: ${{ matrix.luaVersion }}
+    - uses: leafo/gh-actions-luarocks@v4
+    - uses: mymindstorm/setup-emsdk@v11
     - uses: r-lib/actions/setup-pandoc@v1
       with:
         pandoc-version: '2.19.2'
-    - uses: leafo/gh-actions-luarocks@v4
-      with:
-        luaVersion: ${{ matrix.luaVersion }}
-    - uses: mymindstorm/setup-emsdk@v11
     - name: Install luaposix for fuzz test
       run: |
           luarocks install luaposix # for fuzz tests
