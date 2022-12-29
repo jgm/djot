@@ -48,6 +48,12 @@ bench-luajit: m.dj
 m.dj:
 	pandoc -t djot-writer.lua https://raw.githubusercontent.com/jgm/pandoc/2.18/MANUAL.txt -o m.dj
 
+djot-reader.amalg.lua: djot-reader.lua $(MODULES)
+	LUA_PATH="./?.lua;" amalg.lua djot djot.ast djot.block djot.filter djot.inline djot.attributes djot.html djot.json -s $< -o $@
+
+djot-writer.amalg.lua: djot-writer.lua $(MODULES)
+	LUA_PATH="./?.lua;" amalg.lua djot djot.ast djot.block djot.filter djot.inline djot.attributes djot.html djot.json -s $< -o $@
+
 linecount:
 	wc -l $(SOURCES)
 .PHONY: linecount

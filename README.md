@@ -42,9 +42,20 @@ format, and a custom pandoc reader (`djot-reader.lua`), so that
 djot documents can be converted to any format pandoc supports.
 To use these, just put them in your working directory and use
 `pandoc -f djot-reader.lua` to convert from djot, and `pandoc -t
-djot-writer.lua` to convert to djot. (You'll need pandoc version
+djot-writer.lua` to convert to djot. You'll need pandoc version
 2.18 or higher, and you'll need the djot library to be installed
-in your `LUA_PATH`; see [Installing](#installing), below..)
+in your `LUA_PATH`; see [Installing](#installing), below.  If
+you're using the dev version of djot or don't want to worry
+about the djot library being installed, you can create
+self-contained versions of the custom reader and writer
+using the `amalg` tool:
+
+    luarocks install amalg
+    make djot-reader.amalg.lua
+    make djot-writer.amalg.lua
+
+These can be moved anywhere and do not require any Lua libraries
+to be installed.
 
 ## Rationale
 
