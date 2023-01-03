@@ -317,6 +317,12 @@ A vim syntax highlighting definition for djot is provided in
 
 There are currently two complete djot implementations:
 
+- [djot.js](https://github.com/jgm/djot.js) is a JavaScript
+  (actually TypeScript) library and command-line tool. It
+  includes a djot renderer and a converter between pandoc
+  and djot ASTs, allowing conversion between djot and many other
+  formats.
+
 - [djot.lua](https://github.com/jgm/djot.lua) is a Lua library
   and command-line tool, with no dependencies.  It includes a
   Makefile that can produce a static C library that can be
@@ -325,13 +331,14 @@ There are currently two complete djot implementations:
   used for interoperability with pandoc, allowing conversion
   between djot and many other formats.
 
-- [djot.js](https://github.com/jgm/djot.js) is a JavaScript
-  (actually TypeScript) library and command-line tool. It
-  can read and write JSON output that is consumable by pandoc.
-
 Both implementations support filters, small programs that
 can alter the AST after parsing, allowing djot to be customized
 to your needs.
+
+djot.lua was the original reference implementation, but
+current development is focused on djot.js, and it is possible
+that djot.lua will not be kept up to date with the latest syntax
+changes.
 
 ## File extension
 
