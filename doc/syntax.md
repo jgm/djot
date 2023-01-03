@@ -669,6 +669,15 @@ verbatim spans; these do not count as cell separators:
 
     | just two \| `|` | cells in this table |
 
+You can attach a caption to a table using the following syntax:
+
+    ^ This is the caption.  It can contain _inline formatting_
+      and can extend over multiple lines, provided they are
+      indented relative to the `^`.
+
+The caption can come directly after the table, or there can
+be an intervening blank line.
+
 ### Reference link definition
 
 A reference link definition consists of the reference label in square
