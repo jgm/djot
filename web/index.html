@@ -175,22 +175,15 @@ The project began as an attempt to implement some of the ideas I suggested in <a
   <li><a href="https://htmlpreview.github.io/?https://github.com/jgm/djot/blob/master/doc/syntax.html">Syntax description</a></li>
   <li><a href="https://github.com/jgm/djot/blob/main/doc/quickstart-for-markdown-users.md">Quick start for Markdown users</a></li>
   <li><a href="playground/">Live sandbox</a></li>
-  <li><a href="https://github.com/jgm/djot">Source code</a>, including
-    <ul>
-      <li>A very fast parser in pure Lua</li>
-      <li>A custom pandoc reader, allowing djot documents to be converted
-        to any format pandoc supports</li>
-      <li>A custom pandoc writer, allowing documents in any format pandoc
-        supports to be converted to djot</li>
-    </ul>
-  </li>
-  <li><a href="djot.1.html">Manual for command-line tool <code>djot</code></a></li>
+  <li><a href="https://github.com/jgm/djot.lua">Lua implementation</a></li>
+  <li><a href="https://github.com/jgm/djot.js">JavaScript implementation</a></li>
 </ul>
 
-<p>To install the parser locally using <a href="https://luarocks.org">luarocks</a>:<p>
-<pre><code>$ git clone https://github.com/jgm/djot
-$ cd djot
-$ luarocks install --local djot
-$ djot -h</code></pre>
+<p>To install the parser locally using <a href="https://www.npmjs.com">npm</a>:<p>
+<pre><code>$ npm i -g https://github.com/jgm/djot.js
+$ djot --help</code></pre>
+<p>To convert a GitHub-flavored Markdown document to djot, using
+djot and <a href="https://pandoc.org">pandoc</a>:</p>
+<pre><code>$ pandoc mydoc.md -f gfm -t json | djot -f pandoc -t djot &gt; mydoc.dj</code></pre>
 </body>
 </html>
