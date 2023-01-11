@@ -1,3 +1,3 @@
 upload:
-	rsync -a --delete index.html website:djot.net/
+	rsync -a --delete index.html djot.wav website:djot.net/
 .PHONY: upload

@@ -9,7 +9,7 @@
     html {
       line-height: 1.5;
       font-family: Georgia, serif;
-      font-size: 18px;
+      font-size: 16px;
       color: #1a1a1a;
       background-color: #fdfdfd;
     }
@@ -153,13 +153,24 @@
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
     ul.task-list{list-style: none;}
     .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+
+    .pronunciation {
+      color: grey;
+    }
+    .pronunciation:hover {
+      cursor: pointer;
+    }
+    .pronunciation a {
+      text-decoration: none;
+      color: grey;
+    }
   </style>
   <!--[if lt IE 9]>
     <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
   <![endif]-->
 </head>
 <body>
-  <h1 id="djot">Djot <span style="color:grey">(/dʒɑt/)</span></h1>
+  <h1 id="djot">Djot <span class="pronunciation">(<a href="djot.wav">/dʒɑt/</a>)</span></h1>
 <p>Djot is a light markup syntax.
 It derives most of its features from commonmark, but it fixes a few things that
 make commonmark's syntax complex and difficult to parse efficiently. It is also
@@ -185,5 +196,8 @@ $ djot --help</code></pre>
 <p>To convert a GitHub-flavored Markdown document to djot, using
 djot and <a href="https://pandoc.org">pandoc</a>:</p>
 <pre><code>$ pandoc mydoc.md -f gfm -t json | djot -f pandoc -t djot &gt; mydoc.dj</code></pre>
+<p>To convert a djot document to any format pandoc supports (in this
+example, docx):</p>
+<pre><code>$ djot -t pandoc mydoc.dj | pandoc -f json -s -t docx -o mydoc.docx</code></pre>
 </body>
 </html>
