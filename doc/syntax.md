@@ -386,7 +386,7 @@ the heading level.  The following text is parsed as inline content.
 ```
 
 The heading text may spill over onto following lines, which may
-also be preceeded by the same number of `#` characters (but
+also be preceded by the same number of `#` characters (but
 these can also be left off).
 
 The heading ends when a blank line (or the end of the document
