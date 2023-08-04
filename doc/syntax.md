@@ -247,7 +247,7 @@ with `$` (for inline math) or `$$` (for display math):
 
     Einstein derived $`e=mc^2`.
     Pythagoras proved
-    $$` x^n + y^n = z^z `
+    $$` x^n + y^n = z^n `
 
 ### Footnote reference
 
