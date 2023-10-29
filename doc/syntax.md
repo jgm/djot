@@ -521,24 +521,11 @@ its first item. The numbers of subsequent items are irrelevant.
     5) five
     8) six
 
-A list is classed as *tight* if it does not contain blank lines between
-items, or between blocks inside an item. Blank lines at the start or end
-of a list do not count against tightness.
-
-    - one
-    - two
-
-      - sub
-      - sub
-
-A list that is not tight is *loose*. The intended significance
-of this distinction is that tight lists should be rendered with
-less space between items.
-
-    - one
-
-    - two
-
+Djot does not distinguish betwene "tight" and "loose" lists the way
+Mardkown does.  Renderers can choose to render lists more compactly
+based on their content, but we regard this as a presentation decision
+and not a structural feature of the document that should be decided
+by the writer.
 
 ### Code block
 
