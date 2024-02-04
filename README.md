@@ -315,25 +315,14 @@ A vim syntax highlighting definition for djot is provided in
 
 ## Implementations
 
-There are currently two complete djot implementations:
+There are currently six djot implementations:
 
-- [djot.js](https://github.com/jgm/djot.js) is a JavaScript
-  (actually TypeScript) library and command-line tool. It
-  includes a djot renderer and a converter between pandoc
-  and djot ASTs, allowing conversion between djot and many other
-  formats.
-
-- [djot.lua](https://github.com/jgm/djot.lua) is a Lua library
-  and command-line tool, with no dependencies.  It includes a
-  Makefile that can produce a static C library that can be
-  linked with liblua in a standalone executable. It also
-  includes a custom reader and writer for djot that can be
-  used for interoperability with pandoc, allowing conversion
-  between djot and many other formats.
-
-Both implementations support filters, small programs that
-can alter the AST after parsing, allowing djot to be customized
-to your needs.
+- [djot.js (JavaScript/TypeScript)](https://github.com/jgm/djot.js)
+- [djot.lua (Lua)](https://github.com/jgm/djot.lua)
+- [djota (Prolog)](https://github.com/aarroyoc/djota)
+- [jotdown (Rust)](https://github.com/hellux/jotdown)
+- [godjot (Go)](https://github.com/sivukhin/godjot)
+- [djoths (Haskell)](https://github.com/jgm/djoths)
 
 djot.lua was the original reference implementation, but
 current development is focused on djot.js, and it is possible
