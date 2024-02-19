@@ -770,7 +770,7 @@ adding a numerical suffix.
 However, for the most part you do not need to know the
 identifiers that are assigned to headings, because
 implicit link references are created for all headings.
-Thus, to link to a heading titled "Introduction" in the same
+Thus, to link to a heading titled "Epilogue" in the same
 document, one can simply use a reference link:
 
 ```
