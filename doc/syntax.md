@@ -744,8 +744,9 @@ As with block quotes and list items, subsequent lines in paragraphs can
 
 To attach attributes to a block-level element, put the attributes on the
 line immediately before the block. Block attributes have the same syntax
-as inline attributes, but they must fit on one line. Repeated attribute
-specifiers can be used, and the attributes will accumulate.
+as inline attributes, but if they don't fit on one line, subsequent lines
+must be indented. Repeated attribute specifiers can be used, and
+the attributes will accumulate.
 
     {#water}
     {.important .large}
