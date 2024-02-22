@@ -263,7 +263,7 @@ See [Footnote], below, for the syntax of the footnote itself.
 
 Line breaks in inline content are treated as “soft” breaks; they may be
 rendered as spaces, or (in contexts where newlines are treated
-semantically like spaces, such as HTML) as as newlines.
+semantically like spaces, such as HTML) as newlines.
 
 To get a hard line break (of the sort represented by HTML’s `<br>`), use
 backslash + newline:
