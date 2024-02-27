@@ -782,6 +782,51 @@ See the [Epilogue][].
 # Epilogue
 ```
 
+## Syntax extensions
+
+Djot doesn't have macros or other built-in facilities to extend the syntax of
+the language. However, [divs](#div), [spans](#span), and
+[attributes](#block-attributes) allow achieving equivalent results by extending
+the way a djot document is converted to a target format.
+
+For example, djot doesn't have syntax for keyboard shortcuts like
+<kbd>ctrl</kbd> + <kbd>v</kbd>. Nevertheless, the appropriate semantics can be
+ascribed to spans with a `.kbd` class.
+
+By default, they will be rendered with `<span>` tags in HTML:
+
+```
+[ctrl + f]{.kbd}
+```
+
+By customizing the rendering, it's possible to change the output to the desired
+`<kbd>`:
+
+```html
+<kbd>ctrl</kbd> + <kbd>f</kbd>
+```
+
+For example, JavaScript implementation of djot allows overriding rendering of
+arbitrary elements:
+
+```ts
+{
+  span: (node: Span, r: HTMLRenderer) => {
+    if (hasClass(node, "kbd")) {
+      return getStringContent(node)
+        .split("+")
+        .map((key) => `<kbd>${key}</kbd>`)
+        .join("+");
+    }
+    return r.renderAstNodeDefault(node);
+  }
+}
+```
+
+Specific mechanisms for customizing rendering are implementation defined.
+However, all implementations are expected to provide facilities for customizing
+the output based on the Djot abstract syntax tree.
+
 ## Nesting limits
 
 Conforming implementations can impose reasonable limits on
