@@ -329,6 +329,12 @@ current development is focused on djot.js, and it is possible
 that djot.lua will not be kept up to date with the latest syntax
 changes.
 
+## Tooling
+
+- [Vim tooling (Located in this repo)](./editors/vim/)
+- [djot-vscode (Visual Studio Code keybinds, syntax markup, and export options)](https://github.com/ryanabx/djot-vscode)
+- [Djot-Marker (Visual Studio Code keybinds and syntax markup)](https://github.com/wisim3000/Djot-Marker)
+
 ## File extension
 
 The extension `.dj` may be used to indicate that the contents
