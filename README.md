@@ -331,12 +331,15 @@ changes.
 
 ## Tooling
 
-- [Vim tooling (Located in this repo)](./editors/vim/)
-- [djot-vscode (Visual Studio Code keybinds, syntax markup, and export options)](https://github.com/ryanabx/djot-vscode)
-- [Djot-Marker (Visual Studio Code keybinds and syntax markup)](https://github.com/wisim3000/Djot-Marker)
+- [Vim tooling](./editors/vim/) (located in this repo)
+- Visual Studio Code tooling
+  - [djot-vscode](https://github.com/ryanabx/djot-vscode)
+  - [Djot-Marker](https://github.com/wisim3000/Djot-Marker)
 - [Treesitter grammar](https://github.com/treeman/tree-sitter-djot)
-- [Emacs major mode (located in this repo)](./editors/emacs/)
-  (requires the treesitter grammar)
+- [Emacs major mode](./editors/emacs/)
+  (located in this repo, requires the treesitter grammar)
+- [Djockey](https://steveasleep.com/djockey/), a static site generator
+  for technical writing and project documentation.
 
 ## File extension
 
