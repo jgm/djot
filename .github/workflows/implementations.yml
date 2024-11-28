@@ -1,0 +1,76 @@
+name: Djot Implementations
+run-name: Djot Implementations
+on:
+  schedule:
+    - cron: "7 * * * 0"
+
+jobs:
+  implementations:
+    name: Djot Implementations
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Go Djot
+        run: |
+          go install github.com/sivukhin/godjot@latest
+          go version
+
+      - name: Install Haskell Djot
+        run: |
+          cabal update
+          cabal install djot
+          ghc --version
+          cabal --version
+
+      - name: Install JavaScript
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+      - name: Install JavaScript Djot
+        run: |
+          npm install -g @djot/djot
+          djot --version
+
+      - name: Install Lua, LuaRocks, and Lua Djot
+        run: |
+          sudo apt-get --yes install lua5.4 liblua5.4-dev
+          wget --quiet https://luarocks.org/releases/luarocks-3.11.1.tar.gz
+          tar zxpf luarocks-3.11.1.tar.gz
+          cd luarocks-3.11.1
+          ./configure && make && sudo make install
+          cd ../
+          luarocks install --local djot
+          lua -v
+          luarocks --version
+          $HOME/.luarocks/bin/djot --version
+
+      - name: Install Rust toolchain and Rust Djot
+        run: |
+          rustup update stable
+          rustup default stable
+          cargo install jotdown
+          cargo --version
+          jotdown --version
+
+      - name: Install Hyperfine
+        run: |
+          cargo install hyperfine
+          hyperfine --version
+
+      - name: Download Pandoc Manual
+        run: |
+          wget --quiet --no-clobber --output-document=pandoc-manual.dj https://github.com/jgm/djot/files/11900633/pandoc-manual.txt
+
+      - name: Print the Date
+        run: |
+          date --rfc-3339=seconds
+      - name: Print the CPU
+        run: |
+          lscpu
+      - name: Run Benchmarks
+        run: >
+          hyperfine --warmup 20 --shell=none
+          "$HOME/go/bin/godjot pandoc-manual.dj"
+          "djoths pandoc-manual.dj"
+          "djot pandoc-manual.dj"
+          "$HOME/.luarocks/bin/djot pandoc-manual.dj"
+          "jotdown pandoc-manual.dj"

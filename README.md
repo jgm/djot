@@ -329,6 +329,10 @@ current development is focused on djot.js, and it is possible
 that djot.lua will not be kept up to date with the latest syntax
 changes.
 
+Here are the relative render times for `pandoc-manual.dj`:
+
+![Render Times](/images/render-time.png)
+
 ## Tooling
 
 - [Vim tooling](./editors/vim/) (located in this repo)
