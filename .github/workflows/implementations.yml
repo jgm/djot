@@ -12,14 +12,11 @@ jobs:
       - name: Install Go Djot
         run: |
           go install github.com/sivukhin/godjot@latest
-          go version
 
       - name: Install Haskell Djot
         run: |
           cabal update
           cabal install djot
-          ghc --version
-          cabal --version
 
       - name: Install JavaScript
         uses: actions/setup-node@v4
@@ -28,7 +25,6 @@ jobs:
       - name: Install JavaScript Djot
         run: |
           npm install -g @djot/djot
-          djot --version
 
       - name: Install Lua, LuaRocks, and Lua Djot
         run: |
@@ -39,9 +35,6 @@ jobs:
           ./configure && make && sudo make install
           cd ../
           luarocks install --local djot
-          lua -v
-          luarocks --version
-          $HOME/.luarocks/bin/djot --version
 
       - name: Install Rust toolchain and Rust Djot
         run: |
@@ -60,17 +53,33 @@ jobs:
         run: |
           wget --quiet --no-clobber --output-document=pandoc-manual.dj https://github.com/jgm/djot/files/11900633/pandoc-manual.txt
 
-      - name: Print the Date
-        run: |
-          date --rfc-3339=seconds
-      - name: Print the CPU
-        run: |
-          lscpu
       - name: Run Benchmarks
         run: >
-          hyperfine --warmup 20 --shell=none
+          hyperfine --warmup 20 --shell=none --export-markdown implementations.md
           "$HOME/go/bin/godjot pandoc-manual.dj"
           "djoths pandoc-manual.dj"
           "djot pandoc-manual.dj"
           "$HOME/.luarocks/bin/djot pandoc-manual.dj"
           "jotdown pandoc-manual.dj"
+
+      - name: Format Markdown File
+        run: |
+          cat implementations.md
+          echo
+          echo
+          echo "Running on $(lscpu | grep "Model name: [-|(|)| |a-z|A-Z|0-9]*" | sed -e 's/Model name: *//') at $(date --rfc-3339=seconds)  "
+          echo "$(go version)  "
+          echo "Go djot $(ls $HOME/go/pkg/mod/github.com/sivukhin/)  "
+          echo "$(ghc --version)  "
+          echo "$(cabal --version) "
+          echo "Haskell djot UNKNOWN  "
+          echo "npm version $(npm --version)  "
+          echo "node version $(node --version)  "
+          echo "JavaScript $(djot --version)  "
+          echo "$(lua -v)  "
+          echo "$(luarocks --version)  "
+          echo "Lua $($HOME/.luarocks/bin/djot --version)  "
+          echo "$(cargo --version)  "
+          echo "$(hyperfine --version)  "
+          echo "Rust djot"
+          jotdown --version
