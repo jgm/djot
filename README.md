@@ -341,18 +341,12 @@ Running on AMD EPYC 7763 64-Core Processor at 2024-12-03 01:23:59+00:00
 go version go1.23.3 linux/amd64  
 Go djot godjot@v1.0.5  
 The Glorious Glasgow Haskell Compilation System, version 9.10.1  
-cabal-install version 3.12.1.0
-compiled using version 3.12.1.0 of the Cabal library  
 Haskell djot UNKNOWN  
-npm version 10.9.0  
 node version v22.11.0  
 JavaScript djot 0.3.1  
 Lua 5.4.4  Copyright (C) 1994-2022 Lua.org, PUC-Rio  
-/usr/local/bin/luarocks 3.11.1
-LuaRocks main command-line interface  
 Lua djot 0.2.1  
-cargo 1.83.0 (5ffbef321 2024-10-29)  
-hyperfine 1.19.0  
+rustc 1.83.0 (90b35a623 2024-11-26)  
 Rust djot
 jotdown v0.6.0
 

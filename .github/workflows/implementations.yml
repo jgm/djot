@@ -66,20 +66,15 @@ jobs:
         run: |
           cat implementations.md
           echo
-          echo
           echo "Running on $(lscpu | grep "Model name: [-|(|)| |a-z|A-Z|0-9]*" | sed -e 's/Model name: *//') at $(date --rfc-3339=seconds)  "
           echo "$(go version)  "
           echo "Go djot $(ls $HOME/go/pkg/mod/github.com/sivukhin/)  "
           echo "$(ghc --version)  "
-          echo "$(cabal --version) "
           echo "Haskell djot UNKNOWN  "
-          echo "npm version $(npm --version)  "
           echo "node version $(node --version)  "
           echo "JavaScript $(djot --version)  "
           echo "$(lua -v)  "
-          echo "$(luarocks --version)  "
           echo "Lua $($HOME/.luarocks/bin/djot --version)  "
-          echo "$(cargo --version)  "
-          echo "$(hyperfine --version)  "
+          echo "$(rustc --version)  "
           echo "Rust djot"
           jotdown --version
