@@ -324,6 +324,8 @@ There are currently six djot implementations:
 - [godjot (Go)](https://github.com/sivukhin/godjot)
 - [djoths (Haskell)](https://github.com/jgm/djoths)
 
+[Here](https://github.com/dcampbell24/djot-implementations) are some benchmarks of these implementations.
+
 djot.lua was the original reference implementation, but
 current development is focused on djot.js, and it is possible
 that djot.lua will not be kept up to date with the latest syntax
