@@ -5,6 +5,14 @@ function renderdjot(txt)
 end
 
 function CodeBlock(el)
+  local lang = el.attr.classes[1]
+  if lang then
+    return {
+      pandoc.Div(
+      { pandoc.Div({pandoc.CodeBlock(el.text)}, {class=lang})
+      }, {class="example"})
+    }
+  end
   local rendered = renderdjot(el.text)
   return {
     pandoc.Div(
