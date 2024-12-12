@@ -11,8 +11,10 @@ span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
 div.column{flex: auto; overflow-x: auto;}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-ul.task-list{list-style: none;}
+
+ul.task-list[class]{list-style: none;}
 ul.task-list li input[type="checkbox"] {
+font-size: inherit;
 width: 0.8em;
 margin: 0 0.8em 0.2em -1.6em;
 vertical-align: middle;
@@ -233,9 +235,6 @@ background-color: #ddd;
 font-size: 78%;
 }
 </style>
-  <!--[if lt IE 9]>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
-  <![endif]-->
 </head>
 <body>
 <nav id="TOC" role="doc-toc">
@@ -762,7 +761,7 @@ Pythagoras proved
 <h3>Line break</h3>
 <p>Line breaks in inline content are treated as “soft” breaks; they may be
 rendered as spaces, or (in contexts where newlines are treated
-semantically like spaces, such as HTML) as as newlines.</p>
+semantically like spaces, such as HTML) as newlines.</p>
 <p>To get a hard line break (of the sort represented by HTML’s <code>&lt;br&gt;</code>), use
 backslash + newline:</p>
 <div class="example">
@@ -815,7 +814,7 @@ emojis. But this is not built into djot.)</p>
 <pre><code>My reaction is :+1: :smiley:.</code></pre>
 </div>
 <div class="html">
-<pre><code>&lt;p&gt;My reaction is 👍 😃.&lt;/p&gt;
+<pre><code>&lt;p&gt;My reaction is :+1: :smiley:.&lt;/p&gt;
 </code></pre>
 </div>
 </div>
@@ -1080,89 +1079,89 @@ list item.&lt;/p&gt;
 <p>The following basic types of list markers are available:</p>
 <table>
 <thead>
-<tr class="header">
+<tr>
 <th>Marker</th>
 <th>List type</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td><code>-</code></td>
 <td>bullet</td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>+</code></td>
 <td>bullet</td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>*</code></td>
 <td>bullet</td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>1.</code></td>
 <td>ordered, decimal-enumerated, followed by period</td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>1)</code></td>
 <td>ordered, decimal-enumerated, followed by parenthesis</td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>(1)</code></td>
 <td>ordered, decimal-enumerated, enclosed in parentheses</td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>a.</code></td>
 <td>ordered, lower-alpha-enumerated, followed by period</td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>a)</code></td>
 <td>ordered, lower-alpha-enumerated, followed by parenthesis</td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>(a)</code></td>
 <td>ordered, lower-alpha-enumerated, enclosed in parentheses</td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>A.</code></td>
 <td>ordered, upper-alpha-enumerated, followed by period</td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>A)</code></td>
 <td>ordered, upper-alpha-enumerated, followed by parenthesis</td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>(A)</code></td>
 <td>ordered, upper-alpha-enumerated, enclosed in parentheses</td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>i.</code></td>
 <td>ordered, lower-roman-enumerated, followed by period</td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>i)</code></td>
 <td>ordered, lower-roman-enumerated, followed by parenthesis</td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>(i)</code></td>
 <td>ordered, lower-roman-enumerated, enclosed in parentheses</td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>I.</code></td>
 <td>ordered, upper-roman-enumerated, followed by period</td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>I)</code></td>
 <td>ordered, upper-roman-enumerated, followed by parenthesis</td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>(I)</code></td>
 <td>ordered, upper-roman-enumerated, enclosed in parentheses</td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>:</code></td>
 <td>definition</td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>- [ ]</code></td>
 <td>task</td>
 </tr>
@@ -1716,8 +1715,9 @@ be indented, at least in the first line.&lt;a href=&quot;#fnref1&quot; role=&quo
 <h3>Block attributes</h3>
 <p>To attach attributes to a block-level element, put the attributes on the
 line immediately before the block. Block attributes have the same syntax
-as inline attributes, but they must fit on one line. Repeated attribute
-specifiers can be used, and the attributes will accumulate.</p>
+as inline attributes, but if they don’t fit on one line, subsequent lines
+must be indented. Repeated attribute specifiers can be used, and
+the attributes will accumulate.</p>
 <div class="example">
 <div class="djot">
 <pre><code>{#water}
