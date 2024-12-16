@@ -17,11 +17,11 @@ syn region comment matchgroup=delimiter start='%' end='%' contained
 syn region string start='"' end='"' skip='\\"'
 syn region attributes matchgroup=delimiter start="{[^\[\]_*'\"=\\+-]\@=" end="}" contains=string,comment
 
-syn region emphasis matchgroup=delimiter start='_[^\s}]\@=\|{_' end='_}\|[^\s{]\@=_\|^\s*$' contains=@inline
-syn region strong matchgroup=delimiter start='\*[^\s}]\@=\|{\*' end='[^\s{]\@=\*\|\*}\|^\s*$' contains=@inline
+syn region emphasis matchgroup=delimiter start='_[^[:blank:]}]\@=\|{_' end='_}\|[^[:blank:]{]\@=_\|^\s*$' contains=@inline
+syn region strong matchgroup=delimiter start='\*[^[:blank:]}]\@=\|{\*' end='[^[:blank:]{]\@=\*\|\*}\|^\s*$' contains=@inline
 
-syn region superscript matchgroup=delimiter start='\^[^\s}]\@=\|{\^' end='\^}\|[^\s{]\@=\^\|^\s*$' contains=@inline
-syn region subscript matchgroup=delimiter start='\~[^\s}]\@=\|{\~' end='\~}\|[^\s{]\@=\~\|^\s*$' contains=@inline
+syn region superscript matchgroup=delimiter start='\^[^[:blank:]}]\@=\|{\^' end='\^}\|[^[:blank:]{]\@=\^\|^\s*$' contains=@inline
+syn region subscript matchgroup=delimiter start='\~[^[:blank:]}]\@=\|{\~' end='\~}\|[^[:blank:]{]\@=\~\|^\s*$' contains=@inline
 
 syn region highlight matchgroup=delimiter start='{=' end='=}\|^\s*$' contains=@inline
 syn match rawattribute "`\@<={=[A-Za-z0-9]*}"
