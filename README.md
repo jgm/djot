@@ -333,14 +333,14 @@ changes.
 
 ## Tooling
 
-- [Vim tooling](./editors/vim/) (located in this repo)
-- Visual Studio Code tooling
+- [Vim](./editors/vim/) tooling is in this repository
+- [Emacs](./editors/emacs/) tooling is in this repository and requires the tree-sitter grammar
+- [Helix](https://github.com/helix-editor/helix) has built-in syntax highlighting
+- Visual Studio Code
   - [djot-vscode](https://github.com/ryanabx/djot-vscode)
   - [Djot-Marker](https://github.com/wisim3000/Djot-Marker)
 - [Treesitter grammar](https://github.com/treeman/tree-sitter-djot)
-- [Emacs major mode](./editors/emacs/)
-  (located in this repo, requires the treesitter grammar)
-- [Djockey](https://steveasleep.com/djockey/), a static site generator
+- [Djockey](https://steveasleep.com/djockey/) is a static site generator
   for technical writing and project documentation.
 
 ## File extension
