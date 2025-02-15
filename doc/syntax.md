@@ -346,6 +346,18 @@ is the same as
 
     avant{lang=fr .blue}
 
+To attach attributes to a list item, the curly braces must immediately
+follow the list marker:
+
+    +{.blue} A blue list item.
+    (a){.bar} Ordered list item with an attribute.
+
+Conversely, in the following, the attributes are attached to the block
+quote:
+
+    + {.blue}
+      > A blue quote.
+
 ## Block syntax
 
 As in commonmark, block structure can be discerned prior to inline
