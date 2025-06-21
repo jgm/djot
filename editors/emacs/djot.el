@@ -11,8 +11,6 @@
 ;; Major mode for djot, using tree-sitter grammar
 ;; https://github.com/treeman/tree-sitter-djot
 
-;; This is rudimentary and should be improved in the future.
-
 ;;; Code:
 
 ;; note: M-x list-faces-display will get you a list of font-lock-X
@@ -40,36 +38,6 @@
 (defface djot-heading-face
   '((t :weight bold))
   "Base face for headings."
-  :group 'djot-faces)
-
-(defface djot-heading1-face
-  '((t :inherit djot-heading-face))
-  "Face for level-1 headings."
-  :group 'djot-faces)
-
-(defface djot-heading2-face
-  '((t :inherit djot-heading-face))
-  "Face for level-2 headings."
-  :group 'djot-faces)
-
-(defface djot-heading3-face
-  '((t :inherit djot-heading-face))
-  "Face for level-3 headings."
-  :group 'djot-faces)
-
-(defface djot-heading4-face
-  '((t :inherit djot-heading-face))
-  "Face for level-4 headings."
-  :group 'djot-faces)
-
-(defface djot-heading5-face
-  '((t :inherit djot-heading-face))
-  "Face for level-5 headings."
-  :group 'djot-faces)
-
-(defface djot-heading6-face
-  '((t :inherit djot-heading-face))
-  "Face for level-6 headings."
   :group 'djot-faces)
 
 (defface djot-list-marker-face
@@ -138,51 +106,51 @@
   :group 'djot-faces)
 
 (defvar djot-ts-font-lock-rules
-  '(
-    :language djot
-    :override prepend
-    :feature verbatim
-    ((verbatim
+  (treesit-font-lock-rules
+   :language 'djot
+   :override 'prepend
+   :feature 'verbatim
+   '((verbatim
       (verbatim_marker_begin) @djot-delimiter-face
       (content) @djot-verbatim-face
       (verbatim_marker_end) @djot-delimiter-face))
 
-    :language djot
-    :override prepend
-    :feature emphasis
-    ((emphasis
-      (emphasis_begin _) @djot-delimiter-face
+   :language 'djot
+   :override 'prepend
+   :feature 'emphasis
+   '((emphasis
+      (emphasis_begin) @djot-delimiter-face
       (content) @djot-emphasis-face
-      (emphasis_end _) @djot-delimiter-face)
+      (emphasis_end) @djot-delimiter-face)
      (strong
-      (strong_begin _) @djot-delimiter-face
+      (strong_begin) @djot-delimiter-face
       (content) @djot-strong-face
-      (strong_end _) @djot-delimiter-face))
+      (strong_end) @djot-delimiter-face))
 
-    :language djot
-    :override prepend
-    :feature math
-    ((math
+   :language 'djot
+   :override 'prepend
+   :feature 'math
+   '((math
       (math_marker) @djot-delimiter-face
       (math_marker_begin) @djot-delimiter-face
       (content) @djot-math-face
       (math_marker_end) @djot-delimiter-face))
 
-    :language djot
-    :override prepend
-    :feature span
-    ((span) @djot-span-face)
+   :language 'djot
+   :override 'prepend
+   :feature 'span
+   '((span) @djot-span-face)
 
-    :language djot
-    :override prepend
-    :feature div
-    ((div_marker_begin) @djot-delimiter-face
+   :language 'djot
+   :override 'prepend
+   :feature 'div
+   '((div_marker_begin) @djot-delimiter-face
      (div_marker_end) @djot-delimiter-face)
 
-    :language djot
-    :override prepend
-    :feature link
-    ((inline_link
+   :language 'djot
+   :override 'prepend
+   :feature 'link
+   '((inline_link
       (link_text) @djot-link-text-face
       (inline_link_destination) @djot-link-destination-face)
      (inline_image
@@ -199,23 +167,23 @@
       (link_label) @djot-reference-face
       (link_destination) @djot-link-destination-face))
 
-    :language djot
-    :override t
-    :feature block_quote
-    ((block_quote
+   :language 'djot
+   :override t
+   :feature 'block_quote
+   '((block_quote
       (content) @djot-block-quote-face)
      (block_quote_marker) @djot-delimiter-face)
 
-    :language djot
-    :override t
-    :feature attribute
-    ((block_attribute _ @djot-attribute-face)
+   :language 'djot
+   :override t
+   :feature 'attribute
+   '((block_attribute _ @djot-attribute-face)
      (inline_attribute _ @djot-attribute-face))
 
-    :language djot
-    :override t
-    :feature list
-    ([ (list_marker_definition)
+   :language 'djot
+   :override t
+   :feature 'list
+   '([ (list_marker_definition)
        (list_marker_dash)
        (list_marker_star)
        (list_marker_task _)
@@ -236,10 +204,10 @@
        (list_marker_upper_roman_parens)
        ] @djot-list-marker-face)
 
-    :language djot
-    :override t
-    :feature code_block
-    ((code_block
+   :language 'djot
+   :override t
+   :feature 'code_block
+   '((code_block
       (code_block_marker_begin) @djot-delimiter-face
       (code) @djot-code-block-face
       (code_block_marker_end) @djot-delimiter-face)
@@ -247,28 +215,12 @@
       (language) @djot-code-block-language-face)
      )
 
-    :language djot
-    :override t
-    :feature heading
-    ((heading1
+   :language 'djot
+   :override t
+   :feature 'heading
+   '((heading
       (marker) @djot-delimiter-face
-      (content) @djot-heading1-face)
-     (heading2
-      (marker) @djot-delimiter-face
-      (content) @djot-heading2-face)
-     (heading3
-      (marker) @djot-delimiter-face
-      (content) @djot-heading3-face)
-     (heading4
-      (marker) @djot-delimiter-face
-      (content) @djot-heading4-face)
-     (heading5
-      (marker) @djot-delimiter-face
-      (content) @djot-heading5-face)
-     (heading6
-      (marker) @djot-delimiter-face
-      (content) @djot-heading6-face))
-    ))
+      (content) @djot-heading-face))))
 
 (defun djot-ts-imenu-node-p (node)
   (string-match-p "^heading" (treesit-node-type node)))
@@ -279,9 +231,7 @@
 (defun djot-ts-setup ()
   "Setup treesit for djot-ts-mode."
 
-  (setq-local treesit-font-lock-settings
-              (apply #'treesit-font-lock-rules
-                     djot-ts-font-lock-rules))
+  (setq-local treesit-font-lock-settings djot-ts-font-lock-rules)
 
   (setq-local treesit-font-lock-feature-list
               '((verbatim attribute heading block_quote code_block list)
