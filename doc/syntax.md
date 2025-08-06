@@ -53,6 +53,10 @@ given closer, the closest one is used.  For example:
 
     *not strong *strong*
 
+Verbatim syntax by its nature doesn't allow nested markup:
+
+    `No _emphasis_ inside verbatim`
+
 ### Ordinary text
 
 Anything that isn’t given a special meaning is parsed as literal text.
