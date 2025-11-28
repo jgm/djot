@@ -315,11 +315,12 @@ A vim syntax highlighting definition for djot is provided in
 
 ## Implementations
 
-There are currently six djot implementations:
+There are currently seven djot implementations:
 
 - [djot.js (JavaScript/TypeScript)](https://github.com/jgm/djot.js)
 - [djot.lua (Lua)](https://github.com/jgm/djot.lua)
 - [djota (Prolog)](https://github.com/aarroyoc/djota)
+- [djot-php (PHP)](https://github.com/php-collective/djot-php)
 - [jotdown (Rust)](https://github.com/hellux/jotdown)
 - [godjot (Go)](https://github.com/sivukhin/godjot)
 - [djoths (Haskell)](https://github.com/jgm/djoths)
