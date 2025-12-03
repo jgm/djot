@@ -340,6 +340,7 @@ changes.
 - Visual Studio Code
   - [djot-vscode](https://github.com/ryanabx/djot-vscode)
   - [Djot-Marker](https://github.com/wisim3000/Djot-Marker)
+- [JetBrains IDEs](https://github.com/php-collective/djot-intellij) (PhpStorm, IntelliJ IDEA, WebStorm, etc.)
 - [Treesitter grammar](https://github.com/treeman/tree-sitter-djot)
 - [Djockey](https://steveasleep.com/djockey/) is a static site generator
   for technical writing and project documentation.
