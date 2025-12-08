@@ -347,8 +347,8 @@ changes.
 
 ## File extension
 
-The extension `.dj` may be used to indicate that the contents
-of a file are djot-formatted text.
+The extension `.djot` or `.dj` may be used to indicate that the contents
+of a file are djot-formatted text. Consider that `.djot` may be more speaking to the format.
 
 ## License
 
