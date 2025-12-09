@@ -350,6 +350,11 @@ changes.
 The extension `.dj` may be used to indicate that the contents
 of a file are djot-formatted text.
 
+## MIME type
+
+When transferring Djot files over the Internet, the recommended
+MIME type is `text/x-djot`.
+
 ## License
 
 The code and documentation are released under the MIT license.
