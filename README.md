@@ -350,6 +350,10 @@ changes.
 The extension `.dj` may be used to indicate that the contents
 of a file are djot-formatted text.
 
+## MIME type
+
+There is no official MIME type, but `text/x-djot` may be used.
+
 ## License
 
 The code and documentation are released under the MIT license.
