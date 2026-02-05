@@ -764,9 +764,13 @@ the attributes will accumulate.
 Identifiers are added automatically to any headings that
 do not have explicit identifiers attached to them.
 The identifier is formed by taking the textual content of
-the heading, removing punctuation (other than `_` and `-`),
-replacing spaces with `-`, and if necessary for uniqueness,
-adding a numerical suffix.
+the heading, excluding footnote references, removing
+punctuation (other than `_` and `-`), replacing spaces
+with `-`, and if necessary for uniqueness, adding a
+numerical suffix.
+
+For example, `# Introduction[^1]` generates the identifier
+`Introduction`, not `Introduction1`.
 
 ```
 ## My heading + auto-identifier
