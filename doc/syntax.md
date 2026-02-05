@@ -677,29 +677,34 @@ Tables support captions; see [Caption] below.
 
 ### Caption
 
-A caption can be attached to a table, an image, or a block quote by
-placing a line starting with `^` followed by a space after the element.
-The caption can come directly after the element, or there can be an
+A caption provides a title or description for an element. A caption
+can be attached to a table, an image, or a block quote by placing a
+line starting with `^` followed by a space after the element. The
+caption can come directly after the element, or there can be an
 intervening blank line. The caption text is parsed as inline content
 and can extend over multiple lines, provided they are indented relative
 to the `^`.
 
-A table caption produces a `<caption>` element inside the table:
+For tables, the caption is associated with the table itself:
 
     | fruit  | price |
     |--------|------:|
     | apple  |     4 |
     ^ Fruit prices in the market
 
+When rendered to HTML, this produces a `<caption>` element inside
+the `<table>`.
+
 When a paragraph contains only an image and is followed by a caption,
-the image and caption are wrapped in a `<figure>` element with a
-`<figcaption>`:
+the image becomes a figure - a self-contained unit with its caption:
 
     ![Sunset over the ocean](sunset.jpg)
     ^ A beautiful sunset captured at the beach
 
-A block quote followed by a caption is wrapped in a `<figure>` element
-with a `<figcaption>`, which is useful for attributions:
+When rendered to HTML, this uses `<figure>` and `<figcaption>` elements.
+
+A block quote followed by a caption also becomes a figure, which is
+useful for attributions:
 
     > To be or not to be, that is the question.
     ^ William Shakespeare, Hamlet
