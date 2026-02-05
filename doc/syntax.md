@@ -648,6 +648,18 @@ use a longer opening fence:
     This %%% is not the end.
     %%%%
 
+Note that fenced comment blocks are block-level elements and will
+break paragraph continuity:
+
+    Lorem ipsum
+    %%%
+    comment
+    %%%
+    dolor sit amet
+
+This produces two separate paragraphs, not one. For comments that
+should not interrupt paragraph flow, use inline comments (`{% ... %}`).
+
 ### Pipe table
 
 A pipe table consists of a sequence of *rows*. Each row starts and ends
