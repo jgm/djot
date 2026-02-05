@@ -244,6 +244,13 @@ en-dashes, while 6 hyphens become two em-dashes).
 
     a----b c------d
 
+An unmatched `{-` (a delete opener without a corresponding closer)
+should not prevent em-dash or en-dash conversion of subsequent hyphens.
+The `{` is treated as literal text when no matching `-}` is found:
+
+    {--- produces a literal `{` followed by an em-dash.
+    {-- produces a literal `{` followed by an en-dash.
+
 ### Math
 
 To include LaTeX math, put the math in a verbatim span and prefix it
