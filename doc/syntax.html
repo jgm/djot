@@ -1,11 +1,12 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang xml:lang>
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
   <title>Djot syntax reference</title>
   <style>
+
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -379,6 +380,16 @@ given closer, the closest one is used. For example:</p>
 </code></pre>
 </div>
 </div>
+<p>Verbatim syntax by its nature doesn’t allow nested markup:</p>
+<div class="example">
+<div class="djot">
+<pre><code>`No _emphasis_ inside verbatim`</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;p&gt;&lt;code&gt;No _emphasis_ inside verbatim&lt;/code&gt;&lt;/p&gt;
+</code></pre>
+</div>
+</div>
 </section>
 <section id="ordinary-text" class="level3">
 <h3>Ordinary text</h3>
@@ -663,8 +674,8 @@ direction of quote is needed.</p>
 &quot;&#39;Shelob&#39; is my name.&quot;</code></pre>
 </div>
 <div class="html">
-<pre><code>&lt;p&gt;&amp;ldquo;Hello,&amp;rdquo; said the spider.
-&amp;ldquo;&amp;lsquo;Shelob&amp;rsquo; is my name.&amp;rdquo;&lt;/p&gt;
+<pre><code>&lt;p&gt;“Hello,” said the spider.
+“‘Shelob’ is my name.”&lt;/p&gt;
 </code></pre>
 </div>
 </div>
@@ -675,7 +686,7 @@ using curly braces to mark a quote as an opener <code>{&quot;</code> or a closer
 <pre><code>&#39;}Tis Socrates&#39; season to be jolly!</code></pre>
 </div>
 <div class="html">
-<pre><code>&lt;p&gt;&amp;rsquo;Tis Socrates&amp;rsquo; season to be jolly!&lt;/p&gt;
+<pre><code>&lt;p&gt;’Tis Socrates’ season to be jolly!&lt;/p&gt;
 </code></pre>
 </div>
 </div>
@@ -697,7 +708,7 @@ using curly braces to mark a quote as an opener <code>{&quot;</code> or a closer
 <pre><code>57--33 oxen---and no sheep...</code></pre>
 </div>
 <div class="html">
-<pre><code>&lt;p&gt;57&amp;ndash;33 oxen&amp;mdash;and no sheep&amp;hellip;&lt;/p&gt;
+<pre><code>&lt;p&gt;57–33 oxen—and no sheep…&lt;/p&gt;
 </code></pre>
 </div>
 </div>
@@ -710,7 +721,7 @@ en-dashes, while 6 hyphens become two em-dashes).</p>
 <pre><code>a----b c------d</code></pre>
 </div>
 <div class="html">
-<pre><code>&lt;p&gt;a&amp;ndash;&amp;ndash;b c&amp;mdash;&amp;mdash;d&lt;/p&gt;
+<pre><code>&lt;p&gt;a––b c——d&lt;/p&gt;
 </code></pre>
 </div>
 </div>
@@ -748,7 +759,7 @@ Pythagoras proved
 &lt;hr&gt;
 &lt;ol&gt;
 &lt;li id=&quot;fn1&quot;&gt;
-&lt;p&gt;And here is the note.&lt;a href=&quot;#fnref1&quot; role=&quot;doc-backlink&quot;&gt;↩︎︎&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;And here is the note.&lt;a href=&quot;#fnref1&quot; role=&quot;doc-backlink&quot;&gt;↩︎&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
 &lt;/section&gt;
@@ -875,7 +886,7 @@ attribute (<code>}</code>).</li>
 .bar .baz key=&quot;my value&quot;}</code></pre>
 </div>
 <div class="html">
-<pre><code>&lt;p&gt;An attribute on &lt;em class=&quot;bar baz&quot; id=&quot;foo&quot; key=&quot;my value&quot;&gt;emphasized text&lt;/em&gt;&lt;/p&gt;
+<pre><code>&lt;p&gt;An attribute on &lt;em id=&quot;foo&quot; class=&quot;bar baz&quot; key=&quot;my value&quot;&gt;emphasized text&lt;/em&gt;&lt;/p&gt;
 </code></pre>
 </div>
 </div>
@@ -886,7 +897,7 @@ combined. Thus,</p>
 <pre><code>avant{lang=fr}{.blue}</code></pre>
 </div>
 <div class="html">
-<pre><code>&lt;p&gt;&lt;span class=&quot;blue&quot; lang=&quot;fr&quot;&gt;avant&lt;/span&gt;&lt;/p&gt;
+<pre><code>&lt;p&gt;&lt;span lang=&quot;fr&quot; class=&quot;blue&quot;&gt;avant&lt;/span&gt;&lt;/p&gt;
 </code></pre>
 </div>
 </div>
@@ -896,7 +907,7 @@ combined. Thus,</p>
 <pre><code>avant{lang=fr .blue}</code></pre>
 </div>
 <div class="html">
-<pre><code>&lt;p&gt;&lt;span class=&quot;blue&quot; lang=&quot;fr&quot;&gt;avant&lt;/span&gt;&lt;/p&gt;
+<pre><code>&lt;p&gt;&lt;span lang=&quot;fr&quot; class=&quot;blue&quot;&gt;avant&lt;/span&gt;&lt;/p&gt;
 </code></pre>
 </div>
 </div>
@@ -1213,12 +1224,12 @@ i. one (style change)
 * bullet (style change)</code></pre>
 </div>
 <div class="html">
-<pre><code>&lt;ol start=&quot;9&quot; type=&quot;a&quot;&gt;
+<pre><code>&lt;ol type=&quot;i&quot;&gt;
 &lt;li&gt;
 one
 &lt;/li&gt;
 &lt;/ol&gt;
-&lt;ol start=&quot;9&quot; type=&quot;a&quot;&gt;
+&lt;ol type=&quot;i&quot;&gt;
 &lt;li&gt;
 one (style change)
 &lt;/li&gt;
@@ -1399,7 +1410,7 @@ When they woke up, ...</code></pre>
 <div class="html">
 <pre><code>&lt;p&gt;Then they went to sleep.&lt;/p&gt;
 &lt;hr&gt;
-&lt;p&gt;When they woke up, &amp;hellip;&lt;/p&gt;
+&lt;p&gt;When they woke up, …&lt;/p&gt;
 </code></pre>
 </div>
 </div>
@@ -1664,7 +1675,7 @@ block-level content.</p>
   &gt; a block quote in the note.</code></pre>
 </div>
 <div class="html">
-<pre><code>&lt;p&gt;Here&amp;rsquo;s the reference.&lt;a id=&quot;fnref1&quot; href=&quot;#fn1&quot; role=&quot;doc-noteref&quot;&gt;&lt;sup&gt;1&lt;/sup&gt;&lt;/a&gt;&lt;/p&gt;
+<pre><code>&lt;p&gt;Here’s the reference.&lt;a id=&quot;fnref1&quot; href=&quot;#fn1&quot; role=&quot;doc-noteref&quot;&gt;&lt;sup&gt;1&lt;/sup&gt;&lt;/a&gt;&lt;/p&gt;
 &lt;section role=&quot;doc-endnotes&quot;&gt;
 &lt;hr&gt;
 &lt;ol&gt;
@@ -1675,7 +1686,7 @@ with two paragraphs.&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;a block quote in the note.&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;p&gt;&lt;a href=&quot;#fnref1&quot; role=&quot;doc-backlink&quot;&gt;↩︎︎&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;#fnref1&quot; role=&quot;doc-backlink&quot;&gt;↩︎&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
 &lt;/section&gt;
@@ -1695,7 +1706,7 @@ with two paragraphs.
 be indented, at least in the first line.</code></pre>
 </div>
 <div class="html">
-<pre><code>&lt;p&gt;Here&amp;rsquo;s the reference.&lt;a id=&quot;fnref1&quot; href=&quot;#fn1&quot; role=&quot;doc-noteref&quot;&gt;&lt;sup&gt;1&lt;/sup&gt;&lt;/a&gt;&lt;/p&gt;
+<pre><code>&lt;p&gt;Here’s the reference.&lt;a id=&quot;fnref1&quot; href=&quot;#fn1&quot; role=&quot;doc-noteref&quot;&gt;&lt;sup&gt;1&lt;/sup&gt;&lt;/a&gt;&lt;/p&gt;
 &lt;section role=&quot;doc-endnotes&quot;&gt;
 &lt;hr&gt;
 &lt;ol&gt;
@@ -1703,7 +1714,7 @@ be indented, at least in the first line.</code></pre>
 &lt;p&gt;This is a note
 with two paragraphs.&lt;/p&gt;
 &lt;p&gt;Second paragraph must
-be indented, at least in the first line.&lt;a href=&quot;#fnref1&quot; role=&quot;doc-backlink&quot;&gt;↩︎︎&lt;/a&gt;&lt;/p&gt;
+be indented, at least in the first line.&lt;a href=&quot;#fnref1&quot; role=&quot;doc-backlink&quot;&gt;↩︎&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
 &lt;/section&gt;
@@ -1728,7 +1739,7 @@ Don&#39;t forget to turn off the water!
 &gt; Sing, muse, of the wrath of Achilles</code></pre>
 </div>
 <div class="html">
-<pre><code>&lt;p class=&quot;important large&quot; id=&quot;water&quot;&gt;Don&amp;rsquo;t forget to turn off the water!&lt;/p&gt;
+<pre><code>&lt;p id=&quot;water&quot; class=&quot;important large&quot;&gt;Don’t forget to turn off the water!&lt;/p&gt;
 &lt;blockquote source=&quot;Iliad&quot;&gt;
 &lt;p&gt;Sing, muse, of the wrath of Achilles&lt;/p&gt;
 &lt;/blockquote&gt;
@@ -1740,10 +1751,13 @@ Don&#39;t forget to turn off the water!
 <h3>Links to headings</h3>
 <p>Identifiers are added automatically to any headings that
 do not have explicit identifiers attached to them.
-The identifier is formed by taking the textual content of
-the heading, removing punctuation (other than <code>_</code> and <code>-</code>),
-replacing spaces with <code>-</code>, and if necessary for uniqueness,
-adding a numerical suffix.</p>
+The identifier is formed by taking the plain text content of
+the heading, excluding non-textual elements such as footnote
+references and symbols, removing punctuation (other than <code>_</code>
+and <code>-</code>), replacing spaces with <code>-</code>, and if necessary for
+uniqueness, adding a numerical suffix.</p>
+<p>For example, <code># Introduction[^1]</code> generates the identifier
+<code>Introduction</code>, not <code>Introduction1</code>.</p>
 <div class="example">
 <div class="djot">
 <pre><code>## My heading + auto-identifier</code></pre>
