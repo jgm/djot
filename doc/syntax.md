@@ -32,6 +32,21 @@ contains a link, while
 
 does not (because the strong emphasis closes over the `[` delimiter).
 
+Note that inline formatting delimiters inside link constructs do not
+interfere with emphasis matching. Delimiters inside link destinations
+are treated as literal text, and delimiters inside link text do not
+match openers from outside the link. Thus,
+
+    _[link](http://example.com?foo_bar=1), more text_
+
+produces emphasis around the link and trailing text, because the `_`
+inside the URL does not close the outer emphasis. And,
+
+    _[bar_](url)
+
+produces a link (not emphasis), because the `_` inside `[bar_]` does
+not match the outer `_` when the brackets form a link.
+
 Although overlapping containers are ruled out, *nested* containers are
 fine:
 
