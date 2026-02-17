@@ -911,6 +911,45 @@ combined. Thus,</p>
 </code></pre>
 </div>
 </div>
+<p>To attach attributes to a list item, the curly braces must immediately
+follow the list marker:</p>
+<div class="example">
+<div class="djot">
+<pre><code>+{.blue} A blue list item.
+(a){.bar} Ordered list item with an attribute.</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;ul&gt;
+&lt;li class=&quot;blue&quot;&gt;
+A blue list item.
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;ol type=&quot;a&quot;&gt;
+&lt;li class=&quot;bar&quot;&gt;
+Ordered list item with an attribute.
+&lt;/li&gt;
+&lt;/ol&gt;
+</code></pre>
+</div>
+</div>
+<p>Conversely, in the following, the attributes are attached to the block
+quote:</p>
+<div class="example">
+<div class="djot">
+<pre><code>+ {.blue}
+  &gt; A blue quote.</code></pre>
+</div>
+<div class="html">
+<pre><code>&lt;ul&gt;
+&lt;li&gt;
+&lt;blockquote class=&quot;blue&quot;&gt;
+A blue quote.
+&lt;/blockquote&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+</code></pre>
+</div>
+</div>
 </section>
 </section>
 <section id="block-syntax" class="level2">
