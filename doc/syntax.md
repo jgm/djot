@@ -298,6 +298,12 @@ emojis. But this is not built into djot.)
 
     My reaction is :+1: :smiley:.
 
+A colon that is directly adjacent to a digit on both sides does not
+open or close a symbol.  This prevents time formats and other
+numeric notations from being misinterpreted:
+
+    The meeting is at 10:30:00.
+
 ### Raw inline
 
 Raw inline content in any format may be included using a verbatim span
