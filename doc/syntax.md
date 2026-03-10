@@ -331,6 +331,10 @@ Inside the curly braces, the following syntax is possible:
   are not needed when the value consists entirely of ASCII alphanumeric
   characters or `_` or `:` or `-`. Backslash escapes may be used inside
   quoted values.
+- A bare `key` (a word consisting of ASCII alphanumeric characters,
+  `_`, or `-`, not followed by `=`) specifies a boolean attribute. This
+  is equivalent to `key=""` and maps to HTML boolean attributes such as
+  `disabled`, `hidden`, `reversed`, `open`, and `download`.
 - `%` begins a comment, which ends with the next `%` or the end of the
   attribute (`}`).
 
@@ -349,6 +353,15 @@ combined. Thus,
 is the same as
 
     avant{lang=fr .blue}
+
+Boolean attributes can be combined freely with other attribute types:
+
+    [Download](file.zip){download .btn}
+
+    {reversed}
+    1. Third
+    2. Second
+    3. First
 
 ## Block syntax
 
