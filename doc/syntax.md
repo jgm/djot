@@ -481,8 +481,8 @@ valid lower-alpha-enumerated marker.
 
 #### Task list item
 
-A bullet list item that begins with `[ ]`, `[X]`, or `[x]` followed by a
-space is a task list item, either unchecked (`[ ]`) or checked (`[X]` or
+A bullet list item that begins with `[ ]`, `[_]`, `[X]`, or `[x]` followed by a
+space is a task list item, either unchecked (`[ ]` or `[_]`) or checked (`[X]` or
 `[x]`).
 
 #### Definition list item
