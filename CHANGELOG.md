@@ -47,7 +47,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Changed emoji syntax to generic "symbol" (`:emoji:` -> `:symbol:`).
 - Changed list annotations to use `|` instead of `[..]` (aligned with djot.js).
 - Changed `list_style` to `style` for consistency with djot.js.
-- Heading syntax changes (setext-style headings removed).
+- Heading syntax changes: allow repeated `#` on multiline continuation lines; trailing `#` characters are no longer ignored.
 
 ### Spec Changes
 
@@ -79,7 +79,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Added
 
 - Add filter system for AST transformation.
-- Add hierarchical sections to AST.
 - Add `djot.version` export.
 - Add long options and `--version` to CLI.
 - Add man page for djot CLI.
@@ -100,7 +99,7 @@ Initial release of the djot markup language specification.
 - Block elements: paragraphs, headings, code blocks, lists, block quotes,
   thematic breaks, tables, divs, raw blocks.
 - Inline elements: emphasis, strong, links, images, code spans, math,
-  smart punctuation, symbols (emoji), spans, raw inlines.
+  smart punctuation, emoji, spans, raw inlines.
 - Attributes on both block and inline elements.
 - Reference links and footnotes.
 - Lua reference implementation with HTML renderer.
