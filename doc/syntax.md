@@ -289,6 +289,10 @@ attribute specifier that contains only a comment:
     Foo bar {% This is a comment, spanning
     multiple lines %} baz.
 
+Note that inline comments cannot contain blank lines (since blank
+lines act as paragraph separators). For multi-line comments that
+may contain blank lines, use a [fenced comment block].
+
 ### Symbols
 
 Surrounding a word with `:` signs creates a "symbol," which by
@@ -612,6 +616,49 @@ The contents of a div are interpreted as block-level content.
 
     And here is another.
     :::
+
+### Fenced comment block
+
+A fenced comment block begins with a line of three or more consecutive
+percent signs (`%`), and ends with a line of consecutive percent signs
+at least as long as the opening fence, or with the end of the document
+or containing block.
+
+The contents of a fenced comment block are ignored entirely; they do
+not appear in the rendered output.
+
+    %%%
+    This is a comment block.
+    It can span multiple lines.
+    %%%
+
+Unlike inline comments (`{% ... %}`), fenced comment blocks can contain
+blank lines:
+
+    %%%
+    First paragraph of comment.
+
+    Second paragraph of comment.
+    %%%
+
+To include a run of three or more percent signs inside a comment,
+use a longer opening fence:
+
+    %%%%
+    This %%% is not the end.
+    %%%%
+
+Note that fenced comment blocks are block-level elements and will
+break paragraph continuity:
+
+    Lorem ipsum
+    %%%
+    comment
+    %%%
+    dolor sit amet
+
+This produces two separate paragraphs, not one. For comments that
+should not interrupt paragraph flow, use inline comments (`{% ... %}`).
 
 ### Pipe table
 
