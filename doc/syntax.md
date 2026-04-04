@@ -278,16 +278,38 @@ backslash + newline:
 
 ### Comment
 
+Djot supports two styles of comments: line comments and attribute comments.
+
+#### Line comments
+
+A line comment begins with `%%` and extends to the end of the line.
+Everything from `%%` to the end of the line is ignored.
+
+    This is visible %% but this is a comment
+    %% This entire line is a comment
+    More visible text
+
+Line comments work in both inline and block contexts. To comment out
+multiple lines, mark each line with `%%`:
+
+    %% These lines are
+    %% commented out
+    This line is not
+
+Line comments make it visually obvious which parts are commented out,
+even without syntax highlighting.
+
+#### Attribute comments
+
 Material between two `%` characters in an attribute will be ignored and
 treated as a comment. This allows comments to be added to attributes:
 
     {#ident % later we'll add a class %}
 
-But it also serves as a general way to add comments. Just use an
+Attribute comments can also be used as inline comments by using an
 attribute specifier that contains only a comment:
 
-    Foo bar {% This is a comment, spanning
-    multiple lines %} baz.
+    Foo bar {% inline comment %} baz.
 
 ### Symbols
 
