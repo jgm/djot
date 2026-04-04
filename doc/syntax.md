@@ -717,6 +717,35 @@ definition.
 
 Here we get a link with title “bar”.
 
+### Abbreviation definition
+
+An abbreviation definition consists of `*[`, followed by the abbreviation
+text, followed by `]:`, followed by whitespace and the expansion text.
+The expansion text may span multiple lines if subsequent lines are
+indented.
+
+    *[HTML]: Hyper Text Markup Language
+
+    *[W3C]: World Wide Web Consortium
+
+When the parser encounters the defined abbreviation as a complete word
+in inline content, it wraps it in an abbreviation element (in HTML,
+`<abbr>` with a `title` attribute containing the expansion).
+
+    The HTML specification is maintained by the W3C.
+
+    *[HTML]: Hyper Text Markup Language
+    *[W3C]: World Wide Web Consortium
+
+The abbreviation definitions themselves are not rendered in the output.
+
+Matching is case-sensitive and respects word boundaries: defining `HTML`
+will not match `XHTML` or `html`. Only complete word matches are
+replaced.
+
+Abbreviation definitions may appear anywhere in the document; their
+position does not affect which text gets wrapped.
+
 ### Footnote
 
 A footnote consists of a footnote reference followed by a colon followed
