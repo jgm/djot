@@ -765,9 +765,10 @@ Identifiers are added automatically to any headings that
 do not have explicit identifiers attached to them.
 The identifier is formed by taking the plain text content of
 the heading, excluding non-textual elements such as footnote
-references and symbols, removing punctuation (other than `_`
-and `-`), replacing spaces with `-`, and if necessary for
-uniqueness, adding a numerical suffix.
+references and symbols, replacing each maximal run of
+non-alphanumeric ASCII characters with `-`, removing any
+leading or trailing `-`, and if necessary for uniqueness,
+adding a numerical suffix.
 
 For example, `# Introduction[^1]` generates the identifier
 `Introduction`, not `Introduction1`.

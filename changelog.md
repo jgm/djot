@@ -107,3 +107,9 @@
   * Use the JavaScript reference implementation, not the Lua one
     to generate expected output in syntax.html.
 
+  * Specify punctuation handling for auto-generated heading IDs:
+    each maximal run of non-alphanumeric ASCII characters is
+    replaced with `-`, and leading/trailing `-` are trimmed.  This
+    settles remove-vs-replace as replace and removes the previous
+    exceptions for individual punctuation characters (#391).
+
