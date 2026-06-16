@@ -450,6 +450,23 @@ first line of a paragraph:
       Second paragraph under the
     list item.
 
+Because a paragraph can never be interrupted by another block-level
+element (see the introduction to [Block syntax][] above), an indented list
+marker on the line directly after paragraph text does not begin a
+sublist; it is taken as lazy continuation of the paragraph. Thus the
+following is a list with a single item, whose paragraph contains both
+lines:
+
+    - a
+      - b
+
+A blank line ends the paragraph, after which the indented marker begins
+a sublist:
+
+    - a
+
+      - b
+
 The following basic types of list markers are available:
 
 | Marker  | List type                                                |
