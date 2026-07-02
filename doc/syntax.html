@@ -1753,9 +1753,10 @@ Don&#39;t forget to turn off the water!
 do not have explicit identifiers attached to them.
 The identifier is formed by taking the plain text content of
 the heading, excluding non-textual elements such as footnote
-references and symbols, removing punctuation (other than <code>_</code>
-and <code>-</code>), replacing spaces with <code>-</code>, and if necessary for
-uniqueness, adding a numerical suffix.</p>
+references and symbols, replacing each maximal run of
+non-alphanumeric ASCII characters with <code>-</code>, removing any
+leading or trailing <code>-</code>, and if necessary for uniqueness,
+adding a numerical suffix.</p>
 <p>For example, <code># Introduction[^1]</code> generates the identifier
 <code>Introduction</code>, not <code>Introduction1</code>.</p>
 <div class="example">
