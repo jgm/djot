@@ -13,7 +13,10 @@ line-height: 1.4;
 font-family: Georgia, serif;
 font-size: 18px;
 color: #1a1a1a;
+color: light-dark(#1a1a1a, #fdfdfd);
 background-color: #fdfdfd;
+background-color: light-dark(#fdfdfd, #1a1a1a);
+color-scheme: light dark;
 }
 body {
 display: flex;
@@ -189,6 +192,7 @@ padding: 0;
 flex: 1;
 flex-wrap: wrap;
 background-color: #ddd;
+background-color: light-dark(#ddd, #555);
 }
 .example code {
 font-size: 78%;
