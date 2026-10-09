@@ -92,6 +92,15 @@ concatenated together.
     [My link text](http://example.com?product_number=234234234234
     234234234234)
 
+Backslash escapes work in a link destination as they do in ordinary
+text: a backslash before an ASCII punctuation character is removed and
+the character is taken literally, so `[x](a\)b)` has the destination
+`a)b`. A backslash before any other character, including a space, is
+kept. The nonbreaking-space and hard-line-break meanings of a backslash
+do not apply inside a destination.
+
+    [My link text](http://example.com/smiley\))
+
 *Reference links* use a reference label in square brackets, instead of a
 destination in parentheses. This must come immediately after the link
 text:
@@ -321,6 +330,16 @@ Attributes are put inside curly braces and must *immediately follow* the
 inline element to which they are attached (with no intervening
 whitespace).
 
+When the attributes follow ordinary text rather than a delimited
+element, they attach to the preceding word: the longest run of ordinary
+text directly before the `{` that contains no ASCII whitespace. The word
+is wrapped in a span. A backslash-escaped character belongs to the word
+like any other character:
+
+    foo\*bar{.c}
+
+puts the class on a span containing `foo*bar`.
+
 Inside the curly braces, the following syntax is possible:
 
 - `.foo` specifies `foo` as a class. Multiple classes may be given in
@@ -349,6 +368,14 @@ combined. Thus,
 is the same as
 
     avant{lang=fr .blue}
+
+An attribute specifier may also be empty, or contain only whitespace or
+comments (`{}`, `{ }`, `{% note %}`). It adds no attributes, so a word
+followed by one is not wrapped in a span. It still counts as an
+attribute specifier, though, so bracketed text followed by one is a
+span:
+
+    [text]{}
 
 ## Block syntax
 
@@ -706,6 +733,7 @@ brackets, followed by a colon, followed by whitespace (or a newline) and
 the URL. The URL may be split over multiple lines (in which case the
 lines will be concatenated, with any leading or trailing space removed).
 None of the chunks of the URL may contain internal whitespace.
+Backslash escapes in the URL work as in an inline link destination.
 
     [google]: https://google.com
 
